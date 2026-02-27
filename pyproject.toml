@@ -1,0 +1,63 @@
+[project]
+name = "human-grounding"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "jhrystrom", email = "jhvithamar@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "datasets==3.6",
+    "fastexcel>=0.14.0",
+    "hdbscan>=0.8.41",
+    "huggingface-hub[cli]>=0.29.3",
+    "instructor>=1.7.4",
+    "ipykernel>=6.29.5",
+    "joblib>=1.4.2",
+    "line-profiler>=4.2.0",
+    "loguru>=0.7.3",
+    "model2vec>=0.5.0",
+    "mteb>=2.7.24",
+    "pillow>=11.1.0",
+    "polars>=1.24.0",
+    "pyarrow>=19.0.1",
+    "pytest>=8.4.1",
+    "python-dotenv>=1.0.1",
+    "pytorch-lightning>=2.5.1.post0",
+    "reportlab>=4.4.1",
+    "seaborn>=0.13.2",
+    "sentence-transformers[train]>=4.1.0",
+    "tabulate>=0.9.0",
+    "wandb>=0.20.1",
+]
+
+[project.scripts]
+invi-x-oii = "human_grounding:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+notebook = [
+    "ipykernel>=6.29.5",
+]
+qr = [
+    "qrcode[pil]>=8.2",
+    "qreader>=3.16",
+]
+test = [
+    "pytest>=8.4.1",
+]
+vision = [
+    "colorlog>=6.9.0",
+    "dill<4",
+    "onnxruntime>=1.22.0",
+    "opencv-python>=4.11.0.86",
+    "paddleocr>=2.10.0",
+    "paddlepaddle>=3.0.0",
+    "pytesseract>=0.3.13",
+    "sentencepiece>=0.2.0",
+    "ultralytics>=8.3.139",
+]
