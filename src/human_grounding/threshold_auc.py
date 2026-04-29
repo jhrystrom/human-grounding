@@ -477,49 +477,60 @@ def plot_auc_bar(
     return out_path
 
 
+import itertools
+import numpy as np
+import polars as pl
+from scipy.stats import spearmanr
+from tqdm import tqdm
+
+
 def compute_human_human_spearman(
     combined_results: pl.DataFrame,
     welfare_demographics: pl.DataFrame,
     rai_demographics: pl.DataFrame,
-    thresholds: Sequence[float] | None = None,
+    thresholds: list[float] | None = None,
     n_bootstrap: int = 100,
 ) -> pl.DataFrame:
     """
-    Human-human Spearman computed using the SAME pipeline as AUC:
-    filter -> demographics -> bootstrap.
+    Compute human-human Spearman alignment using the same filtering
+    as the AUC pipeline, but with correct triplet alignment.
 
     Returns:
-    [model, dataset, demographics, iteration, auc]
+        DataFrame with columns:
+        [model, dataset, demographics, iteration, auc]
     """
 
     if thresholds is None:
-        thresholds = [1.0]
-
-    # --- identical precompute as AUC ---
-    demo_frames = {}
-    for t in thresholds:
-        filtered = filter_by_distance_threshold(combined_results, t)
-        if filtered.height > 0:
-            demo_frames[t] = join_demographics(
-                filtered, welfare_demographics, rai_demographics
-            )
-
-    if not demo_frames:
-        return pl.DataFrame()
+        thresholds = [1.0]  # Spearman uses single threshold
 
     rows = []
 
+    # --- Precompute filtered frames (same as AUC) ---
+    filtered_frames = {}
+    for t in thresholds:
+        filtered = filter_by_distance_threshold(combined_results, t)
+        if filtered.height > 0:
+            filtered_frames[t] = filtered
+
+    if not filtered_frames:
+        return pl.DataFrame(
+            schema={
+                "model": pl.Utf8,
+                "dataset": pl.Utf8,
+                "demographics": pl.Utf8,
+                "iteration": pl.Int64,
+                "auc": pl.Float64,
+            }
+        )
+
+    # --- Bootstrap ---
     for i in tqdm(range(n_bootstrap), desc="Human bootstrap"):
-        for _, df in demo_frames.items():
+        for _, filtered in filtered_frames.items():
 
-            sample = df.sample(fraction=1.0, with_replacement=True)
+            sample = filtered.sample(fraction=1.0, with_replacement=True)
 
-            for (dataset, demo), group in sample.group_by(
-                ["dataset", "demographics"]
-            ):
-
-                if "user_id" not in group.columns:
-                    continue
+            # group by dataset only (NOT demographics yet)
+            for (dataset,), group in sample.group_by(["dataset"]):
 
                 user_groups = list(group.group_by("user_id"))
 
@@ -528,6 +539,7 @@ def compute_human_human_spearman(
 
                 corrs = []
 
+                # --- pairwise user comparisons ---
                 for (u1, g1), (u2, g2) in itertools.combinations(user_groups, 2):
 
                     joined = g1.join(
@@ -540,24 +552,34 @@ def compute_human_human_spearman(
                     if joined.height < 10:
                         continue
 
+                    # ratio-based distances (consistent with triplets)
                     h1 = joined["human_dist_far"] / joined["human_dist_close"]
                     h2 = joined["human_dist_far_2"] / joined["human_dist_close_2"]
-
-                    if len(h1) < 10:
-                        continue
 
                     corr = spearmanr(h1, h2).correlation
                     if corr is not None:
                         corrs.append(corr)
 
-                if corrs:
+                if not corrs:
+                    continue
+
+                mean_corr = float(np.mean(corrs))
+
+                # --- attach demographics AFTER computing correlation ---
+                demo_joined = join_demographics(
+                    group,
+                    welfare_demographics,
+                    rai_demographics,
+                )
+
+                for demo in demo_joined["demographics"].unique():
                     rows.append(
                         {
                             "model": "Human",
                             "dataset": dataset,
                             "demographics": demo,
                             "iteration": i,
-                            "auc": float(np.mean(corrs)),
+                            "auc": mean_corr,
                         }
                     )
 

@@ -63,6 +63,12 @@ def main(font_scale: float, use_english: bool = False, use_cache: bool = False, 
 
     # --- SPEARMAN ---
     if metric in ["spearman", "both"]:
+        human_spearman = human_grounding.threshold_auc.compute_human_human_spearman(
+    combined_results=combined_results,
+    welfare_demographics=welfare_demographics,
+    rai_demographics=rai_demographics,
+    n_bootstrap=10,  # match your other setting
+)
         spearman_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
             combined_results=combined_results,
             welfare_demographics=welfare_demographics,
@@ -70,12 +76,6 @@ def main(font_scale: float, use_english: bool = False, use_cache: bool = False, 
             n_bootstrap=10,
             metric="spearman",
         )
-        human_spearman = human_grounding.threshold_auc.compute_human_human_spearman(
-    combined_results=combined_results,
-    welfare_demographics=welfare_demographics,
-    rai_demographics=rai_demographics,
-    n_bootstrap=10,  # match your other setting
-)
         logger.debug(f"{human_spearman=}")
         all_spearman = pl.concat([spearman_bootstraps, human_spearman.select(spearman_bootstraps.columns)], how="vertical_relaxed").with_columns(pl.lit("spearman").alias("metric"))
     else:
