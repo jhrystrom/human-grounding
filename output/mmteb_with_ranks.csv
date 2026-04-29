@@ -1,0 +1,25 @@
+Rank (MMTEB),model_name,Mean (Task)
+0,text-embedding-3-large,63.88
+1,Qwen3-Embedding-0.6B,62.02
+2,text-embedding-3-small,59.83
+3,multilingual-e5-large-instruct,59.16
+4,multilingual-e5-large,58.48
+5,multilingual-e5-small,56.8
+6,multilingual-e5-base,56.69
+7,snowflake-arctic-embed-l-v2.0,56.46
+8,bge-m3,56.33
+9,EmbeddingGemma-Scandi-300m,55.39
+10,dfm-sentence-encoder-large,54.38
+11,nb-sbert-base,54.14
+12,mmBERTscandi-base-embedding,53.77
+13,paraphrase-multilingual-mpnet-base-v2,51.23
+14,Qwen3-Embedding-Scandi-0.6B,49.55
+15,LaBSE,48.55
+16,m2v-dfm-large,47.45
+17,paraphrase-multilingual-MiniLM-L12-v2,47.28
+18,static-similarity-mrl-multilingual-v1,46.31
+19,mxbai-embed-large-v1,43.06
+20,model2vecdk,41.98
+21,model2vecdk-stem,41.56
+22,xlm-roberta-large,39.75
+23,xlm-roberta-base,38.33

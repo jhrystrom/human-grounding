@@ -27,6 +27,26 @@ class ComparisonPair:
     farther_idx: int
     pct_distance: float
 
+def attach_distance_columns(
+    comparison_df: pl.DataFrame,
+    human_distances: np.ndarray,
+    model_distances: np.ndarray,
+) -> pl.DataFrame:
+    """
+    Vectorised extraction of distances for each (source, closer, farther) triplet.
+    """
+    idx = comparison_df.select("source_idx", "closer_idx", "farther_idx").to_numpy()
+
+    s = idx[:, 0]
+    c = idx[:, 1]
+    f = idx[:, 2]
+
+    return comparison_df.with_columns(
+        pl.Series("human_dist_close", human_distances[s, c]),
+        pl.Series("human_dist_far", human_distances[s, f]),
+        pl.Series("model_dist_close", model_distances[s, c]),
+        pl.Series("model_dist_far", model_distances[s, f]),
+    )
 
 def create_comparisons(coordinates: pl.DataFrame) -> pl.DataFrame:
     n_rows = coordinates.height
@@ -133,19 +153,36 @@ def human_embedding_match_new(
     )
 
     comparisons = []
+
     for (_,), statement_embeddings_group in statement_embeddings.group_by("user_id"):
+        sorted_group = statement_embeddings_group.sort("row_idx")
+        # --- MODEL distances (already exists) ---
         embedding_distances = cosine_distances(
-            statement_embeddings_group.sort("row_idx")["embedding"].to_numpy()
+            sorted_group["embedding"].to_numpy()
         )
-        comparison_df = create_comparisons(statement_embeddings_group)
+        # --- HUMAN distances (NEW) ---
+        human_distances = euclidean_distances(
+            sorted_group[["x", "y"]].to_numpy()
+        )
+        # --- Triplets ---
+        comparison_df = create_comparisons(sorted_group)
+        # --- Correctness ---
         embedding_correct = get_embedding_correctness(
-            ground_truth=comparison_df, embedding_distances=embedding_distances
+            ground_truth=comparison_df,
+            embedding_distances=embedding_distances,
         )
         comparison_df = comparison_df.with_columns(
             embedding_correct,
             pl.lit(model).alias("model"),
         )
+        # --- NEW: attach distance columns (vectorised) ---
+        comparison_df = attach_distance_columns(
+            comparison_df,
+            human_distances,
+            embedding_distances,
+        )
         comparisons.append(comparison_df)
+
     comparison_df = pl.concat(comparisons)
 
     comparison_demographics = comparison_df.join(

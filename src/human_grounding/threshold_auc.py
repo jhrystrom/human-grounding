@@ -13,6 +13,7 @@ frames.  This avoids repeating the join work N x T times.
 
 from __future__ import annotations
 
+import itertools
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
@@ -22,6 +23,8 @@ import polars as pl
 import polars.selectors as cs
 import seaborn as sns
 from loguru import logger
+from scipy.stats import spearmanr
+from sklearn.metrics.pairwise import euclidean_distances
 from tqdm import tqdm
 
 if TYPE_CHECKING:
@@ -29,140 +32,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 HUMAN_MODEL_NAME = "Human"
-
-
-# ---------------------------------------------------------------------------
-# 1. Filter + agreement logic (extracted from main)
-# ---------------------------------------------------------------------------
-
-
-def filter_by_distance_threshold(
-    combined_results: pl.DataFrame,
-    threshold: float,
-) -> pl.DataFrame:
-    """Apply distance-ratio filter and inter-rater agreement dedup.
-
-    Mirrors the ``with_sorted_groups`` -> ``agreement_indices`` ->
-    ``filtered_comparisons`` block in ``main``, parameterised by
-    *threshold*.
-    """
-    create_sorted_groups = (
-        pl.concat_arr(pl.col("closer_idx", "farther_idx"))
-        .arr.sort()
-        .alias("sorted_groups")
-    )
-
-    with_sorted_groups = (
-        combined_results.with_columns(create_sorted_groups)
-        .filter(pl.col("pct_distance") > threshold)
-        .drop("pct_distance")
-        .unique()
-        .sort("model", "dataset", "seed", "user_id", "source_idx")
-        .with_columns(
-            pl.int_range(pl.len()).over("model").alias("new_index"),
-        )
-    )
-
-    agreement_indices = (
-        with_sorted_groups.drop("model")
-        .unique()
-        .group_by("source_idx", "sorted_groups", "dataset", "seed")
-        .agg(
-            pl.col("closer_idx").n_unique() == 1,
-            pl.col("new_index").first(),
-        )
-        .filter(pl.col("closer_idx"))
-        .select("new_index")
-    )
-
-    return with_sorted_groups.join(
-        agreement_indices,
-        on="new_index",
-        how="inner",
-    )
-
-
-# ---------------------------------------------------------------------------
-# 2. Demographic join (extracted from main)
-# ---------------------------------------------------------------------------
-
-
-def join_demographics(
-    filtered_comparisons: pl.DataFrame,
-    welfare_demographics: pl.DataFrame,
-    rai_demographics: pl.DataFrame,
-) -> pl.DataFrame:
-    """Attach demographic labels.
-
-    Returns a frame with columns
-    ``[model, dataset, demographics, embedding_correct]``.
-    """
-    welfare_filtered = (
-        filtered_comparisons.filter(pl.col("dataset") == "welfare")
-        .drop("demographic")
-        .join(
-            welfare_demographics,
-            left_on="source_idx",
-            right_on="cause_id",
-        )
-        .join(
-            welfare_demographics,
-            left_on="closer_idx",
-            right_on="cause_id",
-            suffix="_close",
-        )
-        .join(
-            welfare_demographics,
-            left_on="farther_idx",
-            right_on="cause_id",
-            suffix="_far",
-        )
-        .with_columns(
-            pl.concat_list(cs.starts_with("demographic")).alias(
-                "demographics",
-            ),
-        )
-        .drop(cs.starts_with("education_level"))
-        .explode("demographics")
-    )
-
-    rai_filtered = (
-        filtered_comparisons.filter(pl.col("dataset") == "rai")
-        .drop("demographic")
-        .join(
-            rai_demographics,
-            left_on="source_idx",
-            right_on="cause_id",
-        )
-        .join(
-            rai_demographics,
-            left_on="closer_idx",
-            right_on="cause_id",
-            suffix="_close",
-        )
-        .join(
-            rai_demographics,
-            left_on="farther_idx",
-            right_on="cause_id",
-            suffix="far",
-        )
-        .with_columns(
-            pl.concat_list(cs.starts_with("demographic")).alias(
-                "demographics",
-            ),
-        )
-        .drop(cs.starts_with("education_level"))
-        .explode("demographics")
-    )
-
-    keep = ["model", "dataset", "demographics", "embedding_correct"]
-    return pl.concat(
-        [
-            welfare_filtered.select(keep),
-            rai_filtered.select(keep),
-        ],
-    )
-
 
 # ---------------------------------------------------------------------------
 # 3. Precompute per-threshold demographic frames (deterministic, no RNG)
@@ -238,18 +107,6 @@ def _bootstrap_one_replicate(
 # ---------------------------------------------------------------------------
 
 
-def _auc_trapz_np(
-    thresholds: np.ndarray,
-    scores: np.ndarray,
-) -> float:
-    """Normalised trapezoidal AUC over sorted (threshold, score) pairs."""
-    order = np.argsort(thresholds)
-    x = thresholds[order]
-    y = scores[order]
-    span = float(x[-1] - x[0])
-    if span == 0:
-        return float(y.mean())
-    return float(np.trapezoid(y, x) / span)
 
 
 # ---------------------------------------------------------------------------
@@ -257,33 +114,7 @@ def _auc_trapz_np(
 # ---------------------------------------------------------------------------
 
 
-def _curve_to_group_auc(
-    curve: pl.DataFrame,
-) -> pl.DataFrame:
-    """Compute AUC for every (model, dataset, demographics, iteration).
 
-    Returns columns
-    ``[model, dataset, demographics, iteration, auc]``.
-    """
-    auc_rows: list[dict[str, object]] = []
-    group_keys = ["model", "dataset", "demographics", "iteration"]
-    for keys, group in curve.group_by(group_keys):
-        model, dataset, demographics, iteration = keys
-        arr = group.sort("threshold")
-        auc_val = _auc_trapz_np(
-            arr["threshold"].to_numpy(),
-            arr["alignment_score"].to_numpy(),
-        )
-        auc_rows.append(
-            {
-                "model": model,
-                "dataset": dataset,
-                "demographics": demographics,
-                "iteration": iteration,
-                "auc": auc_val,
-            },
-        )
-    return pl.DataFrame(auc_rows)
 
 
 # ---------------------------------------------------------------------------
@@ -371,84 +202,6 @@ def load_human_auc(
 
     return pl.DataFrame(auc_rows)
 
-
-# ---------------------------------------------------------------------------
-# 8. Main entry point — sweep + AUC with bootstrap CIs
-# ---------------------------------------------------------------------------
-
-
-def compute_threshold_auc(
-    combined_results: pl.DataFrame,
-    welfare_demographics: pl.DataFrame,
-    rai_demographics: pl.DataFrame,
-    thresholds: Sequence[float] | None = None,
-    n_bootstrap: int = 100,
-) -> tuple[pl.DataFrame, pl.DataFrame]:
-    """Sweep thresholds and return per-group AUC with bootstrap CIs.
-
-    Parameters
-    ----------
-    combined_results:
-        Raw evaluation results (before any distance filtering).
-    welfare_demographics:
-        ``cause_id, demographic`` frame for the welfare dataset.
-    rai_demographics:
-        As returned by ``get_rai_demographics()``.
-    thresholds:
-        Distance-ratio values to evaluate.  Defaults to a log-spaced
-        grid from 1.0 to 6.5 (matching the alpha-vs-d plot x-axis).
-    n_bootstrap:
-        Bootstrap iterations (drives confidence intervals).
-
-    Returns
-    -------
-    group_auc : pl.DataFrame
-        ``[model, dataset, demographics, iteration, auc]`` — one AUC
-        per (model, dataset, demographic group, bootstrap replicate).
-    curve : pl.DataFrame
-        ``[model, dataset, demographics, threshold, iteration,
-        alignment_score]`` — raw per-threshold scores.
-    """
-    if thresholds is None:
-        thresholds = np.logspace(
-            np.log10(1.0),
-            np.log10(6.5),
-            num=30,
-        ).tolist()
-
-    # --- expensive but deterministic: done once -------------------------
-    demo_frames = precompute_demographic_frames(
-        combined_results,
-        welfare_demographics,
-        rai_demographics,
-        thresholds,
-    )
-
-    if not demo_frames:
-        empty = pl.DataFrame(
-            schema={
-                "model": pl.Utf8,
-                "dataset": pl.Utf8,
-                "demographics": pl.Utf8,
-                "iteration": pl.Int64,
-                "auc": pl.Float64,
-            },
-        )
-        return empty, pl.DataFrame()
-
-    # --- cheap stochastic part: bootstrap replicates --------------------
-    replicate_frames: list[pl.DataFrame] = [
-        _bootstrap_one_replicate(demo_frames, iteration=i)
-        for i in tqdm(range(n_bootstrap), desc="Bootstrap replicates")
-    ]
-    curve = pl.concat(replicate_frames)
-
-    # --- AUC per (model, dataset, demographics, iteration) --------------
-    group_auc = _curve_to_group_auc(curve)
-
-    return group_auc, curve
-
-
 # ---------------------------------------------------------------------------
 # 9. Summarise: best / worst / mean group per (model, dataset)
 # ---------------------------------------------------------------------------
@@ -503,6 +256,183 @@ def summarise_best_worst_mean(
 # 10. Plot: faceted bar chart (catplot) with best/worst/mean per dataset
 # ---------------------------------------------------------------------------
 
+## New
+
+def filter_by_distance_threshold(
+    combined_results: pl.DataFrame,
+    threshold: float,
+) -> pl.DataFrame:
+    """Apply distance-ratio filter and inter-rater agreement dedup."""
+    create_sorted_groups = (
+        pl.concat_arr(pl.col("closer_idx", "farther_idx"))
+        .arr.sort()
+        .alias("sorted_groups")
+    )
+
+    with_sorted_groups = (
+        combined_results.with_columns(create_sorted_groups)
+        .filter(pl.col("pct_distance") > threshold)
+        .drop("pct_distance")
+        .unique()
+        .sort("model", "dataset", "seed", "user_id", "source_idx")
+        .with_columns(
+            pl.int_range(pl.len()).over("model").alias("new_index"),
+        )
+    )
+
+    agreement_indices = (
+        with_sorted_groups.drop("model")
+        .unique()
+        .group_by("source_idx", "sorted_groups", "dataset", "seed")
+        .agg(
+            pl.col("closer_idx").n_unique() == 1,
+            pl.col("new_index").first(),
+        )
+        .filter(pl.col("closer_idx"))
+        .select("new_index")
+    )
+
+    return with_sorted_groups.join(
+        agreement_indices,
+        on="new_index",
+        how="inner",
+    )
+
+def join_demographics(
+    filtered_comparisons: pl.DataFrame,
+    welfare_demographics: pl.DataFrame,
+    rai_demographics: pl.DataFrame,
+) -> pl.DataFrame:
+    """Attach demographic labels while preserving raw distance columns."""
+    
+    # We explicitly assume these columns exist in the input dataframe for Spearman
+    dist_cols = ["human_dist_close", "human_dist_far", "model_dist_close", "model_dist_far"]
+    # Check which distance columns actually exist to avoid join errors
+    available_dists = [c for c in dist_cols if c in filtered_comparisons.columns]
+    
+    keep = ["model", "dataset", "demographics", "embedding_correct"] + available_dists
+
+    def _process(df, demo_df, idx_col, suffix=""):
+        return df.join(demo_df, left_on=idx_col, right_on="cause_id", suffix=suffix)
+
+    welfare_filtered = (
+        filtered_comparisons.filter(pl.col("dataset") == "welfare")
+        .drop("demographic")
+    )
+    welfare_filtered = _process(welfare_filtered, welfare_demographics, "source_idx")
+    welfare_filtered = _process(welfare_filtered, welfare_demographics, "closer_idx", "_close")
+    welfare_filtered = _process(welfare_filtered, welfare_demographics, "farther_idx", "_far")
+    
+    rai_filtered = (
+        filtered_comparisons.filter(pl.col("dataset") == "rai")
+        .drop("demographic")
+    )
+    rai_filtered = _process(rai_filtered, rai_demographics, "source_idx")
+    rai_filtered = _process(rai_filtered, rai_demographics, "closer_idx", "_close")
+    rai_filtered = _process(rai_filtered, rai_demographics, "farther_idx", "_far")
+
+    full_joined = pl.concat([
+        welfare_filtered.with_columns(pl.concat_list(cs.starts_with("demographic")).alias("demographics")),
+        rai_filtered.with_columns(pl.concat_list(cs.starts_with("demographic")).alias("demographics"))
+    ]).explode("demographics").select(keep)
+
+    return full_joined
+
+# ---------------------------------------------------------------------------
+# 2. Alignment Logic (Binary Triplet vs Spearman)
+# ---------------------------------------------------------------------------
+
+def _calculate_spearman_score(df: pl.DataFrame) -> pl.DataFrame:
+    """Pools triplets into pairs and calculates monotonic correlation."""
+    close_pairs = df.select("model", "dataset", "demographics",
+                           pl.col("human_dist_close").alias("h"), 
+                           pl.col("model_dist_close").alias("m"))
+    far_pairs = df.select("model", "dataset", "demographics",
+                          pl.col("human_dist_far").alias("h"), 
+                          pl.col("model_dist_far").alias("m"))
+    
+    return (
+        pl.concat([close_pairs, far_pairs])
+        .group_by("model", "dataset", "demographics")
+        .agg(pl.corr("h", "m", method="spearman").alias("alignment_score"))
+    )
+
+def _bootstrap_one_replicate(
+    demo_frames: dict[float, pl.DataFrame],
+    iteration: int,
+    metric: str = "binary"
+) -> pl.DataFrame:
+    rows = []
+    for threshold, df in demo_frames.items():
+        sample = df.sample(fraction=1.0, with_replacement=True)
+        
+        if metric == "spearman":
+            agg = _calculate_spearman_score(sample)
+        else:
+            agg = (
+                sample.group_by("model", "dataset", "demographics")
+                .agg((2 * pl.col("embedding_correct").mean() - 1).alias("alignment_score"))
+            )
+            
+        rows.append(agg.with_columns(pl.lit(threshold).alias("threshold"), pl.lit(iteration).alias("iteration")))
+    return pl.concat(rows)
+
+# ---------------------------------------------------------------------------
+# 3. Main Entry Points
+# ---------------------------------------------------------------------------
+
+def compute_threshold_auc(
+    combined_results: pl.DataFrame,
+    welfare_demographics: pl.DataFrame,
+    rai_demographics: pl.DataFrame,
+    thresholds: Sequence[float] | None = None,
+    n_bootstrap: int = 100,
+    metric: str = "binary"
+) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Sweep thresholds and return per-group AUC or point-estimate Spearman."""
+    
+    # For Spearman at d=1, we only need the threshold 1.0
+    if metric == "spearman" and thresholds is None:
+        thresholds = [1.0]
+    elif thresholds is None:
+        thresholds = np.logspace(np.log10(1.0), np.log10(6.5), num=30).tolist()
+
+    demo_frames = {}
+    for t in tqdm(thresholds, desc="Precomputing"):
+        filtered = filter_by_distance_threshold(combined_results, t)
+        if filtered.height > 0:
+            demo_frames[t] = join_demographics(filtered, welfare_demographics, rai_demographics)
+
+    replicate_frames = [
+        _bootstrap_one_replicate(demo_frames, iteration=i, metric=metric)
+        for i in tqdm(range(n_bootstrap), desc="Bootstrap replicates")
+    ]
+    curve = pl.concat(replicate_frames)
+
+    # If it's Spearman (point estimate), AUC is just the value itself
+    if metric == "spearman":
+        group_res = curve.rename({"alignment_score": "auc"}).drop("threshold")
+    else:
+        group_res = _curve_to_group_auc(curve)
+
+    return group_res, curve
+
+# ---------------------------------------------------------------------------
+# 4. Utilities and Plotting
+# ---------------------------------------------------------------------------
+
+def _auc_trapz_np(thresholds: np.ndarray, scores: np.ndarray) -> float:
+    order = np.argsort(thresholds)
+    x, y = thresholds[order], scores[order]
+    span = float(x[-1] - x[0])
+    return float(np.trapezoid(y, x) / span) if span > 0 else float(y.mean())
+
+def _curve_to_group_auc(curve: pl.DataFrame) -> pl.DataFrame:
+    auc_rows = []
+    for keys, group in curve.group_by(["model", "dataset", "demographics", "iteration"]):
+        auc_val = _auc_trapz_np(group["threshold"].to_numpy(), group["alignment_score"].to_numpy())
+        auc_rows.append({**dict(zip(["model", "dataset", "demographics", "iteration"], keys)), "auc": auc_val})
+    return pl.DataFrame(auc_rows)
 
 def plot_auc_bar(
     group_auc: pl.DataFrame,
@@ -513,151 +443,122 @@ def plot_auc_bar(
     top_n: int = 10,
     font_scale: float = 1.35,
     ci: float = 95.0,
-    height: float = 10.0,
-    facet_width: float = 9.0,
     use_english: bool = False,
     file_type: str = "pdf",
+    x_label: str = "Alignment Score",
+    filename_prefix: str = "alignment_results",
 ) -> Path:
-    """Faceted horizontal bar chart of AUC with best/worst/mean bars.
-
-    Parameters
-    ----------
-    group_auc:
-        ``[model, dataset, demographics, iteration, auc]`` as returned
-        by ``compute_threshold_auc`` (optionally concatenated with
-        ``load_human_auc`` output).
-    plot_dir:
-        Directory for the output PDF.
-    pretty_names:
-        Optional model-name mapping for display.
-    dataset_name_map:
-        Optional dataset label mapping (e.g. ``{"rai": "Resp. AI"}``).
-    top_n:
-        Number of top models to show (human baseline always included).
-    font_scale:
-        Seaborn font scale.
-    ci:
-        Confidence interval width in percent (default 95).
-    height:
-        Height per facet.
-    facet_width:
-        Width per facet.
-    use_english:
-        Whether the dataset is in English.
-    file_type:
-        Output file type (e.g. "pdf", "png", "jpg").
-    """
-    if pretty_names is None:
-        pretty_names = {}
+    """Faceted horizontal bar chart of alignment metrics."""
     if dataset_name_map is None:
-        dataset_name_map = {
-            "rai": "Responsible AI",
-            "welfare": "Welfare",
-        }
+        dataset_name_map = {"rai": "Responsible AI", "welfare": "Welfare"}
 
-    # Write human subset for debugging
-    human_subset = group_auc.filter(pl.col("model") == HUMAN_MODEL_NAME)
-    human_debug_path = plot_dir / "debug_human_auc.csv"
-    human_subset.write_csv(human_debug_path)
-    logger.debug(f"Wrote human AUC debug file to {human_debug_path}")
-
-    # Build per-iteration best/worst/mean (seaborn computes CI natively)
     per_iter = (
         group_auc.group_by("model", "dataset", "iteration")
-        .agg(
-            pl.col("auc").max().alias("Best Group"),
-            pl.col("auc").min().alias("Worst Group"),
-            pl.col("auc").mean().alias("Mean"),
-        )
-        .unpivot(
-            index=["model", "dataset", "iteration"],
-            variable_name="statistic",
-            value_name="auc",
-        )
+        .agg(pl.col("auc").max().alias("Best Group"),
+             pl.col("auc").min().alias("Worst Group"),
+             pl.col("auc").mean().alias("Mean"))
+        .unpivot(index=["model", "dataset", "iteration"], variable_name="statistic", value_name="auc")
     )
 
-    # Rank models by overall mean AUC (across datasets + statistics)
-    model_ranks = (
-        per_iter.filter(pl.col("statistic") == "Mean")
-        .group_by("model")
-        .agg(pl.col("auc").mean().alias("overall"))
-        .sort("overall", descending=True)
-    )
+    model_order = (per_iter.filter(pl.col("statistic") == "Mean").group_by("model")
+                  .agg(pl.col("auc").mean()).sort("auc", descending=True).get_column("model").to_list())
 
-    # Always keep human baseline; take top_n from the rest
-    human_models = model_ranks.filter(
-        pl.col("model") == HUMAN_MODEL_NAME,
-    )
-    non_human = model_ranks.filter(
-        pl.col("model") != HUMAN_MODEL_NAME,
-    ).head(top_n)
-    keep_models = pl.concat([human_models, non_human]).select("model")
-
-    plot_data = per_iter.join(keep_models, on="model").with_columns(
-        pl.col("model").replace(pretty_names).alias("model"),
-        pl.col("dataset").replace(dataset_name_map).alias("dataset"),
-    )
-
-    # Order models by mean AUC (descending: best on top)
-    model_order = (
-        plot_data.filter(pl.col("statistic") == "Mean")
-        .group_by("model")
-        .agg(pl.col("auc").mean())
-        .sort("auc", descending=True)
-        .get_column("model")
-        .to_list()
-    )
-
-    pdf = plot_data.to_pandas()
-    stat_order = ["Best Group", "Mean", "Worst Group"]
-    dataset_order = sorted(pdf["dataset"].unique())
+    plot_data = per_iter.with_columns(pl.col("model").replace(pretty_names or {}),
+                                      pl.col("dataset").replace(dataset_name_map))
 
     sns.set_theme(style="whitegrid", font_scale=font_scale)
+    g = sns.catplot(data=plot_data.to_pandas(), x="auc", y="model", hue="statistic", col="dataset",
+                    order=[pretty_names.get(m, m) for m in model_order if m in model_order][:top_n+1],
+                    kind="bar", palette="coolwarm", height=10, aspect=0.9, errorbar=("ci", ci))
 
-    # seaborn catplot with native CI from the bootstrap iterations
-    g = sns.catplot(
-        data=pdf,
-        x="auc",
-        y="model",
-        hue="statistic",
-        col="dataset",
-        col_order=dataset_order,
-        hue_order=stat_order,
-        order=model_order,
-        kind="bar",
-        palette="coolwarm",
-        height=height,
-        width=0.8,
-        aspect=facet_width / height,
-        orient="h",
-        errorbar=("ci", ci),
-    )
-
-    g.set_titles("{col_name}")
-    g.set_axis_labels("", "")
-    g.figure.supxlabel("Alignment AUC (normalised)")
-    min_ticks = 4
-    locator = mticker.MaxNLocator(nbins="auto", min_n_ticks=min_ticks)
-
-    for ax in g.axes.flat:
-        ax.xaxis.set_major_locator(locator)
-        ax.xaxis.set_major_formatter(
-            mticker.FuncFormatter(lambda x, _: f"{x:.2f}".lstrip("0") or "0")
-        )  # optional, keeps plain numbers
-
-    sns.move_legend(
-        g,
-        "lower center",
-        ncol=len(stat_order),
-        frameon=False,
-        bbox_to_anchor=(0.5, -0.1),
-        title=None,
-    )
-
-    out_path = plot_dir / f"alignment_auc_bar.{file_type}"
-    if use_english:
-        out_path = plot_dir / f"alignment_auc_bar_english.{file_type}"
+    g.set_axis_labels(x_label, "")
+    out_path = plot_dir / f"{filename_prefix}.{file_type}"
     plt.savefig(out_path, bbox_inches="tight")
-    plt.close("all")
-    logger.info(f"Saved AUC bar chart to {out_path}")
     return out_path
+
+
+def compute_human_human_spearman(
+    combined_results: pl.DataFrame,
+    welfare_demographics: pl.DataFrame,
+    rai_demographics: pl.DataFrame,
+    thresholds: Sequence[float] | None = None,
+    n_bootstrap: int = 100,
+) -> pl.DataFrame:
+    """
+    Human-human Spearman computed using the SAME pipeline as AUC:
+    filter -> demographics -> bootstrap.
+
+    Returns:
+    [model, dataset, demographics, iteration, auc]
+    """
+
+    if thresholds is None:
+        thresholds = [1.0]
+
+    # --- identical precompute as AUC ---
+    demo_frames = {}
+    for t in thresholds:
+        filtered = filter_by_distance_threshold(combined_results, t)
+        if filtered.height > 0:
+            demo_frames[t] = join_demographics(
+                filtered, welfare_demographics, rai_demographics
+            )
+
+    if not demo_frames:
+        return pl.DataFrame()
+
+    rows = []
+
+    for i in tqdm(range(n_bootstrap), desc="Human bootstrap"):
+        for _, df in demo_frames.items():
+
+            sample = df.sample(fraction=1.0, with_replacement=True)
+
+            for (dataset, demo), group in sample.group_by(
+                ["dataset", "demographics"]
+            ):
+
+                if "user_id" not in group.columns:
+                    continue
+
+                user_groups = list(group.group_by("user_id"))
+
+                if len(user_groups) < 2:
+                    continue
+
+                corrs = []
+
+                for (u1, g1), (u2, g2) in itertools.combinations(user_groups, 2):
+
+                    joined = g1.join(
+                        g2,
+                        on=["source_idx", "closer_idx", "farther_idx"],
+                        suffix="_2",
+                        how="inner",
+                    )
+
+                    if joined.height < 10:
+                        continue
+
+                    h1 = joined["human_dist_far"] / joined["human_dist_close"]
+                    h2 = joined["human_dist_far_2"] / joined["human_dist_close_2"]
+
+                    if len(h1) < 10:
+                        continue
+
+                    corr = spearmanr(h1, h2).correlation
+                    if corr is not None:
+                        corrs.append(corr)
+
+                if corrs:
+                    rows.append(
+                        {
+                            "model": "Human",
+                            "dataset": dataset,
+                            "demographics": demo,
+                            "iteration": i,
+                            "auc": float(np.mean(corrs)),
+                        }
+                    )
+
+    return pl.DataFrame(rows)
