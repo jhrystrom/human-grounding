@@ -221,13 +221,19 @@ def summarise_best_worst_mean(
     """
     alpha = (100.0 - ci) / 100.0
 
-    per_iter = (
-        group_auc.group_by("model", "dataset", "iteration")
-        .agg(
+    has_demo = "demographics" in group_auc.columns
+    if has_demo:
+        agg_exprs = [
             pl.col("auc").max().alias("Best Group"),
             pl.col("auc").min().alias("Worst Group"),
             pl.col("auc").mean().alias("Mean"),
-        )
+        ]
+    else:
+        agg_exprs = [pl.col("auc").mean().alias("Mean")]
+
+    per_iter = (
+        group_auc.group_by("model", "dataset", "iteration")
+        .agg(*agg_exprs)
         .unpivot(
             index=["model", "dataset", "iteration"],
             variable_name="statistic",
@@ -298,10 +304,13 @@ def filter_by_distance_threshold(
 
 def join_demographics(
     filtered_comparisons: pl.DataFrame,
-    welfare_demographics: pl.DataFrame,
-    rai_demographics: pl.DataFrame,
+    welfare_demographics: pl.DataFrame | None = None,
+    rai_demographics: pl.DataFrame | None = None,
 ) -> pl.DataFrame:
     """Attach demographic labels while preserving raw distance columns."""
+    if welfare_demographics is None and rai_demographics is None:
+        logger.warning("No demographics provided, skipping join.")
+        return filtered_comparisons
 
     dist_cols = [
         "human_dist_close",
@@ -369,26 +378,30 @@ def join_demographics(
 # ---------------------------------------------------------------------------
 
 
+def _group_keys(df: pl.DataFrame) -> list[str]:
+    base = ["model", "dataset"]
+    if "demographics" in df.columns:
+        base.append("demographics")
+    return base
+
+
 def _calculate_spearman_score(df: pl.DataFrame) -> pl.DataFrame:
     """Pools triplets into pairs and calculates monotonic correlation."""
+    keys = _group_keys(df)
     close_pairs = df.select(
-        "model",
-        "dataset",
-        "demographics",
+        *keys,
         pl.col("human_dist_close").alias("h"),
         pl.col("model_dist_close").alias("m"),
     )
     far_pairs = df.select(
-        "model",
-        "dataset",
-        "demographics",
+        *keys,
         pl.col("human_dist_far").alias("h"),
         pl.col("model_dist_far").alias("m"),
     )
 
     return (
         pl.concat([close_pairs, far_pairs])
-        .group_by("model", "dataset", "demographics")
+        .group_by(keys)
         .agg(pl.corr("h", "m", method="spearman").alias("alignment_score"))
     )
 
@@ -403,7 +416,7 @@ def _bootstrap_one_replicate(
         if metric == "spearman":
             agg = _calculate_spearman_score(sample)
         else:
-            agg = sample.group_by("model", "dataset", "demographics").agg(
+            agg = sample.group_by(_group_keys(sample)).agg(
                 (2 * pl.col("embedding_correct").mean() - 1).alias("alignment_score")
             )
 
@@ -423,8 +436,8 @@ def _bootstrap_one_replicate(
 
 def compute_threshold_auc(
     combined_results: pl.DataFrame,
-    welfare_demographics: pl.DataFrame,
-    rai_demographics: pl.DataFrame,
+    welfare_demographics: pl.DataFrame | None = None,
+    rai_demographics: pl.DataFrame | None = None,
     thresholds: Sequence[float] | None = None,
     n_bootstrap: int = 100,
     metric: str = "binary",
@@ -473,19 +486,13 @@ def _auc_trapz_np(thresholds: np.ndarray, scores: np.ndarray) -> float:
 
 
 def _curve_to_group_auc(curve: pl.DataFrame) -> pl.DataFrame:
+    key_cols = [*_group_keys(curve), "iteration"]
     auc_rows = []
-    for keys, group in curve.group_by(
-        ["model", "dataset", "demographics", "iteration"]
-    ):
+    for keys, group in curve.group_by(key_cols):
         auc_val = _auc_trapz_np(
             group["threshold"].to_numpy(), group["alignment_score"].to_numpy()
         )
-        auc_rows.append(
-            {
-                **dict(zip(["model", "dataset", "demographics", "iteration"], keys)),
-                "auc": auc_val,
-            }
-        )
+        auc_rows.append({**dict(zip(key_cols, keys)), "auc": auc_val})
     return pl.DataFrame(auc_rows)
 
 
@@ -507,13 +514,19 @@ def plot_auc_bar(
     if dataset_name_map is None:
         dataset_name_map = {"rai": "Responsible AI", "welfare": "Welfare"}
 
-    per_iter = (
-        group_auc.group_by("model", "dataset", "iteration")
-        .agg(
+    has_demo = "demographics" in group_auc.columns
+    if has_demo:
+        agg_exprs = [
             pl.col("auc").max().alias("Best Group"),
             pl.col("auc").min().alias("Worst Group"),
             pl.col("auc").mean().alias("Mean"),
-        )
+        ]
+    else:
+        agg_exprs = [pl.col("auc").mean().alias("Mean")]
+
+    per_iter = (
+        group_auc.group_by("model", "dataset", "iteration")
+        .agg(*agg_exprs)
         .unpivot(
             index=["model", "dataset", "iteration"],
             variable_name="statistic",
@@ -560,8 +573,8 @@ def plot_auc_bar(
 
 def compute_human_human_spearman(
     combined_results: pl.DataFrame,
-    welfare_demographics: pl.DataFrame,
-    rai_demographics: pl.DataFrame,
+    welfare_demographics: pl.DataFrame | None = None,
+    rai_demographics: pl.DataFrame | None = None,
     thresholds: list[float] | None = None,
     n_bootstrap: int = 100,
 ) -> pl.DataFrame:
@@ -581,10 +594,12 @@ def compute_human_human_spearman(
     demo_frames: dict[float, pl.DataFrame] = {}
     for t in thresholds:
         filtered = filter_by_distance_threshold(combined_results, t)
-        if filtered.height > 0:
+        if filtered.height > 0 and (welfare_demographics is not None or rai_demographics is not None):
             demo_frames[t] = join_demographics(
                 filtered, welfare_demographics, rai_demographics
             )
+        else:
+            demo_frames[t] = filtered
 
     if not demo_frames:
         return pl.DataFrame(
@@ -602,10 +617,13 @@ def compute_human_human_spearman(
         for _, demo_df in demo_frames.items():
             sample = demo_df.sample(fraction=1.0, with_replacement=True)
 
-            # Group by (dataset, demographics) so each demographic gets its own correlation
-            for (dataset, demographics), group in sample.group_by(
-                ["dataset", "demographics"]
-            ):
+            has_demo = "demographics" in sample.columns
+            group_keys = ["dataset", "demographics"] if has_demo else ["dataset"]
+
+            for keys, group in sample.group_by(group_keys):
+                dataset = keys[0]
+                demographics = keys[1] if has_demo else None
+
                 user_groups = list(group.group_by("user_id"))
                 if len(user_groups) < 2:
                     continue
@@ -630,14 +648,14 @@ def compute_human_human_spearman(
                 if not corrs:
                     continue
 
-                rows.append(
-                    {
-                        "model": "Human",
-                        "dataset": str(dataset),
-                        "demographics": str(demographics),
-                        "iteration": i,
-                        "auc": float(np.mean(corrs)),
-                    }
-                )
+                row = {
+                    "model": "Human",
+                    "dataset": str(dataset),
+                    "iteration": i,
+                    "auc": float(np.mean(corrs)),
+                }
+                if has_demo:
+                    row["demographics"] = str(demographics)
+                rows.append(row)
 
     return pl.DataFrame(rows)

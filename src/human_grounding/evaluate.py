@@ -8,7 +8,11 @@ from loguru import logger
 from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 
 import human_grounding.embed
-from human_grounding.data import get_responsible_ai_demographics, get_welfare
+from human_grounding.data import (
+    get_govai,
+    get_responsible_ai_demographics,
+    get_welfare,
+)
 from human_grounding.directories import CACHE_DIR, DATA_DIR, OUTPUT_DIR
 
 memory = Memory(CACHE_DIR, verbose=0)
@@ -17,6 +21,7 @@ memory = Memory(CACHE_DIR, verbose=0)
 statement_readers = {
     "welfare": get_welfare,
     "rai": get_responsible_ai_demographics,
+    "gov-ai": get_govai,
 }
 
 
@@ -254,8 +259,3 @@ def evaluate_human_embedding_match(
         )
         results.append(comparison_demographics)
     return pl.concat(results)
-
-
-if __name__ == "__main__":
-    all_coordinates = pl.read_csv(OUTPUT_DIR / "valid_coordinates.csv")
-    print("Hello!")

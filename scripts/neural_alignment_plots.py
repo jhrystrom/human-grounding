@@ -25,6 +25,11 @@ from human_grounding.embed import get_all_models
 from human_grounding.names import append_english
 
 TOP_N_TO_PLOT = 10
+COORDINATES = {
+    "policy": "valid_coordinates.csv",
+    "gov-ai": "govai_coordinates.csv",
+}
+
 
 
 def get_embedding_alignments(
@@ -47,16 +52,16 @@ def main(
     use_cache: bool = False,  # noqa: ARG001
     file_type: str = "pdf",
     metric: str = "binary",
+    dataset: str = "policy"
 ) -> None:
-
-    full_dataset = pl.read_csv(DATA_DIR / "valid_coordinates.csv")
+    full_dataset = pl.read_csv(DATA_DIR / COORDINATES[dataset])
     models = sorted(get_all_models())
 
     combined_results = get_embedding_alignments(
         models, full_dataset, use_english=use_english
     )
-    welfare_demographics = get_welfare_demographics()
-    rai_demographics = get_rai_demographics()
+    welfare_demographics = get_welfare_demographics() if dataset == "policy" else None
+    rai_demographics = get_rai_demographics() if dataset == "policy" else None
 
     # --- BINARY AUC ---
     if metric in ["binary", "both"]:
@@ -121,10 +126,15 @@ def main(
     # --- SPEARMAN SUMMARY ---
     if spearman_bootstraps is not None:
         # Top 10 Spearman:
-        top10_spearman = all_spearman.group_by("model", "dataset").agg(pl.col("auc").mean()).sort("auc", descending=True).filter(pl.col("dataset") == "rai").head(TOP_N_TO_PLOT)
+        top10_spearman = (
+            all_spearman.group_by("model", "dataset")
+            .agg(pl.col("auc").mean())
+            .sort("auc", descending=True)
+            .filter(pl.col("dataset") == "rai")
+            .head(TOP_N_TO_PLOT)
+        )
         logger.info("Top 10 Spearman:")
         logger.info(top10_spearman.to_dicts())
-
 
         human_grounding.threshold_auc.plot_auc_bar(
             all_spearman,
@@ -163,6 +173,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--metric", choices=["binary", "spearman", "both"], default="binary"
     )
+    parser.add_argument(
+        "--dataset", choices=COORDINATES.keys(), default="policy"
+    )
 
     args = parser.parse_args()
 
@@ -172,4 +185,5 @@ if __name__ == "__main__":
         use_cache=args.cache,
         file_type=args.file,
         metric=args.metric,
+        dataset=args.dataset,
     )
