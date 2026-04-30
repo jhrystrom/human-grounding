@@ -19,6 +19,7 @@ def get_all_variations() -> pl.DataFrame:
 def get_responsible_ai() -> pl.DataFrame:
     return pl.read_parquet(DATA_DIR / "answers_clean.parquet")
 
+
 def get_govai() -> pl.DataFrame:
     return pl.read_csv(DATA_DIR / "gov_ai.csv").rename(
         {"statement_id": "cause_id", "text": "cause"}

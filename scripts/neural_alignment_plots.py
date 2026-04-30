@@ -31,7 +31,6 @@ COORDINATES = {
 }
 
 
-
 def get_embedding_alignments(
     models: list[str], full_dataset: pl.DataFrame, use_english: bool = False
 ) -> pl.DataFrame:
@@ -52,7 +51,7 @@ def main(
     use_cache: bool = False,  # noqa: ARG001
     file_type: str = "pdf",
     metric: str = "binary",
-    dataset: str = "policy"
+    dataset: str = "policy",
 ) -> None:
     full_dataset = pl.read_csv(DATA_DIR / COORDINATES[dataset])
     models = sorted(get_all_models())
@@ -79,6 +78,7 @@ def main(
         auc_bootstraps = None
 
     # --- SPEARMAN ---
+    spearman_bootstraps: pl.DataFrame | None = None
     if metric in ["spearman", "both"]:
         human_spearman = human_grounding.threshold_auc.compute_human_human_spearman(
             combined_results=combined_results,
@@ -124,7 +124,7 @@ def main(
         )
 
     # --- SPEARMAN SUMMARY ---
-    if spearman_bootstraps is not None:
+    if spearman_bootstraps is not None and all_spearman is not None:
         # Top 10 Spearman:
         top10_spearman = (
             all_spearman.group_by("model", "dataset")
@@ -173,9 +173,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--metric", choices=["binary", "spearman", "both"], default="binary"
     )
-    parser.add_argument(
-        "--dataset", choices=COORDINATES.keys(), default="policy"
-    )
+    parser.add_argument("--dataset", choices=COORDINATES.keys(), default="policy")
 
     args = parser.parse_args()
 

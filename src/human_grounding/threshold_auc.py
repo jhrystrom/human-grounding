@@ -70,38 +70,6 @@ def precompute_demographic_frames(
 # ---------------------------------------------------------------------------
 
 
-def _bootstrap_one_replicate(
-    demo_frames: dict[float, pl.DataFrame],
-    iteration: int,
-) -> pl.DataFrame:
-    """Draw one bootstrap sample per threshold, return alignment scores.
-
-    Groups by ``(model, dataset, demographics)`` so downstream code can
-    derive per-group AUC.
-
-    Returns columns
-    ``[model, dataset, demographics, threshold, alignment_score,
-    iteration]``.
-    """
-    rows: list[pl.DataFrame] = []
-    for threshold, df in demo_frames.items():
-        agg = (
-            df.sample(fraction=1.0, with_replacement=True)
-            .group_by("model", "dataset", "demographics")
-            .agg(pl.col("embedding_correct").mean())
-            .with_columns(
-                (2 * pl.col("embedding_correct") - 1).alias(
-                    "alignment_score",
-                ),
-                pl.lit(threshold).alias("threshold"),
-                pl.lit(iteration).alias("iteration"),
-            )
-            .drop("embedding_correct")
-        )
-        rows.append(agg)
-    return pl.concat(rows)
-
-
 # ---------------------------------------------------------------------------
 # 5. Trapezoidal AUC (numpy — applied per group)
 # ---------------------------------------------------------------------------
@@ -311,6 +279,10 @@ def join_demographics(
     if welfare_demographics is None and rai_demographics is None:
         logger.warning("No demographics provided, skipping join.")
         return filtered_comparisons
+
+    if welfare_demographics is None or rai_demographics is None:
+        msg = "join_demographics requires both welfare and rai demographics, or neither"
+        raise ValueError(msg)
 
     dist_cols = [
         "human_dist_close",
@@ -555,7 +527,7 @@ def plot_auc_bar(
         y="model",
         hue="statistic",
         col="dataset",
-        order=[pretty_names.get(m, m) for m in model_order if m in model_order][
+        order=[(pretty_names or {}).get(m, m) for m in model_order if m in model_order][
             : top_n + 1
         ],
         kind="bar",
@@ -594,7 +566,9 @@ def compute_human_human_spearman(
     demo_frames: dict[float, pl.DataFrame] = {}
     for t in thresholds:
         filtered = filter_by_distance_threshold(combined_results, t)
-        if filtered.height > 0 and (welfare_demographics is not None or rai_demographics is not None):
+        if filtered.height > 0 and (
+            welfare_demographics is not None or rai_demographics is not None
+        ):
             demo_frames[t] = join_demographics(
                 filtered, welfare_demographics, rai_demographics
             )
