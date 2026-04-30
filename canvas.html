@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Statement Canvas</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, system-ui, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #fafafa; }
+  header { padding: 10px 16px; border-bottom: 1px solid #ddd; background: #fff; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  header label { font-size: 13px; display: flex; flex-direction: column; gap: 2px; }
+  header input { padding: 4px 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
+  header input[type="number"], header input[type="text"] { width: 110px; }
+  header button { padding: 6px 14px; font-size: 13px; border: 1px solid #888; background: #f0f0f0; border-radius: 4px; cursor: pointer; }
+  header button:hover { background: #e4e4e4; }
+  header button:disabled { opacity: 0.4; cursor: not-allowed; }
+  #status { font-size: 12px; color: #666; margin-left: auto; }
+
+  main { flex: 1; position: relative; overflow: hidden; }
+  #canvas { position: absolute; left: 0; right: 0; top: 0; bottom: var(--tray-h);
+            background:
+              linear-gradient(#eee 1px, transparent 1px) 0 0 / 50px 50px,
+              linear-gradient(90deg, #eee 1px, transparent 1px) 0 0 / 50px 50px,
+              #fff;
+            border-bottom: 2px dashed #bbb; }
+  #tray   { position: absolute; left: 0; right: 0; bottom: 0; height: var(--tray-h);
+            background: #f1ecd9; }
+  #tray::before { content: 'Unplaced'; position: absolute; top: 4px; left: 8px;
+                  font-size: 11px; color: #8a7a3a; letter-spacing: 0.04em; text-transform: uppercase; }
+  :root { --tray-h: 140px; }
+
+  .stmt { position: absolute; padding: 4px 6px; background: #fffbe6; border: 1px solid #d4c97a;
+          border-radius: 3px; font-size: 9px; line-height: 1.25; width: 150px;
+          cursor: grab; user-select: none; box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+          word-wrap: break-word; touch-action: none; }
+  .stmt .id { font-size: 9px; }
+  .stmt.placed { background: #e8f3ff; border-color: #7ba6d4; }
+  .stmt.selected { outline: 2px solid #2566c4; outline-offset: 1px; }
+  .stmt.dragging { cursor: grabbing; box-shadow: 0 4px 12px rgba(0,0,0,0.22); z-index: 999; }
+  .stmt .id { color: #888; margin-right: 4px; font-weight: 600; }
+  #marquee { position: absolute; border: 1px dashed #2566c4; background: rgba(37,102,196,0.10);
+             pointer-events: none; display: none; z-index: 5; }
+</style>
+</head>
+<body>
+<header>
+  <label>Input CSV<input type="file" id="file" accept=".csv" /></label>
+  <label>user_id<input type="text" id="user_id" value="" /></label>
+  <label>seed<input type="number" id="seed" value="0" min="0" step="1" /></label>
+  <label>size<input type="number" id="size" value="20" /></label>
+  <label>dataset<input type="text" id="dataset" value="gov-ai" /></label>
+  <button id="load">Load</button>
+  <button id="save" disabled>Save</button>
+  <span id="status"></span>
+</header>
+<main>
+  <div id="canvas"></div>
+  <div id="tray"></div>
+  <div id="marquee"></div>
+</main>
+
+<script>
+// --- CSV parsing (handles quoted fields, embedded commas, escaped quotes) ---
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false, i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { field += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      field += c; i++; continue;
+    }
+    if (c === '"') { inQuotes = true; i++; continue; }
+    if (c === ',') { row.push(field); field = ''; i++; continue; }
+    if (c === '\r') { i++; continue; }
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+    field += c; i++;
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.length && !(r.length === 1 && r[0] === ''));
+}
+function rowsToObjects(rows) {
+  const header = rows[0].map(h => h.trim());
+  return rows.slice(1).map(r => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ''])));
+}
+
+// --- Seeded RNG: mulberry32 with cyrb53 string hash ---
+function cyrb53(str, seed = 0) {
+  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+}
+function mulberry32(a) {
+  return function () {
+    let t = (a += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seededSample(arr, n, seed) {
+  const rng = mulberry32(cyrb53(String(seed), 0xABCDEF) >>> 0);
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a.slice(0, Math.min(n, a.length));
+}
+
+// --- App state ---
+let allStatements = [];
+let placed = [];
+const selected = new Set();
+
+const $ = id => document.getElementById(id);
+const main = document.querySelector('main');
+const canvasEl = $('canvas');
+const trayEl = $('tray');
+const marqueeEl = $('marquee');
+const statusEl = $('status');
+
+function clearSelection() {
+  selected.forEach(el => el.classList.remove('selected'));
+  selected.clear();
+}
+function selectEl(el) { selected.add(el); el.classList.add('selected'); }
+
+$('file').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const text = await f.text();
+  const rows = parseCSV(text);
+  allStatements = rowsToObjects(rows);
+  statusEl.textContent = `${allStatements.length} statements loaded`;
+});
+
+$('load').addEventListener('click', () => {
+  if (!allStatements.length) { alert('Upload an input CSV first.'); return; }
+  const seed = parseInt($('seed').value, 10);
+  const size = parseInt($('size').value, 10);
+  if (!Number.isFinite(seed) || seed < 0) { alert('seed must be a non-negative integer'); return; }
+  const sample = seededSample(allStatements, size, seed);
+  renderSample(sample);
+  $('save').disabled = false;
+  updateStatus();
+});
+
+function renderSample(sample) {
+  // remove only existing stmt elements
+  main.querySelectorAll('.stmt').forEach(e => e.remove());
+  placed = [];
+
+  const trayRect = trayEl.getBoundingClientRect();
+  const mainRect = main.getBoundingClientRect();
+  const trayTopInMain = trayRect.top - mainRect.top;
+  const trayWidth = trayRect.width;
+
+  const cardW = 150;
+  const cardH = 56; // approx; real height set by content
+  const padX = 10, padY = 10;
+  const headerOffset = 24; // leave room for "Unplaced" label
+  const usableTrayH = trayRect.height - headerOffset - padY;
+  const cols = Math.max(1, Math.floor((trayWidth - padX) / (cardW + padX)));
+
+  sample.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'stmt';
+    el.innerHTML = `<span class="id">#${s.statement_id}</span>${escapeHTML(s.text || '')}`;
+    main.appendChild(el);
+
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = padX + col * (cardW + padX);
+    const y = trayTopInMain + headerOffset + row * (cardH + padY);
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+
+    const rec = { statement_id: s.statement_id, dataset: s.dataset, el };
+    placed.push(rec);
+    makeDraggable(el);
+  });
+}
+
+function escapeHTML(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function isOnCanvas(el) {
+  const mainRect = main.getBoundingClientRect();
+  const canvasRect = canvasEl.getBoundingClientRect();
+  const cx = parseFloat(el.style.left) + el.offsetWidth / 2;
+  const cy = parseFloat(el.style.top) + el.offsetHeight / 2;
+  const canvasTop = canvasRect.top - mainRect.top;
+  const canvasBot = canvasRect.bottom - mainRect.top;
+  const canvasLeft = canvasRect.left - mainRect.left;
+  const canvasRight = canvasRect.right - mainRect.left;
+  return cx >= canvasLeft && cx <= canvasRight && cy >= canvasTop && cy <= canvasBot;
+}
+
+function updateStatus() {
+  const n = placed.filter(p => isOnCanvas(p.el)).length;
+  placed.forEach(p => p.el.classList.toggle('placed', isOnCanvas(p.el)));
+  statusEl.textContent = `${n} / ${placed.length} placed on canvas`;
+}
+
+function makeDraggable(el) {
+  let startX, startY, group = [];
+  el.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    // If clicking an unselected card without shift, reset selection to just this card.
+    if (!selected.has(el) && !e.shiftKey) clearSelection();
+    if (e.shiftKey && selected.has(el)) {
+      el.classList.remove('selected'); selected.delete(el); return;
+    }
+    selectEl(el);
+    el.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    group = [...selected].map(g => ({
+      el: g, origX: parseFloat(g.style.left), origY: parseFloat(g.style.top)
+    }));
+    group.forEach(g => g.el.classList.add('dragging'));
+  });
+  el.addEventListener('pointermove', e => {
+    if (!group.length) return;
+    const mw = main.clientWidth, mh = main.clientHeight;
+    let dx = e.clientX - startX, dy = e.clientY - startY;
+    // clamp the delta so no group member leaves the main area
+    for (const g of group) {
+      const ew = g.el.offsetWidth, eh = g.el.offsetHeight;
+      dx = Math.max(-g.origX, Math.min(mw - ew - g.origX, dx));
+      dy = Math.max(-g.origY, Math.min(mh - eh - g.origY, dy));
+    }
+    for (const g of group) {
+      g.el.style.left = (g.origX + dx) + 'px';
+      g.el.style.top  = (g.origY + dy) + 'px';
+    }
+  });
+  const end = () => {
+    if (!group.length) return;
+    group.forEach(g => g.el.classList.remove('dragging'));
+    group = [];
+    updateStatus();
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+
+// --- Marquee selection on empty space ---
+let mq = null;
+main.addEventListener('pointerdown', e => {
+  if (e.target.closest('.stmt')) return; // clicks on cards handled separately
+  if (!e.shiftKey) clearSelection();
+  const mainRect = main.getBoundingClientRect();
+  const sx = e.clientX - mainRect.left, sy = e.clientY - mainRect.top;
+  mq = { sx, sy };
+  marqueeEl.style.display = 'block';
+  marqueeEl.style.left = sx + 'px';
+  marqueeEl.style.top = sy + 'px';
+  marqueeEl.style.width = '0px';
+  marqueeEl.style.height = '0px';
+  main.setPointerCapture(e.pointerId);
+});
+main.addEventListener('pointermove', e => {
+  if (!mq) return;
+  const mainRect = main.getBoundingClientRect();
+  const cx = e.clientX - mainRect.left, cy = e.clientY - mainRect.top;
+  const x = Math.min(mq.sx, cx), y = Math.min(mq.sy, cy);
+  const w = Math.abs(cx - mq.sx), h = Math.abs(cy - mq.sy);
+  marqueeEl.style.left = x + 'px';
+  marqueeEl.style.top = y + 'px';
+  marqueeEl.style.width = w + 'px';
+  marqueeEl.style.height = h + 'px';
+  // live-highlight cards intersecting the marquee
+  for (const p of placed) {
+    const left = parseFloat(p.el.style.left), top = parseFloat(p.el.style.top);
+    const right = left + p.el.offsetWidth, bot = top + p.el.offsetHeight;
+    const hit = right >= x && left <= x + w && bot >= y && top <= y + h;
+    if (hit) selectEl(p.el);
+  }
+});
+const endMarquee = () => {
+  if (!mq) return;
+  mq = null;
+  marqueeEl.style.display = 'none';
+};
+main.addEventListener('pointerup', endMarquee);
+main.addEventListener('pointercancel', endMarquee);
+
+$('save').addEventListener('click', () => {
+  const user_id = $('user_id').value.trim();
+  const seed = parseInt($('seed').value, 10);
+  const size = parseInt($('size').value, 10);
+  const dataset = $('dataset').value.trim();
+  if (!user_id) { alert('user_id required'); return; }
+  const onCanvas = placed.filter(p => isOnCanvas(p.el));
+  if (!onCanvas.length) { alert('No statements placed on the canvas yet.'); return; }
+  if (onCanvas.length < placed.length) {
+    if (!confirm(`Only ${onCanvas.length}/${placed.length} placed on canvas. Save anyway?`)) return;
+  }
+
+  const mainRect = main.getBoundingClientRect();
+  const canvasRect = canvasEl.getBoundingClientRect();
+  const cLeft = canvasRect.left - mainRect.left;
+  const cTop  = canvasRect.top  - mainRect.top;
+  const cW = canvasRect.width, cH = canvasRect.height;
+
+  const lines = ['statement_id,x,y,dataset,size,seed,user_id'];
+  for (const p of onCanvas) {
+    const ew = p.el.offsetWidth, eh = p.el.offsetHeight;
+    const cx = parseFloat(p.el.style.left) + ew / 2;
+    const cy = parseFloat(p.el.style.top) + eh / 2;
+    const x = ((cx - cLeft) / cW).toFixed(6);
+    const y = ((cy - cTop)  / cH).toFixed(6);
+    lines.push(`${p.statement_id},${x},${y},${dataset},${size},${seed},${user_id}`);
+  }
+  const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${dataset}-user${user_id}-seed${seed}-n${size}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  statusEl.textContent = `Saved ${a.download} (${onCanvas.length} rows)`;
+});
+</script>
+</body>
+</html>
