@@ -27,7 +27,9 @@ from human_grounding.names import append_english
 TOP_N_TO_PLOT = 10
 
 
-def get_embedding_alignments(models: list[str], full_dataset: pl.DataFrame, use_english: bool = False) -> pl.DataFrame:
+def get_embedding_alignments(
+    models: list[str], full_dataset: pl.DataFrame, use_english: bool = False
+) -> pl.DataFrame:
     results = []
     for model in tqdm(models, desc="Models"):
         if model.startswith("wicked"):
@@ -39,12 +41,20 @@ def get_embedding_alignments(models: list[str], full_dataset: pl.DataFrame, use_
     return pl.concat(results, how="vertical_relaxed").drop("cause", "source", "size")
 
 
-def main(font_scale: float, use_english: bool = False, use_cache: bool = False, file_type: str = "pdf", metric: str = "binary") -> None:
+def main(
+    font_scale: float,
+    use_english: bool = False,
+    use_cache: bool = False,  # noqa: ARG001
+    file_type: str = "pdf",
+    metric: str = "binary",
+) -> None:
 
     full_dataset = pl.read_csv(DATA_DIR / "valid_coordinates.csv")
     models = sorted(get_all_models())
 
-    combined_results = get_embedding_alignments(models, full_dataset, use_english=use_english)
+    combined_results = get_embedding_alignments(
+        models, full_dataset, use_english=use_english
+    )
     welfare_demographics = get_welfare_demographics()
     rai_demographics = get_rai_demographics()
 
@@ -57,18 +67,20 @@ def main(font_scale: float, use_english: bool = False, use_cache: bool = False, 
             n_bootstrap=10,
             metric="binary",
         )
-        auc_bootstraps = auc_bootstraps.with_columns(pl.lit("binary_auc").alias("metric"))
+        auc_bootstraps = auc_bootstraps.with_columns(
+            pl.lit("binary_auc").alias("metric")
+        )
     else:
         auc_bootstraps = None
 
     # --- SPEARMAN ---
     if metric in ["spearman", "both"]:
         human_spearman = human_grounding.threshold_auc.compute_human_human_spearman(
-    combined_results=combined_results,
-    welfare_demographics=welfare_demographics,
-    rai_demographics=rai_demographics,
-    n_bootstrap=10,  # match your other setting
-)
+            combined_results=combined_results,
+            welfare_demographics=welfare_demographics,
+            rai_demographics=rai_demographics,
+            n_bootstrap=10,  # match your other setting
+        )
         spearman_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
             combined_results=combined_results,
             welfare_demographics=welfare_demographics,
@@ -77,7 +89,10 @@ def main(font_scale: float, use_english: bool = False, use_cache: bool = False, 
             metric="spearman",
         )
         logger.debug(f"{human_spearman=}")
-        all_spearman = pl.concat([spearman_bootstraps, human_spearman.select(spearman_bootstraps.columns)], how="vertical_relaxed").with_columns(pl.lit("spearman").alias("metric"))
+        all_spearman = pl.concat(
+            [spearman_bootstraps, human_spearman.select(spearman_bootstraps.columns)],
+            how="vertical_relaxed",
+        ).with_columns(pl.lit("spearman").alias("metric"))
     else:
         all_spearman = None
 
@@ -105,6 +120,12 @@ def main(font_scale: float, use_english: bool = False, use_cache: bool = False, 
 
     # --- SPEARMAN SUMMARY ---
     if spearman_bootstraps is not None:
+        # Top 10 Spearman:
+        top10_spearman = all_spearman.group_by("model", "dataset").agg(pl.col("auc").mean()).sort("auc", descending=True).filter(pl.col("dataset") == "rai").head(TOP_N_TO_PLOT)
+        logger.info("Top 10 Spearman:")
+        logger.info(top10_spearman.to_dicts())
+
+
         human_grounding.threshold_auc.plot_auc_bar(
             all_spearman,
             plot_dir=PLOT_DIR,
@@ -113,7 +134,7 @@ def main(font_scale: float, use_english: bool = False, use_cache: bool = False, 
             use_english=use_english,
             top_n=TOP_N_TO_PLOT,
             file_type=file_type,
-            x_label= "Spearman",
+            x_label="Spearman",
             filename_prefix="spearman_results",
         )
 
@@ -139,7 +160,9 @@ if __name__ == "__main__":
     parser.add_argument("--english", action="store_true")
     parser.add_argument("--cache", action="store_true")
     parser.add_argument("--file", type=str, default="pdf")
-    parser.add_argument("--metric", choices=["binary", "spearman", "both"], default="binary")
+    parser.add_argument(
+        "--metric", choices=["binary", "spearman", "both"], default="binary"
+    )
 
     args = parser.parse_args()
 

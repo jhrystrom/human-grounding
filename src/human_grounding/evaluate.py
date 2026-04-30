@@ -27,6 +27,7 @@ class ComparisonPair:
     farther_idx: int
     pct_distance: float
 
+
 def attach_distance_columns(
     comparison_df: pl.DataFrame,
     human_distances: np.ndarray,
@@ -47,6 +48,7 @@ def attach_distance_columns(
         pl.Series("model_dist_close", model_distances[s, c]),
         pl.Series("model_dist_far", model_distances[s, f]),
     )
+
 
 def create_comparisons(coordinates: pl.DataFrame) -> pl.DataFrame:
     n_rows = coordinates.height
@@ -157,13 +159,9 @@ def human_embedding_match_new(
     for (_,), statement_embeddings_group in statement_embeddings.group_by("user_id"):
         sorted_group = statement_embeddings_group.sort("row_idx")
         # --- MODEL distances (already exists) ---
-        embedding_distances = cosine_distances(
-            sorted_group["embedding"].to_numpy()
-        )
+        embedding_distances = cosine_distances(sorted_group["embedding"].to_numpy())
         # --- HUMAN distances (NEW) ---
-        human_distances = euclidean_distances(
-            sorted_group[["x", "y"]].to_numpy()
-        )
+        human_distances = euclidean_distances(sorted_group[["x", "y"]].to_numpy())
         # --- Triplets ---
         comparison_df = create_comparisons(sorted_group)
         # --- Correctness ---

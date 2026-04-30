@@ -464,7 +464,7 @@ def create_between_auc_barplot_by_dataset(
         df["score_type"], categories=hue_order, ordered=True
     )
 
-    fig, ax = plt.subplots(figsize=(12, 6.5))
+    _fig, ax = plt.subplots(figsize=(12, 6.5))
 
     sns.barplot(
         data=pl.DataFrame(df).with_columns(
