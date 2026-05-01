@@ -25,6 +25,7 @@ dependencies = [
     "pytest>=8.4.1",
     "python-dotenv>=1.0.1",
     "pytorch-lightning>=2.5.1.post0",
+    "rapidfuzz>=3.14.5",
     "reportlab>=4.4.1",
     "seaborn>=0.13.2",
     "sentence-transformers[train]>=4.1.0",
