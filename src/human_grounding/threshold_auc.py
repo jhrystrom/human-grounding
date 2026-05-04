@@ -543,6 +543,381 @@ def plot_auc_bar(
     return out_path
 
 
+DIFFICULTY_LABELS = {
+    "hard": "Hard / low threshold",
+    "easy": "Easy / high threshold",
+}
+
+
+def filter_by_pct_distance_quantile(
+    combined_results: pl.DataFrame,
+    q_lo: float,
+    q_hi: float,
+) -> pl.DataFrame:
+    """Like ``filter_by_distance_threshold`` but selects rows whose
+    ``pct_distance`` falls in the global ``[q_lo, q_hi]`` quantile range."""
+    lo_val = combined_results["pct_distance"].quantile(q_lo)
+    hi_val = combined_results["pct_distance"].quantile(q_hi)
+    if lo_val is None or hi_val is None:
+        msg = "Could not compute pct_distance quantiles (empty input?)"
+        raise ValueError(msg)
+    lo = float(lo_val)
+    hi = float(hi_val)
+
+    create_sorted_groups = (
+        pl.concat_arr(pl.col("closer_idx", "farther_idx"))
+        .arr.sort()
+        .alias("sorted_groups")
+    )
+
+    with_sorted_groups = (
+        combined_results.with_columns(create_sorted_groups)
+        .filter((pl.col("pct_distance") >= lo) & (pl.col("pct_distance") <= hi))
+        .drop("pct_distance")
+        .unique()
+        .sort("model", "dataset", "seed", "user_id", "source_idx")
+        .with_columns(pl.int_range(pl.len()).over("model").alias("new_index"))
+    )
+
+    agreement_indices = (
+        with_sorted_groups.drop("model")
+        .unique()
+        .group_by("source_idx", "sorted_groups", "dataset", "seed")
+        .agg(
+            pl.col("closer_idx").n_unique() == 1,
+            pl.col("new_index").first(),
+        )
+        .filter(pl.col("closer_idx"))
+        .select("new_index")
+    )
+
+    return with_sorted_groups.join(agreement_indices, on="new_index", how="inner")
+
+
+def compute_difficulty_split_alignment(
+    combined_results: pl.DataFrame,
+    welfare_demographics: pl.DataFrame | None = None,
+    rai_demographics: pl.DataFrame | None = None,
+    n_bootstrap: int = 50,
+    quantile: float = 0.2,
+) -> pl.DataFrame:
+    """Compute per-(model, dataset, demographics, difficulty) alignment scores.
+
+    Splits triplets into the ``quantile`` lowest (hard) and highest (easy)
+    ``pct_distance`` cases, then bootstraps a binary alignment score
+    (2*accuracy - 1) per group. Includes a ``Human`` row computed as
+    pairwise inter-rater agreement over the same splits.
+    """
+    splits = {
+        DIFFICULTY_LABELS["hard"]: (0.0, quantile),
+        DIFFICULTY_LABELS["easy"]: (1.0 - quantile, 1.0),
+    }
+
+    demo_frames: dict[str, pl.DataFrame] = {}
+    for label, (lo, hi) in splits.items():
+        filtered = filter_by_pct_distance_quantile(combined_results, lo, hi)
+        if filtered.height == 0:
+            logger.warning(f"No comparisons in split {label}")
+            continue
+        demo_frames[label] = join_demographics(
+            filtered, welfare_demographics, rai_demographics
+        )
+
+    rows: list[pl.DataFrame] = []
+    for i in tqdm(range(n_bootstrap), desc="Difficulty bootstrap"):
+        for label, df in demo_frames.items():
+            sample = df.sample(fraction=1.0, with_replacement=True)
+            agg = (
+                sample.group_by(_group_keys(sample))
+                .agg(
+                    (2 * pl.col("embedding_correct").mean() - 1).alias("auc"),
+                )
+                .with_columns(
+                    pl.lit(label).alias("difficulty"),
+                    pl.lit(i).alias("iteration"),
+                )
+            )
+            rows.append(agg)
+
+    model_part = pl.concat(rows) if rows else pl.DataFrame()
+
+    human_rows = _compute_human_human_binary_split(demo_frames, n_bootstrap)
+    if human_rows is not None and human_rows.height > 0:
+        return pl.concat(
+            [model_part, human_rows.select(model_part.columns)],
+            how="vertical_relaxed",
+        )
+    return model_part
+
+
+def _compute_human_human_binary_split(
+    demo_frames: dict[str, pl.DataFrame],
+    n_bootstrap: int,
+) -> pl.DataFrame | None:
+    """Inter-rater binary agreement on the same triplets, per split."""
+    if not demo_frames:
+        return None
+
+    # Pick one canonical model so each user-pair is counted once per triplet.
+    any_df = next(iter(demo_frames.values()))
+    if "user_id" not in any_df.columns:
+        return None
+    canonical_model = any_df["model"].unique().sort()[0]
+
+    rows: list[dict] = []
+    for i in tqdm(range(n_bootstrap), desc="Human inter-rater"):
+        for label, df in demo_frames.items():
+            sub = df.filter(pl.col("model") == canonical_model)
+            sample = sub.sample(fraction=1.0, with_replacement=True)
+
+            has_demo = "demographics" in sample.columns
+            keys = ["dataset", "demographics"] if has_demo else ["dataset"]
+
+            for key_vals, group in sample.group_by(keys):
+                user_groups = list(group.group_by("user_id"))
+                if len(user_groups) < 2:
+                    continue
+
+                # Make the (closer, farther) pair unordered for joining
+                def _unordered(g: pl.DataFrame) -> pl.DataFrame:
+                    return g.with_columns(
+                        pl.min_horizontal("closer_idx", "farther_idx").alias("a"),
+                        pl.max_horizontal("closer_idx", "farther_idx").alias("b"),
+                    )
+
+                agrees: list[float] = []
+                for (_, g1), (_, g2) in itertools.combinations(user_groups, 2):
+                    j = _unordered(g1).join(
+                        _unordered(g2),
+                        on=["source_idx", "a", "b"],
+                        suffix="_2",
+                        how="inner",
+                    )
+                    if j.height == 0:
+                        continue
+                    mean_agree = (j["closer_idx"] == j["closer_idx_2"]).mean()
+                    if mean_agree is None:
+                        continue
+                    agrees.append(float(mean_agree))
+                if not agrees:
+                    continue
+
+                row = {
+                    "model": HUMAN_MODEL_NAME,
+                    "dataset": str(key_vals[0]),
+                    "auc": 2 * float(np.mean(agrees)) - 1,  # type: ignore[arg-type]
+                    "difficulty": label,
+                    "iteration": i,
+                }
+                if has_demo:
+                    row["demographics"] = str(key_vals[1])
+                rows.append(row)
+
+    return pl.DataFrame(rows) if rows else None
+
+
+def summarise_difficulty_split(group_auc: pl.DataFrame) -> pl.DataFrame:
+    """Aggregate to (model, dataset, difficulty, statistic) -> mean + CI."""
+    has_demo = "demographics" in group_auc.columns
+    if has_demo:
+        agg_exprs = [
+            pl.col("auc").max().alias("Best"),
+            pl.col("auc").min().alias("Worst"),
+            pl.col("auc").mean().alias("Mean"),
+        ]
+    else:
+        agg_exprs = [pl.col("auc").mean().alias("Mean")]
+
+    per_iter = (
+        group_auc.group_by("model", "dataset", "difficulty", "iteration")
+        .agg(*agg_exprs)
+        .unpivot(
+            index=["model", "dataset", "difficulty", "iteration"],
+            variable_name="statistic",
+            value_name="auc",
+        )
+    )
+    return per_iter.group_by("model", "dataset", "difficulty", "statistic").agg(
+        pl.col("auc").mean().alias("auc_mean"),
+        pl.col("auc").quantile(0.025, interpolation="linear").alias("ci_lo"),
+        pl.col("auc").quantile(0.975, interpolation="linear").alias("ci_hi"),
+    )
+
+
+def plot_difficulty_dumbbell(
+    summary: pl.DataFrame,
+    plot_dir: Path,
+    *,
+    pretty_names: Mapping[str, str] | None = None,
+    dataset_name_map: Mapping[str, str] | None = None,
+    top_n: int = 10,
+    file_type: str = "pdf",
+    filename_prefix: str = "difficulty_dumbbell",
+    font_scale: float = 1.0,
+    title: str = "Easy vs hard alignment performance by statistic",
+) -> Path:
+    """Dumbbell plot: Hard vs Easy alignment, per (model, statistic, dataset)."""
+    if dataset_name_map is None:
+        dataset_name_map = {"rai": "Responsible AI", "welfare": "Welfare"}
+
+    has_demo = summary.filter(pl.col("statistic").is_in(["Best", "Worst"])).height > 0
+    statistics = ["Best", "Mean", "Worst"] if has_demo else ["Mean"]
+
+    overall_order = (
+        summary.filter(pl.col("statistic") == "Mean")
+        .group_by("model")
+        .agg(pl.col("auc_mean").mean())
+        .sort("auc_mean", descending=True)
+        .get_column("model")
+        .to_list()
+    )
+
+    non_human = [m for m in overall_order if m != HUMAN_MODEL_NAME]
+    keep_models = non_human[:top_n]
+    if HUMAN_MODEL_NAME in overall_order:
+        keep_models = [*keep_models, HUMAN_MODEL_NAME]
+
+    pretty = pretty_names or {}
+    pretty_keep = [pretty.get(m, m) for m in keep_models]
+
+    plot_data = (
+        summary.filter(pl.col("model").is_in(keep_models))
+        .with_columns(
+            pl.col("model").replace(pretty),
+            pl.col("dataset").replace(dataset_name_map),
+        )
+        .to_pandas()
+    )
+
+    datasets = list(dataset_name_map.values())
+
+    sns.set_theme(style="whitegrid", font_scale=font_scale)
+    fig_height = max(5.5, 0.55 * len(pretty_keep) * len(statistics))
+    fig, axes = plt.subplots(1, len(datasets), figsize=(11, fig_height), sharey=True)
+    if len(datasets) == 1:
+        axes = [axes]
+
+    n_stats = len(statistics)
+    stat_gap = 0.9
+    block_gap = 1.2
+
+    def y_pos(mi: float, si: float) -> float:
+        return -(mi * (n_stats * stat_gap + block_gap) + si * stat_gap)
+
+    hard_label = DIFFICULTY_LABELS["hard"]
+    easy_label = DIFFICULTY_LABELS["easy"]
+
+    for ax, ds in zip(axes, datasets, strict=False):
+        sub = plot_data[plot_data["dataset"] == ds]
+        for mi, m in enumerate(pretty_keep):
+            for si, st in enumerate(statistics):
+                y = y_pos(mi, si)
+                row = sub[(sub["model"] == m) & (sub["statistic"] == st)]
+                hard = row[row["difficulty"] == hard_label]
+                easy = row[row["difficulty"] == easy_label]
+                if not hard.empty and not easy.empty:
+                    ax.plot(
+                        [hard["auc_mean"].iloc[0], easy["auc_mean"].iloc[0]],
+                        [y, y],
+                        color="#bdbdbd",
+                        lw=2.2,
+                        zorder=1,
+                    )
+                if not hard.empty:
+                    ax.scatter(
+                        hard["auc_mean"].iloc[0],
+                        y,
+                        color="#1a1a1a",
+                        s=70,
+                        zorder=3,
+                    )
+                if not easy.empty:
+                    ax.scatter(
+                        easy["auc_mean"].iloc[0],
+                        y,
+                        facecolors="white",
+                        edgecolors="#1a1a1a",
+                        s=70,
+                        linewidths=1.5,
+                        zorder=3,
+                    )
+            # Subtle band per model
+            if mi % 2 == 0:
+                ax.axhspan(
+                    y_pos(mi, n_stats - 1) - stat_gap / 2,
+                    y_pos(mi, 0) + stat_gap / 2,
+                    color="#f4f6fa",
+                    zorder=0,
+                )
+
+        ax.set_title(ds, fontsize=12)
+        ax.set_xlabel("Alignment score")
+        ax.set_xlim(0, 1)
+        ax.xaxis.set_major_locator(mticker.MultipleLocator(0.1))
+        ax.grid(axis="y", visible=False)
+        ax.set_axisbelow(True)
+
+    yticks: list[float] = []
+    yticklabels: list[str] = []
+    for mi in range(len(pretty_keep)):
+        for si in range(n_stats):
+            yticks.append(y_pos(mi, si))
+            yticklabels.append(statistics[si])
+    axes[0].set_yticks(yticks)
+    axes[0].set_yticklabels(yticklabels)
+
+    for mi, m in enumerate(pretty_keep):
+        y_mid = y_pos(mi, (n_stats - 1) / 2)
+        axes[0].annotate(
+            m,
+            xy=(0, y_mid),
+            xycoords=("axes fraction", "data"),
+            xytext=(-12, 0),
+            textcoords="offset points",
+            ha="right",
+            va="center",
+            fontsize=10,
+            fontweight="bold",
+        )
+
+    handles = [
+        plt.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            markerfacecolor="#1a1a1a",
+            markersize=10,
+            label=hard_label,
+        ),
+        plt.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            markerfacecolor="white",
+            markeredgecolor="#1a1a1a",
+            markersize=10,
+            markeredgewidth=1.5,
+            label=easy_label,
+        ),
+    ]
+    fig.legend(
+        handles=handles,
+        title="Difficulty",
+        loc="center left",
+        bbox_to_anchor=(1.0, 0.5),
+        frameon=False,
+    )
+    fig.suptitle(title, fontsize=14, x=0.55)
+    plt.tight_layout(rect=(0.06, 0.0, 0.98, 0.96))
+
+    out_path = plot_dir / f"{filename_prefix}.{file_type}"
+    plt.savefig(out_path, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
 def compute_human_human_spearman(
     combined_results: pl.DataFrame,
     welfare_demographics: pl.DataFrame | None = None,

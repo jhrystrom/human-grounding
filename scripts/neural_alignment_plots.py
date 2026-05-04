@@ -148,6 +148,33 @@ def main(
             filename_prefix="spearman_results",
         )
 
+    # --- HARD VS EASY DUMBBELL ---
+    difficulty_group_auc = (
+        human_grounding.threshold_auc.compute_difficulty_split_alignment(
+            combined_results=combined_results,
+            welfare_demographics=welfare_demographics,
+            rai_demographics=rai_demographics,
+            n_bootstrap=50,
+            quantile=0.2,
+        )
+    )
+    difficulty_summary = human_grounding.threshold_auc.summarise_difficulty_split(
+        difficulty_group_auc
+    )
+    diff_csv = OUTPUT_DIR / "difficulty_split.csv"
+    if use_english:
+        diff_csv = append_english(diff_csv)
+    difficulty_summary.write_csv(diff_csv)
+
+    human_grounding.threshold_auc.plot_difficulty_dumbbell(
+        difficulty_summary,
+        plot_dir=PLOT_DIR,
+        pretty_names=PRETTY_NAMES,
+        top_n=TOP_N_TO_PLOT,
+        font_scale=font_scale * 0.55,
+        file_type=file_type,
+    )
+
     # --- CORRELATION WITH MMTEB ---
     mmteb = pl.read_csv(OUTPUT_DIR / "mmteb_with_ranks.csv")
 
