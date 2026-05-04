@@ -48,68 +48,90 @@ def get_embedding_alignments(
 def main(
     font_scale: float,
     use_english: bool = False,
-    use_cache: bool = False,  # noqa: ARG001
+    use_cache: bool = False,
     file_type: str = "pdf",
     metric: str = "binary",
-    dataset: str = "policy",
+    experiment: str = "policy",
 ) -> None:
-    full_dataset = pl.read_csv(DATA_DIR / COORDINATES[dataset])
+    full_dataset = pl.read_csv(DATA_DIR / COORDINATES[experiment])
     models = sorted(get_all_models())
+    welfare_demographics = get_welfare_demographics() if experiment == "policy" else None
+    rai_demographics = get_rai_demographics() if experiment == "policy" else None
 
-    combined_results = get_embedding_alignments(
-        models, full_dataset, use_english=use_english
-    )
-    welfare_demographics = get_welfare_demographics() if dataset == "policy" else None
-    rai_demographics = get_rai_demographics() if dataset == "policy" else None
+    out_path = OUTPUT_DIR / f"alignment_results_{experiment}.csv"
+    diff_csv = OUTPUT_DIR / f"difficulty_split_{experiment}.csv"
+    if use_english:
+        out_path = append_english(out_path)
+        diff_csv = append_english(diff_csv)
+
+    # Lazy: run the expensive embedding step only when at least one cache is cold
+    _combined: pl.DataFrame | None = None
+
+    def _get_combined() -> pl.DataFrame:
+        nonlocal _combined
+        if _combined is None:
+            _combined = get_embedding_alignments(models, full_dataset, use_english=use_english)
+        return _combined
 
     # --- BINARY AUC ---
     if metric in ["binary", "both"]:
-        auc_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
-            combined_results=combined_results,
-            welfare_demographics=welfare_demographics,
-            rai_demographics=rai_demographics,
-            n_bootstrap=10,
-            metric="binary",
-        )
-        auc_bootstraps = auc_bootstraps.with_columns(
-            pl.lit("binary_auc").alias("metric")
-        )
+        if use_cache and out_path.exists():
+            logger.info(f"Loading cached alignment results from {out_path}")
+            auc_bootstraps = (
+                pl.read_csv(out_path).filter(pl.col("metric") == "binary_auc").drop("metric")
+            )
+        else:
+            auc_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
+                combined_results=_get_combined(),
+                welfare_demographics=welfare_demographics,
+                rai_demographics=rai_demographics,
+                n_bootstrap=10,
+                metric="binary",
+            )
     else:
         auc_bootstraps = None
 
     # --- SPEARMAN ---
     spearman_bootstraps: pl.DataFrame | None = None
+    all_spearman: pl.DataFrame | None = None
     if metric in ["spearman", "both"]:
-        human_spearman = human_grounding.threshold_auc.compute_human_human_spearman(
-            combined_results=combined_results,
-            welfare_demographics=welfare_demographics,
-            rai_demographics=rai_demographics,
-            n_bootstrap=10,  # match your other setting
-        )
-        spearman_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
-            combined_results=combined_results,
-            welfare_demographics=welfare_demographics,
-            rai_demographics=rai_demographics,
-            n_bootstrap=10,
-            metric="spearman",
-        )
-        logger.debug(f"{human_spearman=}")
-        all_spearman = pl.concat(
-            [spearman_bootstraps, human_spearman.select(spearman_bootstraps.columns)],
-            how="vertical_relaxed",
-        ).with_columns(pl.lit("spearman").alias("metric"))
-    else:
-        all_spearman = None
+        if use_cache and out_path.exists():
+            cached_sp = (
+                pl.read_csv(out_path).filter(pl.col("metric") == "spearman").drop("metric")
+            )
+            all_spearman = cached_sp
+            spearman_bootstraps = cached_sp.filter(
+                pl.col("model") != human_grounding.threshold_auc.HUMAN_MODEL_NAME
+            )
+        else:
+            human_spearman = human_grounding.threshold_auc.compute_human_human_spearman(
+                combined_results=_get_combined(),
+                welfare_demographics=welfare_demographics,
+                rai_demographics=rai_demographics,
+                n_bootstrap=10,
+            )
+            spearman_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
+                combined_results=_get_combined(),
+                welfare_demographics=welfare_demographics,
+                rai_demographics=rai_demographics,
+                n_bootstrap=10,
+                metric="spearman",
+            )
+            logger.debug(f"{human_spearman=}")
+            all_spearman = pl.concat(
+                [spearman_bootstraps, human_spearman.select(spearman_bootstraps.columns)],
+                how="vertical_relaxed",
+            )
 
-    # --- COMBINE ---
-    frames = [f for f in [auc_bootstraps, all_spearman] if f is not None]
-    all_results = pl.concat(frames)
-
-    # Save
-    out_path = OUTPUT_DIR / "alignment_results.csv"
-    if use_english:
-        out_path = append_english(out_path)
-    all_results.write_csv(out_path)
+    # Persist freshly computed results (only when embeddings were actually run)
+    if _combined is not None:
+        to_save = []
+        if auc_bootstraps is not None:
+            to_save.append(auc_bootstraps.with_columns(pl.lit("binary_auc").alias("metric")))
+        if all_spearman is not None:
+            to_save.append(all_spearman.with_columns(pl.lit("spearman").alias("metric")))
+        if to_save:
+            pl.concat(to_save).write_csv(out_path)
 
     # --- PLOT (ONLY BINARY FOR NOW) ---
     if auc_bootstraps is not None:
@@ -125,7 +147,6 @@ def main(
 
     # --- SPEARMAN SUMMARY ---
     if spearman_bootstraps is not None and all_spearman is not None:
-        # Top 10 Spearman:
         top10_spearman = (
             all_spearman.group_by("model", "dataset")
             .agg(pl.col("auc").mean())
@@ -149,22 +170,23 @@ def main(
         )
 
     # --- HARD VS EASY DUMBBELL ---
-    difficulty_group_auc = (
-        human_grounding.threshold_auc.compute_difficulty_split_alignment(
-            combined_results=combined_results,
-            welfare_demographics=welfare_demographics,
-            rai_demographics=rai_demographics,
-            n_bootstrap=50,
-            quantile=0.2,
+    if use_cache and diff_csv.exists():
+        logger.info(f"Loading cached difficulty summary from {diff_csv}")
+        difficulty_summary = pl.read_csv(diff_csv)
+    else:
+        difficulty_group_auc = (
+            human_grounding.threshold_auc.compute_difficulty_split_alignment(
+                combined_results=_get_combined(),
+                welfare_demographics=welfare_demographics,
+                rai_demographics=rai_demographics,
+                n_bootstrap=50,
+                quantile=0.2,
+            )
         )
-    )
-    difficulty_summary = human_grounding.threshold_auc.summarise_difficulty_split(
-        difficulty_group_auc
-    )
-    diff_csv = OUTPUT_DIR / "difficulty_split.csv"
-    if use_english:
-        diff_csv = append_english(diff_csv)
-    difficulty_summary.write_csv(diff_csv)
+        difficulty_summary = human_grounding.threshold_auc.summarise_difficulty_split(
+            difficulty_group_auc
+        )
+        difficulty_summary.write_csv(diff_csv)
 
     human_grounding.threshold_auc.plot_difficulty_dumbbell(
         difficulty_summary,
@@ -173,6 +195,8 @@ def main(
         top_n=TOP_N_TO_PLOT,
         font_scale=font_scale * 0.55,
         file_type=file_type,
+        title="",
+        filename_prefix=experiment,
     )
 
     # --- CORRELATION WITH MMTEB ---
@@ -200,7 +224,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--metric", choices=["binary", "spearman", "both"], default="binary"
     )
-    parser.add_argument("--dataset", choices=COORDINATES.keys(), default="policy")
+    parser.add_argument("--experiment", choices=COORDINATES.keys(), default="policy")
 
     args = parser.parse_args()
 
@@ -210,5 +234,5 @@ if __name__ == "__main__":
         use_cache=args.cache,
         file_type=args.file,
         metric=args.metric,
-        dataset=args.dataset,
+        experiment=args.experiment,
     )

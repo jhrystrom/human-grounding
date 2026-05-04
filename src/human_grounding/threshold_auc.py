@@ -544,8 +544,8 @@ def plot_auc_bar(
 
 
 DIFFICULTY_LABELS = {
-    "hard": "Hard / low threshold",
-    "easy": "Easy / high threshold",
+    "hard": "Hard ($d$: bottom 20%)",
+    "easy": "Easy ($d$: top 20%)",
 }
 
 
@@ -772,10 +772,7 @@ def plot_difficulty_dumbbell(
         .to_list()
     )
 
-    non_human = [m for m in overall_order if m != HUMAN_MODEL_NAME]
-    keep_models = non_human[:top_n]
-    if HUMAN_MODEL_NAME in overall_order:
-        keep_models = [*keep_models, HUMAN_MODEL_NAME]
+    keep_models = overall_order[:top_n + 1]
 
     pretty = pretty_names or {}
     pretty_keep = [pretty.get(m, m) for m in keep_models]
@@ -792,17 +789,27 @@ def plot_difficulty_dumbbell(
     datasets = list(dataset_name_map.values())
 
     sns.set_theme(style="whitegrid", font_scale=font_scale)
-    fig_height = max(5.5, 0.55 * len(pretty_keep) * len(statistics))
+    fig_height = max(4.5, 0.9 * len(pretty_keep))
     fig, axes = plt.subplots(1, len(datasets), figsize=(11, fig_height), sharey=True)
     if len(datasets) == 1:
         axes = [axes]
 
     n_stats = len(statistics)
-    stat_gap = 0.9
-    block_gap = 1.2
+    stat_gap = 0.38   # vertical separation between statistics within one model row
+    block_gap = 1.4   # vertical separation between model rows
 
-    def y_pos(mi: float, si: float) -> float:
-        return -(mi * (n_stats * stat_gap + block_gap) + si * stat_gap)
+    _pal = sns.color_palette("coolwarm", n_stats)
+    _line_styles = ["-", "--", ":"]
+    stat_styles = {
+        st: {"color": _pal[n_stats - 1 - i], "ls": _line_styles[i]}
+        for i, st in enumerate(statistics)
+    }
+    stat_y_offsets = {
+        st: (i - (n_stats - 1) / 2) * stat_gap for i, st in enumerate(statistics)
+    }
+
+    def y_pos(mi: int) -> float:
+        return -mi * block_gap
 
     hard_label = DIFFICULTY_LABELS["hard"]
     easy_label = DIFFICULTY_LABELS["easy"]
@@ -810,8 +817,10 @@ def plot_difficulty_dumbbell(
     for ax, ds in zip(axes, datasets, strict=False):
         sub = plot_data[plot_data["dataset"] == ds]
         for mi, m in enumerate(pretty_keep):
-            for si, st in enumerate(statistics):
-                y = y_pos(mi, si)
+            y_base = y_pos(mi)
+            for st in statistics:
+                y = y_base + stat_y_offsets[st]
+                style = stat_styles.get(st, {"color": "#636363", "ls": "-"})
                 row = sub[(sub["model"] == m) & (sub["statistic"] == st)]
                 hard = row[row["difficulty"] == hard_label]
                 easy = row[row["difficulty"] == easy_label]
@@ -819,7 +828,8 @@ def plot_difficulty_dumbbell(
                     ax.plot(
                         [hard["auc_mean"].iloc[0], easy["auc_mean"].iloc[0]],
                         [y, y],
-                        color="#bdbdbd",
+                        color=style["color"],
+                        ls=style["ls"],
                         lw=2.2,
                         zorder=1,
                     )
@@ -827,7 +837,7 @@ def plot_difficulty_dumbbell(
                     ax.scatter(
                         hard["auc_mean"].iloc[0],
                         y,
-                        color="#1a1a1a",
+                        color=style["color"],
                         s=70,
                         zorder=3,
                     )
@@ -836,58 +846,48 @@ def plot_difficulty_dumbbell(
                         easy["auc_mean"].iloc[0],
                         y,
                         facecolors="white",
-                        edgecolors="#1a1a1a",
+                        edgecolors=style["color"],
                         s=70,
                         linewidths=1.5,
                         zorder=3,
                     )
-            # Subtle band per model
+            half = (n_stats - 1) / 2 * stat_gap + 0.15
             if mi % 2 == 0:
-                ax.axhspan(
-                    y_pos(mi, n_stats - 1) - stat_gap / 2,
-                    y_pos(mi, 0) + stat_gap / 2,
-                    color="#f4f6fa",
-                    zorder=0,
-                )
+                ax.axhspan(y_base - half, y_base + half, color="#f4f6fa", zorder=0)
 
-        ax.set_title(ds, fontsize=12)
-        ax.set_xlabel("Alignment score")
+        ax.set_title(ds)
         ax.set_xlim(0, 1)
         ax.xaxis.set_major_locator(mticker.MultipleLocator(0.1))
         ax.grid(axis="y", visible=False)
         ax.set_axisbelow(True)
 
-    yticks: list[float] = []
-    yticklabels: list[str] = []
-    for mi in range(len(pretty_keep)):
-        for si in range(n_stats):
-            yticks.append(y_pos(mi, si))
-            yticklabels.append(statistics[si])
-    axes[0].set_yticks(yticks)
-    axes[0].set_yticklabels(yticklabels)
+    axes[0].set_yticks([y_pos(mi) for mi in range(len(pretty_keep))])
+    axes[0].set_yticklabels(pretty_keep, fontweight="bold")
 
-    for mi, m in enumerate(pretty_keep):
-        y_mid = y_pos(mi, (n_stats - 1) / 2)
-        axes[0].annotate(
-            m,
-            xy=(0, y_mid),
-            xycoords=("axes fraction", "data"),
-            xytext=(-12, 0),
-            textcoords="offset points",
-            ha="right",
-            va="center",
-            fontsize=10,
-            fontweight="bold",
+    stat_handles = []
+    for st in statistics:
+        style = stat_styles.get(st, {"color": "#636363", "ls": "-"})
+        stat_handles.append(
+            plt.Line2D(
+                [0],
+                [0],
+                color=style["color"],
+                ls=style["ls"],
+                lw=2.2,
+                marker="o",
+                markerfacecolor=style["color"],
+                markersize=8,
+                label=st,
+            )
         )
-
-    handles = [
+    diff_handles = [
         plt.Line2D(
             [0],
             [0],
             marker="o",
             color="w",
-            markerfacecolor="#1a1a1a",
-            markersize=10,
+            markerfacecolor="#555555",
+            markersize=8,
             label=hard_label,
         ),
         plt.Line2D(
@@ -896,23 +896,24 @@ def plot_difficulty_dumbbell(
             marker="o",
             color="w",
             markerfacecolor="white",
-            markeredgecolor="#1a1a1a",
-            markersize=10,
+            markeredgecolor="#555555",
+            markersize=8,
             markeredgewidth=1.5,
             label=easy_label,
         ),
     ]
     fig.legend(
-        handles=handles,
-        title="Difficulty",
-        loc="center left",
-        bbox_to_anchor=(1.0, 0.5),
+        handles=[*stat_handles, *diff_handles],
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.1),
+        ncol=len(stat_handles) + len(diff_handles),
         frameon=False,
     )
-    fig.suptitle(title, fontsize=14, x=0.55)
-    plt.tight_layout(rect=(0.06, 0.0, 0.98, 0.96))
+    fig.supxlabel("Alignment score", y=0.17)
+    fig.suptitle(title, x=0.5)
+    plt.tight_layout(rect=(0, 0.14, 1, 0.96))
 
-    out_path = plot_dir / f"{filename_prefix}.{file_type}"
+    out_path = plot_dir / f"{filename_prefix}_difficulty.{file_type}"
     plt.savefig(out_path, bbox_inches="tight")
     plt.close(fig)
     return out_path
