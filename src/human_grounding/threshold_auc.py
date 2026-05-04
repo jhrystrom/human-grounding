@@ -479,7 +479,7 @@ def plot_auc_bar(
     ci: float = 95.0,
     use_english: bool = False,  # noqa: ARG001
     file_type: str = "pdf",
-    x_label: str = "Alignment Score",
+    x_label: str = "Alignment AUC (normalised)",
     filename_prefix: str = "alignment_results",
 ) -> Path:
     """Faceted horizontal bar chart of alignment metrics."""
@@ -536,8 +536,20 @@ def plot_auc_bar(
         aspect=0.9,
         errorbar=("ci", ci),
     )
+    g.set_titles("{col_name}")
+    # Move legend below
+    sns.move_legend(
+    g,
+    "lower center",
+    bbox_to_anchor=(0.5, -0.03),
+    ncol=plot_data["statistic"].n_unique(),  # or len(g._legend_data)
+    title=None,
+    frameon=False,
+)
 
-    g.set_axis_labels(x_label, "")
+
+    g.set_axis_labels("", "")
+    g.figure.supxlabel(x_label, y=0.05)
     out_path = plot_dir / f"{filename_prefix}.{file_type}"
     plt.savefig(out_path, bbox_inches="tight")
     return out_path
