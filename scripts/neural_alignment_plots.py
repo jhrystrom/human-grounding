@@ -199,6 +199,38 @@ def main(
         filename_prefix=experiment,
     )
 
+    # --- DIFFICULTY TABLE ---
+    model_order = (
+        difficulty_summary
+        .filter(pl.col("statistic") == "Mean")
+        .group_by("model")
+        .agg(pl.col("auc_mean").mean())
+        .sort("auc_mean", descending=True)
+        .get_column("model")
+        .to_list()
+    )[: TOP_N_TO_PLOT + 1]
+    pretty_order = [PRETTY_NAMES.get(m, m) for m in model_order]
+
+    pivot = (
+        difficulty_summary
+        .filter(pl.col("model").is_in(model_order))
+        .with_columns(pl.col("model").replace(PRETTY_NAMES))
+        .pivot(on="statistic", index=["model", "dataset", "difficulty"], values="auc_mean")
+        .rename({"model": "Model", "difficulty": "Difficulty"})
+    )
+    stat_cols = [c for c in ["Best", "Worst", "Mean"] if c in pivot.columns]
+    for ds in sorted(pivot["dataset"].unique().to_list()):
+        tbl = (
+            pivot.filter(pl.col("dataset") == ds)
+            .select(["Model", "Difficulty", *stat_cols])
+            .to_pandas()
+        )
+        tbl["Model"] = pd.Categorical(tbl["Model"], categories=pretty_order, ordered=True)
+        tbl = tbl.sort_values(["Model", "Difficulty"]).reset_index(drop=True)
+        for col in stat_cols:
+            tbl[col] = tbl[col].map(lambda x: f"{x:.3f}" if pd.notna(x) else "")
+        logger.info(f"\n### {ds}\n{tbl.to_markdown(index=False)}")
+
     # --- CORRELATION WITH MMTEB ---
     mmteb = pl.read_csv(OUTPUT_DIR / "mmteb_with_ranks.csv")
 
