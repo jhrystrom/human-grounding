@@ -185,6 +185,8 @@ def main(
             use_english=use_english,
             top_n=TOP_N_TO_PLOT,
             file_type=file_type,
+            height=8,
+            aspect=1.8,
             filename_prefix=f"{experiment_name}_alignment_results",
         )
 

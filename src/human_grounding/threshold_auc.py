@@ -516,9 +516,9 @@ def _curve_to_group_auc(curve: pl.DataFrame) -> pl.DataFrame:
 
 
 _STAT_MARKERS: dict[str, tuple[str, int]] = {
-    "Mean": ("D", 160),
-    "Worst group": ("o", 110),
-    "Best group": ("^", 110),
+    "Mean": ("D", 180),
+    "Worst group": ("o", 130),
+    "Best group": ("^", 130),
 }
 
 
@@ -535,7 +535,7 @@ def plot_auc_bar(
     file_type: str = "pdf",
     x_label: str = "Alignment AUC (normalised)",
     filename_prefix: str = "alignment_results",
-    height: float = 8.0,
+    height: float = 9.0,
     aspect: float = 2.0,
 ) -> Path:
     """Horizontal dot-plot of alignment AUC, coloured by dataset, shaped by statistic.
@@ -654,10 +654,10 @@ def plot_auc_bar(
     # Legend: one patch per dataset, one line-marker per statistic — two rows below x label.
     # fig.legend with constrained_layout handles spacing automatically.
     legend_handles: list = [mpatches.Patch(color=color_map[ds], label=ds) for ds in datasets_in_data]
-    for stat, (marker, size) in _STAT_MARKERS.items():
+    for stat, (marker, _) in _STAT_MARKERS.items():
         legend_handles.append(
             plt.Line2D([0], [0], marker=marker, color="gray", linestyle="None",
-                       markersize=(size ** 0.5), label=stat)
+                       markersize=20, label=stat)
         )
     ncol = int(np.ceil(len(legend_handles) / 2))
     fig.legend(
