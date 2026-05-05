@@ -31,6 +31,8 @@ COORDINATES = {
 }
 
 
+
+
 def get_embedding_alignments(
     models: list[str], full_dataset: pl.DataFrame, use_english: bool = False
 ) -> pl.DataFrame:
@@ -45,21 +47,31 @@ def get_embedding_alignments(
     return pl.concat(results, how="vertical_relaxed").drop("cause", "source", "size")
 
 
+def _get_experiment_name(experiments: list[str]) -> str:
+    return "_".join(sorted(experiments))
+
 def main(
     font_scale: float,
     use_english: bool = False,
     use_cache: bool = False,
     file_type: str = "pdf",
     metric: str = "binary",
-    experiment: str = "policy",
+    experiments: list[str] = ["policy"],
 ) -> None:
-    full_dataset = pl.read_csv(DATA_DIR / COORDINATES[experiment])
+    combined_results = []
+    for exp in experiments:
+        full_dataset = pl.read_csv(DATA_DIR / COORDINATES[exp])
+        combined_results.append(full_dataset)
+    full_dataset = pl.concat(combined_results, how="vertical_relaxed")
+    
+    welfare_demographics = get_welfare_demographics() if "policy" in experiments else None
     models = sorted(get_all_models())
-    welfare_demographics = get_welfare_demographics() if experiment == "policy" else None
-    rai_demographics = get_rai_demographics() if experiment == "policy" else None
+    rai_demographics = get_rai_demographics() if "policy" in experiments else None
 
-    out_path = OUTPUT_DIR / f"alignment_results_{experiment}.csv"
-    diff_csv = OUTPUT_DIR / f"difficulty_split_{experiment}.csv"
+    experiment_name = _get_experiment_name(experiments)
+
+    out_path = OUTPUT_DIR / f"alignment_results_{experiment_name}.csv"
+    diff_csv = OUTPUT_DIR / f"difficulty_split_{experiment_name}.csv"
     if use_english:
         out_path = append_english(out_path)
         diff_csv = append_english(diff_csv)
@@ -74,12 +86,25 @@ def main(
         return _combined
 
     # --- BINARY AUC ---
+    all_binary_auc: pl.DataFrame | None = None
     if metric in ["binary", "both"]:
         if use_cache and out_path.exists():
             logger.info(f"Loading cached alignment results from {out_path}")
-            auc_bootstraps = (
+            all_binary_auc = (
                 pl.read_csv(out_path).filter(pl.col("metric") == "binary_auc").drop("metric")
             )
+            auc_bootstraps = all_binary_auc.filter(
+                pl.col("model") != human_grounding.threshold_auc.HUMAN_MODEL_NAME
+            )
+            if human_grounding.threshold_auc.HUMAN_MODEL_NAME not in all_binary_auc["model"]:
+                logger.info("Human baseline missing from cache — loading from alpha_data_demographic.csv")
+                human_auc = human_grounding.threshold_auc.load_human_auc(
+                    OUTPUT_DIR / "alpha_data_demographic.csv"
+                )
+                all_binary_auc = pl.concat(
+                    [auc_bootstraps, human_auc.select(auc_bootstraps.columns)],
+                    how="vertical_relaxed",
+                )
         else:
             auc_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
                 combined_results=_get_combined(),
@@ -87,6 +112,13 @@ def main(
                 rai_demographics=rai_demographics,
                 n_bootstrap=10,
                 metric="binary",
+            )
+            human_auc = human_grounding.threshold_auc.load_human_auc(
+                OUTPUT_DIR / "alpha_data_demographic.csv"
+            )
+            all_binary_auc = pl.concat(
+                [auc_bootstraps, human_auc.select(auc_bootstraps.columns)],
+                how="vertical_relaxed",
             )
     else:
         auc_bootstraps = None
@@ -126,17 +158,17 @@ def main(
     # Persist freshly computed results (only when embeddings were actually run)
     if _combined is not None:
         to_save = []
-        if auc_bootstraps is not None:
-            to_save.append(auc_bootstraps.with_columns(pl.lit("binary_auc").alias("metric")))
+        if all_binary_auc is not None:
+            to_save.append(all_binary_auc.with_columns(pl.lit("binary_auc").alias("metric")))
         if all_spearman is not None:
             to_save.append(all_spearman.with_columns(pl.lit("spearman").alias("metric")))
         if to_save:
             pl.concat(to_save).write_csv(out_path)
 
     # --- PLOT (ONLY BINARY FOR NOW) ---
-    if auc_bootstraps is not None:
+    if all_binary_auc is not None:
         human_grounding.threshold_auc.plot_auc_bar(
-            auc_bootstraps,
+            all_binary_auc,
             plot_dir=PLOT_DIR,
             pretty_names=PRETTY_NAMES,
             font_scale=font_scale,
@@ -196,7 +228,7 @@ def main(
         font_scale=font_scale * 0.55,
         file_type=file_type,
         title="",
-        filename_prefix=experiment,
+        filename_prefix=experiment_name,
     )
 
     # --- DIFFICULTY TABLE ---
@@ -248,7 +280,10 @@ def main(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Compute and plot neural alignment results for a set of models and datasets.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument("--scale", type=float, default=2.8)
     parser.add_argument("--english", action="store_true")
     parser.add_argument("--cache", action="store_true")
@@ -256,7 +291,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--metric", choices=["binary", "spearman", "both"], default="binary"
     )
-    parser.add_argument("--experiment", choices=COORDINATES.keys(), default="policy")
+    parser.add_argument("--experiments", nargs="+", choices=COORDINATES.keys(), default=["policy"])
 
     args = parser.parse_args()
 
@@ -266,5 +301,5 @@ if __name__ == "__main__":
         use_cache=args.cache,
         file_type=args.file,
         metric=args.metric,
-        experiment=args.experiment,
+        experiments=args.experiments,
     )
