@@ -83,36 +83,37 @@ def main(
 
     # Lazy: run the expensive embedding step only when at least one cache is cold
     _combined: pl.DataFrame | None = None
+    _embeddings_computed = False
 
     def _get_combined() -> pl.DataFrame:
-        nonlocal _combined
+        nonlocal _combined, _embeddings_computed
         if _combined is None:
             _combined = get_embedding_alignments(models, full_dataset, use_english=use_english)
+            _embeddings_computed = True
         return _combined
+
+    def _load_human_aucs() -> pl.DataFrame | None:
+        """Load human AUC from alpha files for all experiments that have one."""
+        frames = []
+        for exp in experiments:
+            alpha_path = OUTPUT_DIR / f"alpha_data_{exp}_demographic.csv"
+            if alpha_path.exists():
+                frames.append(human_grounding.threshold_auc.load_human_auc(alpha_path))
+            else:
+                logger.info(f"No human baseline for {exp} ({alpha_path.name} not found), skipping")
+        return pl.concat(frames, how="vertical_relaxed") if frames else None
 
     # --- BINARY AUC ---
     all_binary_auc: pl.DataFrame | None = None
     if metric in ["binary", "both"]:
         if use_cache and out_path.exists():
             logger.info(f"Loading cached alignment results from {out_path}")
-            all_binary_auc = (
-                pl.read_csv(out_path).filter(pl.col("metric") == "binary_auc").drop("metric")
+            auc_bootstraps = (
+                pl.read_csv(out_path)
+                .filter(pl.col("metric") == "binary_auc")
+                .drop("metric")
+                .filter(pl.col("model") != human_grounding.threshold_auc.HUMAN_MODEL_NAME)
             )
-            auc_bootstraps = all_binary_auc.filter(
-                pl.col("model") != human_grounding.threshold_auc.HUMAN_MODEL_NAME
-            )
-            if "policy" not in experiments:
-                # Cache may contain stale welfare/rai Human rows — strip them.
-                all_binary_auc = auc_bootstraps
-            elif human_grounding.threshold_auc.HUMAN_MODEL_NAME not in all_binary_auc["model"]:
-                logger.info("Human baseline missing from cache — loading from alpha_data_demographic.csv")
-                human_auc = human_grounding.threshold_auc.load_human_auc(
-                    OUTPUT_DIR / "alpha_data_demographic.csv"
-                )
-                all_binary_auc = pl.concat(
-                    [auc_bootstraps, human_auc.select(auc_bootstraps.columns)],
-                    how="vertical_relaxed",
-                )
         else:
             auc_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
                 combined_results=_get_combined(),
@@ -121,16 +122,14 @@ def main(
                 n_bootstrap=10,
                 metric="binary",
             )
-            if "policy" in experiments:
-                human_auc = human_grounding.threshold_auc.load_human_auc(
-                    OUTPUT_DIR / "alpha_data_demographic.csv"
-                )
-                all_binary_auc = pl.concat(
-                    [auc_bootstraps, human_auc.select(auc_bootstraps.columns)],
-                    how="vertical_relaxed",
-                )
-            else:
-                all_binary_auc = auc_bootstraps
+        human_auc = _load_human_aucs()
+        if human_auc is not None:
+            all_binary_auc = pl.concat(
+                [auc_bootstraps, human_auc.select(auc_bootstraps.columns)],
+                how="vertical_relaxed",
+            )
+        else:
+            all_binary_auc = auc_bootstraps
     else:
         auc_bootstraps = None
 
@@ -167,7 +166,7 @@ def main(
             )
 
     # Persist freshly computed results (only when embeddings were actually run)
-    if _combined is not None:
+    if _embeddings_computed:
         to_save = []
         if all_binary_auc is not None:
             to_save.append(all_binary_auc.with_columns(pl.lit("binary_auc").alias("metric")))

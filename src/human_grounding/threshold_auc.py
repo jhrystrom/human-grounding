@@ -115,7 +115,8 @@ def load_human_auc(
 
     human = raw.filter(
         (pl.col("reliability_type") == "between")
-        & (pl.col("group_type") == "demographic"),
+        & (pl.col("group_type") == "demographic")
+        & (pl.col("group_name") != "unknown"),
     )
 
     if thresholds is not None:
@@ -136,6 +137,8 @@ def load_human_auc(
 
     # Demographic -> dataset mapping: numeric groups belong to welfare,
     # Low/Medium/High belong to rai.
+    KNOWN_DEMOGRAPHIC_DATASETS = {"welfare", "rai"}
+
     def _dataset_for_demographic(demo: str) -> str:
         if demo.isdigit():
             return "welfare"
@@ -161,6 +164,44 @@ def load_human_auc(
                 "iteration": iteration_id,
                 "auc": auc_val,
             },
+        )
+
+    # For datasets that have no meaningful demographic breakdown (e.g. gov-ai),
+    # the demographic rows will map to a known dataset incorrectly or not at all.
+    # Fall back to the dataset-level rows for any dataset not already covered.
+    covered_datasets = {row["dataset"] for row in auc_rows}
+    dataset_rows = raw.filter(
+        (pl.col("reliability_type") == "between")
+        & (pl.col("group_type") == "dataset")
+        & (~pl.col("group_name").is_in(list(covered_datasets | KNOWN_DEMOGRAPHIC_DATASETS))),
+    )
+    if thresholds is not None:
+        threshold_arr = np.array(thresholds)
+        dataset_rows = dataset_rows.with_columns(
+            pl.col("d")
+            .map_elements(
+                lambda d: float(threshold_arr[np.argmin(np.abs(threshold_arr - d))]),
+                return_dtype=pl.Float64,
+            )
+            .alias("d_snapped"),
+        )
+        d_col_ds = "d_snapped"
+    else:
+        d_col_ds = "d"
+
+    for (dataset_name, iteration_id), group in dataset_rows.group_by(["group_name", "iteration_id"]):
+        if group.height < 2:
+            continue
+        arr = group.sort(d_col_ds)
+        auc_val = _auc_trapz_np(arr[d_col_ds].to_numpy(), arr["krippendorf"].to_numpy())
+        auc_rows.append(
+            {
+                "model": HUMAN_MODEL_NAME,
+                "dataset": str(dataset_name),
+                "demographics": "Overall",
+                "iteration": iteration_id,
+                "auc": auc_val,
+            }
         )
 
     return pl.DataFrame(auc_rows)
@@ -474,6 +515,13 @@ def _curve_to_group_auc(curve: pl.DataFrame) -> pl.DataFrame:
     return pl.DataFrame(auc_rows)
 
 
+_STAT_MARKERS: dict[str, tuple[str, int]] = {
+    "Mean": ("D", 160),
+    "Worst group": ("o", 110),
+    "Best group": ("^", 110),
+}
+
+
 def plot_auc_bar(
     group_auc: pl.DataFrame,
     plot_dir: Path,
@@ -487,31 +535,58 @@ def plot_auc_bar(
     file_type: str = "pdf",
     x_label: str = "Alignment AUC (normalised)",
     filename_prefix: str = "alignment_results",
+    height: float = 8.0,
+    aspect: float = 2.0,
 ) -> Path:
-    """Faceted horizontal bar chart of alignment metrics."""
+    """Horizontal dot-plot of alignment AUC, coloured by dataset, shaped by statistic.
+
+    Datasets with no real demographic breakdown (e.g. gov-ai, which only has
+    an 'Overall' group) show only the Mean marker.
+    """
+    import matplotlib.patches as mpatches
+
     if dataset_name_map is None:
         dataset_name_map = {"rai": "Responsible AI", "welfare": "Welfare"}
 
-    has_demo = "demographics" in group_auc.columns
-    if has_demo:
-        agg_exprs = [
-            pl.col("auc").max().alias("Best Group"),
-            pl.col("auc").min().alias("Worst Group"),
-            pl.col("auc").mean().alias("Mean"),
-        ]
-    else:
-        agg_exprs = [pl.col("auc").mean().alias("Mean")]
+    pretty = pretty_names or {}
 
-    per_iter = (
-        group_auc.group_by("model", "dataset", "iteration")
-        .agg(*agg_exprs)
-        .unpivot(
-            index=["model", "dataset", "iteration"],
-            variable_name="statistic",
-            value_name="auc",
+    # Datasets that have real demographic sub-groups (not just "Overall" / null)
+    has_demo_col = "demographics" in group_auc.columns
+    if has_demo_col:
+        demo_datasets: set[str] = set(
+            group_auc.filter(
+                pl.col("demographics").is_not_null()
+                & (pl.col("demographics") != "Overall")
+            )["dataset"].unique().to_list()
         )
-    )
+    else:
+        demo_datasets = set()
 
+    # Per-iteration aggregation: Best/Worst/Mean for demographic datasets, Mean-only otherwise.
+    # Unpivot each part before concat so all share the same schema.
+    parts = []
+    for (dataset,), ds_group in group_auc.group_by(["dataset"]):
+        if dataset in demo_datasets:
+            agg = ds_group.group_by("model", "dataset", "iteration").agg(
+                pl.col("auc").max().alias("Best group"),
+                pl.col("auc").min().alias("Worst group"),
+                pl.col("auc").mean().alias("Mean"),
+            )
+        else:
+            agg = ds_group.group_by("model", "dataset", "iteration").agg(
+                pl.col("auc").mean().alias("Mean"),
+            )
+        parts.append(
+            agg.unpivot(
+                index=["model", "dataset", "iteration"],
+                variable_name="statistic",
+                value_name="auc",
+            )
+        )
+
+    per_iter = pl.concat(parts)
+
+    # Model order: descending mean AUC across all datasets
     model_order = (
         per_iter.filter(pl.col("statistic") == "Mean")
         .group_by("model")
@@ -520,44 +595,83 @@ def plot_auc_bar(
         .get_column("model")
         .to_list()
     )
+    keep_models = model_order[: top_n + 1]
 
-    plot_data = per_iter.with_columns(
-        pl.col("model").replace(pretty_names or {}),
-        pl.col("dataset").replace(dataset_name_map),
+    # Summarise across bootstrap iterations: mean + CI
+    alpha = (100.0 - ci) / 200.0
+    summary = (
+        per_iter.filter(pl.col("model").is_in(keep_models))
+        .group_by("model", "dataset", "statistic")
+        .agg(
+            pl.col("auc").mean().alias("mean"),
+            pl.col("auc").quantile(alpha).alias("lo"),
+            pl.col("auc").quantile(1.0 - alpha).alias("hi"),
+        )
+        .with_columns(
+            pl.col("model").replace(pretty),
+            pl.col("dataset").replace(dataset_name_map),
+        )
+        .to_pandas()
     )
+
+    pretty_order = [pretty.get(m, m) for m in keep_models]
+    datasets_in_data = sorted(summary["dataset"].unique())
+
+    palette = sns.color_palette("Set2", len(datasets_in_data))
+    color_map = dict(zip(datasets_in_data, palette))
 
     sns.set_theme(style="whitegrid", font_scale=font_scale)
-    g = sns.catplot(
-        data=plot_data.to_pandas(),
-        x="auc",
-        y="model",
-        hue="statistic",
-        col="dataset",
-        order=[(pretty_names or {}).get(m, m) for m in model_order if m in model_order][
-            : top_n + 1
-        ],
-        kind="bar",
-        palette="coolwarm",
-        height=10,
-        aspect=0.9,
-        errorbar=("ci", ci),
+    fig, ax = plt.subplots(figsize=(height * aspect, height))
+
+    # y=0 → best model; axis is inverted so y=0 renders at the top
+    y_pos = {m: i for i, m in enumerate(pretty_order)}
+
+    for ds in datasets_in_data:
+        color = color_map[ds]
+        for stat, (marker, size) in _STAT_MARKERS.items():
+            sub = summary[(summary["dataset"] == ds) & (summary["statistic"] == stat)]
+            if sub.empty:
+                continue
+            for _, row in sub.iterrows():
+                if row["model"] not in y_pos:
+                    continue
+                y = y_pos[row["model"]]
+                ax.plot([row["lo"], row["hi"]], [y, y], color=color, lw=1.5, alpha=0.6, zorder=2)
+                ax.scatter(row["mean"], y, color=color, marker=marker, s=size, zorder=3)
+
+    # Alternating row shading
+    for i in range(len(pretty_order)):
+        if i % 2 == 0:
+            ax.axhspan(i - 0.5, i + 0.5, color="grey", alpha=0.06, zorder=0)
+
+    ax.set_yticks(range(len(pretty_order)))
+    ax.set_yticklabels(pretty_order)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 1)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel("")
+
+    # Legend: one patch per dataset, one line-marker per statistic — two rows below x label.
+    # fig.legend with constrained_layout handles spacing automatically.
+    legend_handles: list = [mpatches.Patch(color=color_map[ds], label=ds) for ds in datasets_in_data]
+    for stat, (marker, size) in _STAT_MARKERS.items():
+        legend_handles.append(
+            plt.Line2D([0], [0], marker=marker, color="gray", linestyle="None",
+                       markersize=(size ** 0.5), label=stat)
+        )
+    ncol = int(np.ceil(len(legend_handles) / 2))
+    fig.legend(
+        handles=legend_handles,
+        loc="lower center",
+        ncol=ncol,
+        frameon=False,
+        bbox_to_anchor=(0.5, -0.02),
     )
-    g.set_titles("{col_name}")
-    # Move legend below
-    sns.move_legend(
-    g,
-    "lower center",
-    bbox_to_anchor=(0.5, -0.03),
-    ncol=plot_data["statistic"].n_unique(),  # or len(g._legend_data)
-    title=None,
-    frameon=False,
-)
 
-
-    g.set_axis_labels("", "")
-    g.figure.supxlabel(x_label, y=0.05)
+    plt.tight_layout(rect=(0, 0.12, 1, 1))
     out_path = plot_dir / f"{filename_prefix}.{file_type}"
     plt.savefig(out_path, bbox_inches="tight")
+    plt.clf()
     return out_path
 
 

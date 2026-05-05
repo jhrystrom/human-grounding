@@ -24,7 +24,7 @@ from human_grounding.alpha_reliability import (
     vectorized_judgment,
 )
 from human_grounding.data import get_demographics
-from human_grounding.directories import OUTPUT_DIR, PLOT_DIR
+from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
 
 # Type aliases for clarity
 RaterKey = tuple[str, int, str]  # (dataset, seed, user_id)
@@ -32,6 +32,12 @@ DistanceData = dict[
     str, np.ndarray
 ]  # {"statement_ids": ..., "dist_matrix": ..., "demographics": ...}
 RaterPair = tuple[RaterKey, RaterKey]
+
+COORDINATES = {
+    "policy": "combined_coordinates.csv",
+    "gov-ai": "govai_coordinates.csv",
+}
+
 
 
 def load_coordinates(data_path: Path) -> pl.DataFrame:
@@ -835,17 +841,23 @@ def build_alpha_dataframe(
     return pl.DataFrame(rows)
 
 
-def main(samples: int = 5, font_scale: float = 1.5) -> None:
+def main(experiment: str, samples: int = 5, font_scale: float = 1.5) -> None:
     """Main execution function."""
-    data_path = OUTPUT_DIR / "combined_coordinates.csv"
-    output_path = PLOT_DIR / "alpha_distance_plot_demographic.pdf"
-    csv_output_path = OUTPUT_DIR / "alpha_data_demographic.csv"
 
     print("Loading coordinate data...")
-    demographics = get_demographics()
-    coords = load_coordinates(data_path).join(demographics, on="statement_id")
+    data_path = DATA_DIR / COORDINATES[experiment]
+    output_path = PLOT_DIR / f"alpha_distance_plot_{experiment}_demographic.pdf"
+    csv_output_path = OUTPUT_DIR / f"alpha_data_{experiment}_demographic.csv"
+    coords = load_coordinates(data_path)
+    if experiment == "policy":
+        demographics = get_demographics()
+        coords = coords.join(demographics, on="statement_id")
+    elif experiment == "gov-ai":
+        coords = coords.with_columns(
+            pl.lit("unknown").alias("demographic")
+        )
 
-    print(f"Loaded {len(coords)} coordinate entries\n")
+
 
     create_alpha_distance_plots(
         coords,
@@ -868,7 +880,10 @@ if __name__ == "__main__":
         help="Number of bootstrap samples (default: 5)",
     )
     parser.add_argument(
+        "--experiment", choices=COORDINATES.keys(), default="policy", help="Datasets to include"
+    )
+    parser.add_argument(
         "--scale", type=float, help="Font scale for the plot", default=2.0
     )
     args = parser.parse_args()
-    main(samples=args.samples, font_scale=args.scale)
+    main(experiment=args.experiment, samples=args.samples, font_scale=args.scale)
