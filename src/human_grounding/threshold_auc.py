@@ -327,22 +327,28 @@ def join_demographics(
     rai_filtered = _process(rai_filtered, rai_demographics, "closer_idx", "_close")
     rai_filtered = _process(rai_filtered, rai_demographics, "farther_idx", "_far")
 
-    full_joined = (
-        pl.concat(
-            [
-                welfare_filtered.with_columns(
-                    pl.concat_list(cs.starts_with("demographic")).alias("demographics")
-                ),
-                rai_filtered.with_columns(
-                    pl.concat_list(cs.starts_with("demographic")).alias("demographics")
-                ),
-            ]
+    # Datasets with no explicit demographics (e.g. gov-ai): use "Overall" as a
+    # single synthetic group so their rows are not silently dropped.
+    other_filtered = (
+        filtered_comparisons.filter(~pl.col("dataset").is_in(["welfare", "rai"]))
+        .with_columns(
+            pl.col("demographic").fill_null("Overall").alias("demographics")
         )
-        .explode("demographics")
-        .select(keep)
+        .select([c for c in keep if c in filtered_comparisons.columns or c == "demographics"])
     )
 
-    return full_joined
+    to_concat = [
+        welfare_filtered.with_columns(
+            pl.concat_list(cs.starts_with("demographic")).alias("demographics")
+        ).explode("demographics").select(keep),
+        rai_filtered.with_columns(
+            pl.concat_list(cs.starts_with("demographic")).alias("demographics")
+        ).explode("demographics").select(keep),
+    ]
+    if other_filtered.height > 0:
+        to_concat.append(other_filtered.select(keep))
+
+    return pl.concat(to_concat)
 
 
 # ---------------------------------------------------------------------------

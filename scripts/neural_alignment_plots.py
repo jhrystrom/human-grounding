@@ -29,6 +29,11 @@ COORDINATES = {
     "policy": "valid_coordinates.csv",
     "gov-ai": "govai_coordinates.csv",
 }
+DATASET_PRETTY_NAMES = {
+    "rai": "Responsible AI",
+    "welfare": "Welfare",
+    "gov-ai": "Government AI",
+}
 
 
 
@@ -96,7 +101,10 @@ def main(
             auc_bootstraps = all_binary_auc.filter(
                 pl.col("model") != human_grounding.threshold_auc.HUMAN_MODEL_NAME
             )
-            if human_grounding.threshold_auc.HUMAN_MODEL_NAME not in all_binary_auc["model"]:
+            if "policy" not in experiments:
+                # Cache may contain stale welfare/rai Human rows — strip them.
+                all_binary_auc = auc_bootstraps
+            elif human_grounding.threshold_auc.HUMAN_MODEL_NAME not in all_binary_auc["model"]:
                 logger.info("Human baseline missing from cache — loading from alpha_data_demographic.csv")
                 human_auc = human_grounding.threshold_auc.load_human_auc(
                     OUTPUT_DIR / "alpha_data_demographic.csv"
@@ -113,13 +121,16 @@ def main(
                 n_bootstrap=10,
                 metric="binary",
             )
-            human_auc = human_grounding.threshold_auc.load_human_auc(
-                OUTPUT_DIR / "alpha_data_demographic.csv"
-            )
-            all_binary_auc = pl.concat(
-                [auc_bootstraps, human_auc.select(auc_bootstraps.columns)],
-                how="vertical_relaxed",
-            )
+            if "policy" in experiments:
+                human_auc = human_grounding.threshold_auc.load_human_auc(
+                    OUTPUT_DIR / "alpha_data_demographic.csv"
+                )
+                all_binary_auc = pl.concat(
+                    [auc_bootstraps, human_auc.select(auc_bootstraps.columns)],
+                    how="vertical_relaxed",
+                )
+            else:
+                all_binary_auc = auc_bootstraps
     else:
         auc_bootstraps = None
 
@@ -175,6 +186,7 @@ def main(
             use_english=use_english,
             top_n=TOP_N_TO_PLOT,
             file_type=file_type,
+            filename_prefix=f"{experiment_name}_alignment_results",
         )
 
     # --- SPEARMAN SUMMARY ---
@@ -220,10 +232,13 @@ def main(
         )
         difficulty_summary.write_csv(diff_csv)
 
+    actual_datasets = difficulty_summary["dataset"].unique().to_list()
+    dataset_name_map = {ds: DATASET_PRETTY_NAMES.get(ds, ds) for ds in actual_datasets}
     human_grounding.threshold_auc.plot_difficulty_dumbbell(
         difficulty_summary,
         plot_dir=PLOT_DIR,
         pretty_names=PRETTY_NAMES,
+        dataset_name_map=dataset_name_map,
         top_n=TOP_N_TO_PLOT,
         font_scale=font_scale * 0.55,
         file_type=file_type,

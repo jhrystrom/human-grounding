@@ -258,4 +258,4 @@ def evaluate_human_embedding_match(
             model=model, coordinates=group, use_english=use_english
         )
         results.append(comparison_demographics)
-    return pl.concat(results)
+    return pl.concat(results, how="vertical_relaxed")
