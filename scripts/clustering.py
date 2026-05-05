@@ -11,13 +11,18 @@ from sklearn.metrics import adjusted_rand_score, v_measure_score
 import human_grounding.clustering
 import human_grounding.evaluate
 from human_grounding.constants import PRETTY_NAMES
-from human_grounding.directories import OUTPUT_DIR, PLOT_DIR
+from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
 from human_grounding.embed import get_all_models
 from human_grounding.names import append_english
 
 metrics = {
     "v_measure": v_measure_score,
     "adjusted_rand_index": adjusted_rand_score,
+}
+
+COORDINATES = {
+    "policy": OUTPUT_DIR / "normalised_coordinates.csv",
+    "gov-ai": DATA_DIR / "govai_coordinates.csv",
 }
 
 
@@ -49,8 +54,8 @@ def ids_from_mask(ids_: list[int], mask: list[bool]) -> list[int]:
     return [i for i, m in zip(ids_, mask) if m]
 
 
-def main(scale: float = 1.35, top: int = 20, use_english: bool = False):
-    coordinates = pl.read_csv(OUTPUT_DIR / "normalised_coordinates.csv").with_columns(
+def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experiment: str = "policy") -> None:
+    coordinates = pl.read_csv(COORDINATES[experiment]).with_columns(
         pl.col("user_id").str.strip_suffix("_coords")
     )
     total_rounds = coordinates.group_by("dataset", "seed", "user_id").len().height
@@ -104,7 +109,7 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False):
         )
 
     human_score_df = pl.DataFrame(scores)
-    path = OUTPUT_DIR / "human_cluster_consistency.csv"
+    path = OUTPUT_DIR / f"human_cluster_consistency_{experiment}.csv"
     if use_english:
         path = append_english(path)
     human_score_df.write_csv(path)
@@ -175,7 +180,7 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False):
             )
 
     model_df = pl.DataFrame(model_scores)
-    model_path = OUTPUT_DIR / "model_cluster_consistency.csv"
+    model_path = OUTPUT_DIR / f"model_cluster_consistency_{experiment}.csv"
     if use_english:
         model_path = append_english(model_path)
     model_df.write_csv(model_path)
@@ -190,12 +195,12 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False):
     aggregated_df = combined_df.group_by("model").agg(
         *[pl.mean(metric).alias(metric) for metric in metrics]
     )
-    aggregated_path = OUTPUT_DIR / "cluster_consistency_aggregated.csv"
+    aggregated_path = OUTPUT_DIR / f"cluster_consistency_aggregated_{experiment}.csv"
     if use_english:
         aggregated_path = append_english(aggregated_path)
     aggregated_df.write_csv(aggregated_path)
 
-    gt_path = OUTPUT_DIR / "human_alignment_bootstrapped.csv"
+    gt_path = OUTPUT_DIR / f"human_alignment_bootstrapped_{experiment}.csv"
     if use_english:
         gt_path = append_english(gt_path)
     alignment_scores = pl.read_csv(gt_path)
@@ -253,7 +258,7 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False):
         strip_plot.set_xticklabels(
             strip_plot.get_xticklabels(), rotation=45, ha="right"
         )
-        plot_path = PLOT_DIR / f"cluster_consistency_comparison_{metric}.pdf"
+        plot_path = PLOT_DIR / f"cluster_consistency_comparison_{metric}_{experiment}.pdf"
         if use_english:
             plot_path = append_english(plot_path)
         plt.savefig(
@@ -264,7 +269,7 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Evaluate clustering consistency")
+    parser = argparse.ArgumentParser(description="Evaluate clustering consistency", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "--scale", type=float, default=1.35, help="Font scale for the plots"
     )
@@ -274,6 +279,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--english", action="store_true", help="Use English translations for statements"
     )
+    parser.add_argument(
+        "--experiment", type=str, choices=["policy", "gov-ai"], default="policy"
+    )
     args = parser.parse_args()
 
-    main(scale=args.scale, top=args.top, use_english=args.english)
+    main(scale=args.scale, top=args.top, use_english=args.english, experiment=args.experiment)
