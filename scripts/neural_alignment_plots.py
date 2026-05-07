@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 import human_grounding.evaluate
 import human_grounding.threshold_auc
-from human_grounding.constants import PRETTY_NAMES
+from human_grounding.constants import DATASET_PRETTY_NAMES, PRETTY_NAMES
 from human_grounding.data import (
     get_rai_demographics,
     get_welfare_demographics,
@@ -29,13 +29,6 @@ COORDINATES = {
     "policy": "valid_coordinates.csv",
     "gov-ai": "govai_coordinates.csv",
 }
-DATASET_PRETTY_NAMES = {
-    "rai": "Responsible AI",
-    "welfare": "Welfare",
-    "gov-ai": "Government AI",
-}
-
-
 
 
 def get_embedding_alignments(
@@ -55,6 +48,7 @@ def get_embedding_alignments(
 def _get_experiment_name(experiments: list[str]) -> str:
     return "_".join(sorted(experiments))
 
+
 def main(
     font_scale: float,
     use_english: bool = False,
@@ -68,8 +62,10 @@ def main(
         full_dataset = pl.read_csv(DATA_DIR / COORDINATES[exp])
         combined_results.append(full_dataset)
     full_dataset = pl.concat(combined_results, how="vertical_relaxed")
-    
-    welfare_demographics = get_welfare_demographics() if "policy" in experiments else None
+
+    welfare_demographics = (
+        get_welfare_demographics() if "policy" in experiments else None
+    )
     models = sorted(get_all_models())
     rai_demographics = get_rai_demographics() if "policy" in experiments else None
 
@@ -88,7 +84,9 @@ def main(
     def _get_combined() -> pl.DataFrame:
         nonlocal _combined, _embeddings_computed
         if _combined is None:
-            _combined = get_embedding_alignments(models, full_dataset, use_english=use_english)
+            _combined = get_embedding_alignments(
+                models, full_dataset, use_english=use_english
+            )
             _embeddings_computed = True
         return _combined
 
@@ -100,7 +98,9 @@ def main(
             if alpha_path.exists():
                 frames.append(human_grounding.threshold_auc.load_human_auc(alpha_path))
             else:
-                logger.info(f"No human baseline for {exp} ({alpha_path.name} not found), skipping")
+                logger.info(
+                    f"No human baseline for {exp} ({alpha_path.name} not found), skipping"
+                )
         return pl.concat(frames, how="vertical_relaxed") if frames else None
 
     # --- BINARY AUC ---
@@ -112,7 +112,9 @@ def main(
                 pl.read_csv(out_path)
                 .filter(pl.col("metric") == "binary_auc")
                 .drop("metric")
-                .filter(pl.col("model") != human_grounding.threshold_auc.HUMAN_MODEL_NAME)
+                .filter(
+                    pl.col("model") != human_grounding.threshold_auc.HUMAN_MODEL_NAME
+                )
             )
         else:
             auc_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
@@ -139,7 +141,9 @@ def main(
     if metric in ["spearman", "both"]:
         if use_cache and out_path.exists():
             cached_sp = (
-                pl.read_csv(out_path).filter(pl.col("metric") == "spearman").drop("metric")
+                pl.read_csv(out_path)
+                .filter(pl.col("metric") == "spearman")
+                .drop("metric")
             )
             all_spearman = cached_sp
             spearman_bootstraps = cached_sp.filter(
@@ -152,16 +156,21 @@ def main(
                 rai_demographics=rai_demographics,
                 n_bootstrap=10,
             )
-            spearman_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
-                combined_results=_get_combined(),
-                welfare_demographics=welfare_demographics,
-                rai_demographics=rai_demographics,
-                n_bootstrap=10,
-                metric="spearman",
+            spearman_bootstraps, _ = (
+                human_grounding.threshold_auc.compute_threshold_auc(
+                    combined_results=_get_combined(),
+                    welfare_demographics=welfare_demographics,
+                    rai_demographics=rai_demographics,
+                    n_bootstrap=10,
+                    metric="spearman",
+                )
             )
             logger.debug(f"{human_spearman=}")
             all_spearman = pl.concat(
-                [spearman_bootstraps, human_spearman.select(spearman_bootstraps.columns)],
+                [
+                    spearman_bootstraps,
+                    human_spearman.select(spearman_bootstraps.columns),
+                ],
                 how="vertical_relaxed",
             )
 
@@ -169,9 +178,13 @@ def main(
     if _embeddings_computed:
         to_save = []
         if all_binary_auc is not None:
-            to_save.append(all_binary_auc.with_columns(pl.lit("binary_auc").alias("metric")))
+            to_save.append(
+                all_binary_auc.with_columns(pl.lit("binary_auc").alias("metric"))
+            )
         if all_spearman is not None:
-            to_save.append(all_spearman.with_columns(pl.lit("spearman").alias("metric")))
+            to_save.append(
+                all_spearman.with_columns(pl.lit("spearman").alias("metric"))
+            )
         if to_save:
             pl.concat(to_save).write_csv(out_path)
 
@@ -249,8 +262,7 @@ def main(
 
     # --- DIFFICULTY TABLE ---
     model_order = (
-        difficulty_summary
-        .filter(pl.col("statistic") == "Mean")
+        difficulty_summary.filter(pl.col("statistic") == "Mean")
         .group_by("model")
         .agg(pl.col("auc_mean").mean())
         .sort("auc_mean", descending=True)
@@ -260,10 +272,11 @@ def main(
     pretty_order = [PRETTY_NAMES.get(m, m) for m in model_order]
 
     pivot = (
-        difficulty_summary
-        .filter(pl.col("model").is_in(model_order))
+        difficulty_summary.filter(pl.col("model").is_in(model_order))
         .with_columns(pl.col("model").replace(PRETTY_NAMES))
-        .pivot(on="statistic", index=["model", "dataset", "difficulty"], values="auc_mean")
+        .pivot(
+            on="statistic", index=["model", "dataset", "difficulty"], values="auc_mean"
+        )
         .rename({"model": "Model", "difficulty": "Difficulty"})
     )
     stat_cols = [c for c in ["Best", "Worst", "Mean"] if c in pivot.columns]
@@ -273,7 +286,9 @@ def main(
             .select(["Model", "Difficulty", *stat_cols])
             .to_pandas()
         )
-        tbl["Model"] = pd.Categorical(tbl["Model"], categories=pretty_order, ordered=True)
+        tbl["Model"] = pd.Categorical(
+            tbl["Model"], categories=pretty_order, ordered=True
+        )
         tbl = tbl.sort_values(["Model", "Difficulty"]).reset_index(drop=True)
         for col in stat_cols:
             tbl[col] = tbl[col].map(lambda x: f"{x:.3f}" if pd.notna(x) else "")
@@ -307,7 +322,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--metric", choices=["binary", "spearman", "both"], default="binary"
     )
-    parser.add_argument("--experiments", nargs="+", choices=COORDINATES.keys(), default=["policy"])
+    parser.add_argument(
+        "--experiments", nargs="+", choices=COORDINATES.keys(), default=["policy"]
+    )
 
     args = parser.parse_args()
 
