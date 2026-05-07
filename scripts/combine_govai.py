@@ -8,3 +8,6 @@ def main() -> None:
         pl.read_csv(file) for file in (DATA_DIR / "gov-ai").glob("gov-ai-user*n20.csv")
     )
     govai.write_csv(DATA_DIR / "govai_coordinates.csv")
+
+if __name__ == "__main__":
+    main()
