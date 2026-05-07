@@ -39,7 +39,6 @@ COORDINATES = {
 }
 
 
-
 def load_coordinates(data_path: Path) -> pl.DataFrame:
     """Load coordinate data from CSV."""
     return pl.read_csv(data_path).with_columns(
@@ -512,11 +511,154 @@ def create_between_auc_barplot_by_dataset(
 # ---------------------------
 
 
+def _plot_alpha_curve(
+    d_values: np.ndarray,
+    alpha_mean: np.ndarray,
+    alpha_lower: np.ndarray,
+    alpha_upper: np.ndarray,
+    alphas_by_demographic: dict[str, np.ndarray],
+    output_path: Path,
+    overall_label: str,
+    d_min: float,
+    d_max: float,
+    verbose: bool = True,
+) -> tuple[str | None, str | None, np.ndarray | None, np.ndarray | None]:
+    """Plot alpha vs distance threshold with overall + best/worst demographic bands."""
+    if alphas_by_demographic:
+        demographic_mean_alphas = {
+            demo: np.mean(alphas) for demo, alphas in alphas_by_demographic.items()
+        }
+        best_demographic = max(demographic_mean_alphas, key=demographic_mean_alphas.get)
+        worst_demographic = min(
+            demographic_mean_alphas, key=demographic_mean_alphas.get
+        )
+
+        best_alphas = alphas_by_demographic[best_demographic]
+        worst_alphas = alphas_by_demographic[worst_demographic]
+
+        best_mean = np.mean(best_alphas, axis=0)
+        best_lower = np.percentile(best_alphas, 2.5, axis=0)
+        best_upper = np.percentile(best_alphas, 97.5, axis=0)
+
+        worst_mean = np.mean(worst_alphas, axis=0)
+        worst_lower = np.percentile(worst_alphas, 2.5, axis=0)
+        worst_upper = np.percentile(worst_alphas, 97.5, axis=0)
+
+        if verbose:
+            print(
+                f"\nBest demographic group: {best_demographic} (mean alpha = {demographic_mean_alphas[best_demographic]:.3f})"
+            )
+            print(
+                f"Worst demographic group: {worst_demographic} (mean alpha = {demographic_mean_alphas[worst_demographic]:.3f})"
+            )
+    else:
+        best_demographic = worst_demographic = None
+        best_mean = best_lower = best_upper = None
+        worst_mean = worst_lower = worst_upper = None
+
+    sns.set_theme(style="whitegrid", font_scale=1.8)
+    _, ax = plt.subplots(figsize=(10, 6))
+
+    ax.plot(
+        d_values,
+        alpha_mean,
+        color="#1f77b4",
+        linewidth=2.5,
+        label=overall_label,
+        zorder=3,
+    )
+    ax.fill_between(
+        d_values,
+        alpha_lower,
+        alpha_upper,
+        color="#1f77b4",
+        alpha=0.2,
+        zorder=2,
+    )
+
+    if best_mean is not None:
+        ax.plot(
+            d_values,
+            best_mean,
+            color="#2ca02c",
+            linewidth=2.0,
+            label="Best group",
+            linestyle="--",
+            zorder=3,
+        )
+        ax.fill_between(
+            d_values, best_lower, best_upper, color="#2ca02c", alpha=0.15, zorder=1
+        )
+
+    if worst_mean is not None:
+        ax.plot(
+            d_values,
+            worst_mean,
+            color="#d62728",
+            linewidth=2.0,
+            label="Worst group",
+            linestyle="--",
+            zorder=3,
+        )
+        ax.fill_between(
+            d_values, worst_lower, worst_upper, color="#d62728", alpha=0.15, zorder=1
+        )
+
+    ax.axhline(
+        y=0,
+        color="black",
+        linestyle="--",
+        linewidth=1,
+        alpha=0.7,
+        zorder=0,
+    )
+
+    high_reliability_mask = alpha_mean >= 0.95
+    if np.any(high_reliability_mask):
+        first_high_idx = np.where(high_reliability_mask)[0][0]
+        x_max = d_values[min(first_high_idx + 5, len(d_values) - 1)]
+    else:
+        x_max = d_max
+
+    ax.set_xscale("log")
+    ax.set_xlim(d_min, x_max)
+
+    ax.xaxis.set_major_locator(
+        LogLocator(base=10.0, subs=np.arange(1, 10), numticks=15)
+    )
+    ax.xaxis.set_minor_locator(
+        LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1, numticks=100)
+    )
+
+    formatter = ScalarFormatter()
+    formatter.set_scientific(False)
+    formatter.set_useOffset(False)
+
+    ax.xaxis.set_major_formatter(formatter)
+    ax.xaxis.set_minor_formatter(formatter)
+
+    ax.set_xlabel("Distance ratio threshold d (far / close)  [log scale]")
+    ax.set_ylabel("Krippendorff's α")  # noqa: RUF001
+    ax.set_ylim(-0.1, 1.0)
+    ax.grid(True, alpha=0.3, which="major")
+    ax.grid(True, alpha=0.15, which="minor", linestyle=":")
+    ax.legend(framealpha=0.9)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    if verbose:
+        print(f"\nPlot saved to {output_path}")
+    plt.close()
+
+    return best_demographic, worst_demographic, best_mean, worst_mean
+
+
 @profile
 def create_alpha_distance_plots(
     coords: pl.DataFrame,
     output_path: Path,
     csv_output_path: Path | None = None,
+    within_output_path: Path | None = None,
     d_min: float = 1.0,
     d_max: float = 8,
     n_points: int = 50,
@@ -601,40 +743,6 @@ def create_alpha_distance_plots(
         verbose=verbose,
     )
 
-    # (Your existing “best/worst demographic overall” code + alpha distance plot stays unchanged)
-    if between_alphas_by_demographic:
-        demographic_mean_alphas = {
-            demo: np.mean(alphas)
-            for demo, alphas in between_alphas_by_demographic.items()
-        }
-        best_demographic = max(demographic_mean_alphas, key=demographic_mean_alphas.get)
-        worst_demographic = min(
-            demographic_mean_alphas, key=demographic_mean_alphas.get
-        )
-
-        best_alphas = between_alphas_by_demographic[best_demographic]
-        worst_alphas = between_alphas_by_demographic[worst_demographic]
-
-        best_mean = np.mean(best_alphas, axis=0)
-        best_lower = np.percentile(best_alphas, 2.5, axis=0)
-        best_upper = np.percentile(best_alphas, 97.5, axis=0)
-
-        worst_mean = np.mean(worst_alphas, axis=0)
-        worst_lower = np.percentile(worst_alphas, 2.5, axis=0)
-        worst_upper = np.percentile(worst_alphas, 97.5, axis=0)
-
-        if verbose:
-            print(
-                f"\nBest demographic group: {best_demographic} (mean alpha = {demographic_mean_alphas[best_demographic]:.3f})"
-            )
-            print(
-                f"Worst demographic group: {worst_demographic} (mean alpha = {demographic_mean_alphas[worst_demographic]:.3f})"
-            )
-    else:
-        best_demographic = worst_demographic = None
-        best_mean = best_lower = best_upper = None
-        worst_mean = worst_lower = worst_upper = None
-
     # Build and save CSV data (unchanged)
     alpha_df = build_alpha_dataframe(
         d_values,
@@ -648,105 +756,32 @@ def create_alpha_distance_plots(
         if verbose:
             print(f"\nCSV data saved to {csv_output_path}")
 
-    # Create alpha-vs-distance plot (unchanged)
-    sns.set_theme(style="whitegrid", font_scale=1.8)
-    _, ax = plt.subplots(figsize=(10, 6))
-
-    ax.plot(
-        d_values,
-        alpha_between,
-        color="#1f77b4",
-        linewidth=2.5,
-        label="Between-rater (overall)",
-        zorder=3,
-    )
-    ax.fill_between(
-        d_values,
-        alpha_between_lower,
-        alpha_between_upper,
-        color="#1f77b4",
-        alpha=0.2,
-        zorder=2,
+    best_demographic, worst_demographic, best_mean, worst_mean = _plot_alpha_curve(
+        d_values=d_values,
+        alpha_mean=alpha_between,
+        alpha_lower=alpha_between_lower,
+        alpha_upper=alpha_between_upper,
+        alphas_by_demographic=between_alphas_by_demographic,
+        output_path=output_path,
+        overall_label="Between-rater (overall)",
+        d_min=d_min,
+        d_max=d_max,
+        verbose=verbose,
     )
 
-    if best_mean is not None:
-        ax.plot(
-            d_values,
-            best_mean,
-            color="#2ca02c",
-            linewidth=2.0,
-            label="Best group",
-            linestyle="--",
-            zorder=3,
+    if within_output_path is not None:
+        _plot_alpha_curve(
+            d_values=d_values,
+            alpha_mean=alpha_within,
+            alpha_lower=alpha_within_lower,
+            alpha_upper=alpha_within_upper,
+            alphas_by_demographic={},
+            output_path=within_output_path,
+            overall_label="Within-rater (overall)",
+            d_min=d_min,
+            d_max=d_max,
+            verbose=verbose,
         )
-        ax.fill_between(
-            d_values, best_lower, best_upper, color="#2ca02c", alpha=0.15, zorder=1
-        )
-
-    if worst_mean is not None:
-        ax.plot(
-            d_values,
-            worst_mean,
-            color="#d62728",
-            linewidth=2.0,
-            label="Worst group",
-            linestyle="--",
-            zorder=3,
-        )
-        ax.fill_between(
-            d_values, worst_lower, worst_upper, color="#d62728", alpha=0.15, zorder=1
-        )
-
-    ax.axhline(
-        y=0,
-        color="black",
-        linestyle="--",
-        linewidth=1,
-        alpha=0.7,
-        # label="Chance level",
-        zorder=0,
-    )
-
-    high_reliability_mask = alpha_between >= 0.95
-    if np.any(high_reliability_mask):
-        first_high_idx = np.where(high_reliability_mask)[0][0]
-        x_max = d_values[min(first_high_idx + 5, len(d_values) - 1)]
-    else:
-        x_max = d_max
-
-    ax.set_xscale("log")
-    ax.set_xlim(d_min, x_max)
-
-    # Major ticks at 1-9 each decade (so 3 appears)
-    ax.xaxis.set_major_locator(
-        LogLocator(base=10.0, subs=np.arange(1, 10), numticks=15)
-    )
-
-    # Minor ticks (optional - can remove if redundant)
-    ax.xaxis.set_minor_locator(
-        LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1, numticks=100)
-    )
-
-    # Force plain numbers
-    formatter = ScalarFormatter()
-    formatter.set_scientific(False)
-    formatter.set_useOffset(False)
-
-    ax.xaxis.set_major_formatter(formatter)
-    ax.xaxis.set_minor_formatter(formatter)  # ← important
-
-    ax.set_xlabel("Distance ratio threshold d (far / close)  [log scale]")
-    ax.set_ylabel("Krippendorff's α")  # noqa: RUF001
-    ax.set_ylim(-0.1, 1.0)
-    ax.grid(True, alpha=0.3, which="major")
-    ax.grid(True, alpha=0.15, which="minor", linestyle=":")
-    ax.legend(framealpha=0.9)
-
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    if verbose:
-        print(f"\nPlot saved to {output_path}")
-    plt.close()
 
     return {
         "d_values": d_values,
@@ -847,22 +882,20 @@ def main(experiment: str, samples: int = 5, font_scale: float = 1.5) -> None:
     print("Loading coordinate data...")
     data_path = DATA_DIR / COORDINATES[experiment]
     output_path = PLOT_DIR / f"alpha_distance_plot_{experiment}_demographic.pdf"
+    within_output_path = PLOT_DIR / f"within_rater_{experiment}.pdf"
     csv_output_path = OUTPUT_DIR / f"alpha_data_{experiment}_demographic.csv"
     coords = load_coordinates(data_path)
     if experiment == "policy":
         demographics = get_demographics()
         coords = coords.join(demographics, on="statement_id")
     elif experiment == "gov-ai":
-        coords = coords.with_columns(
-            pl.lit("unknown").alias("demographic")
-        )
-
-
+        coords = coords.with_columns(pl.lit("unknown").alias("demographic"))
 
     create_alpha_distance_plots(
         coords,
         output_path,
         csv_output_path=csv_output_path,
+        within_output_path=within_output_path,
         n_bootstrap=samples,
         seed=42,
         font_scale=font_scale,
@@ -880,7 +913,10 @@ if __name__ == "__main__":
         help="Number of bootstrap samples (default: 5)",
     )
     parser.add_argument(
-        "--experiment", choices=COORDINATES.keys(), default="policy", help="Datasets to include"
+        "--experiment",
+        choices=COORDINATES.keys(),
+        default="policy",
+        help="Datasets to include",
     )
     parser.add_argument(
         "--scale", type=float, help="Font scale for the plot", default=2.0

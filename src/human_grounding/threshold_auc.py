@@ -27,6 +27,8 @@ from scipy.stats import spearmanr
 from sklearn.metrics.pairwise import euclidean_distances
 from tqdm import tqdm
 
+from human_grounding.constants import DATASET_PRETTY_NAMES
+
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from pathlib import Path
@@ -173,7 +175,11 @@ def load_human_auc(
     dataset_rows = raw.filter(
         (pl.col("reliability_type") == "between")
         & (pl.col("group_type") == "dataset")
-        & (~pl.col("group_name").is_in(list(covered_datasets | KNOWN_DEMOGRAPHIC_DATASETS))),
+        & (
+            ~pl.col("group_name").is_in(
+                list(covered_datasets | KNOWN_DEMOGRAPHIC_DATASETS)
+            )
+        ),
     )
     if thresholds is not None:
         threshold_arr = np.array(thresholds)
@@ -189,7 +195,9 @@ def load_human_auc(
     else:
         d_col_ds = "d"
 
-    for (dataset_name, iteration_id), group in dataset_rows.group_by(["group_name", "iteration_id"]):
+    for (dataset_name, iteration_id), group in dataset_rows.group_by(
+        ["group_name", "iteration_id"]
+    ):
         if group.height < 2:
             continue
         arr = group.sort(d_col_ds)
@@ -372,19 +380,27 @@ def join_demographics(
     # single synthetic group so their rows are not silently dropped.
     other_filtered = (
         filtered_comparisons.filter(~pl.col("dataset").is_in(["welfare", "rai"]))
-        .with_columns(
-            pl.col("demographic").fill_null("Overall").alias("demographics")
+        .with_columns(pl.col("demographic").fill_null("Overall").alias("demographics"))
+        .select(
+            [
+                c
+                for c in keep
+                if c in filtered_comparisons.columns or c == "demographics"
+            ]
         )
-        .select([c for c in keep if c in filtered_comparisons.columns or c == "demographics"])
     )
 
     to_concat = [
         welfare_filtered.with_columns(
             pl.concat_list(cs.starts_with("demographic")).alias("demographics")
-        ).explode("demographics").select(keep),
+        )
+        .explode("demographics")
+        .select(keep),
         rai_filtered.with_columns(
             pl.concat_list(cs.starts_with("demographic")).alias("demographics")
-        ).explode("demographics").select(keep),
+        )
+        .explode("demographics")
+        .select(keep),
     ]
     if other_filtered.height > 0:
         to_concat.append(other_filtered.select(keep))
@@ -546,7 +562,7 @@ def plot_auc_bar(
     import matplotlib.patches as mpatches
 
     if dataset_name_map is None:
-        dataset_name_map = {"rai": "Responsible AI", "welfare": "Welfare"}
+        dataset_name_map = DATASET_PRETTY_NAMES
 
     pretty = pretty_names or {}
 
@@ -557,7 +573,9 @@ def plot_auc_bar(
             group_auc.filter(
                 pl.col("demographics").is_not_null()
                 & (pl.col("demographics") != "Overall")
-            )["dataset"].unique().to_list()
+            )["dataset"]
+            .unique()
+            .to_list()
         )
     else:
         demo_datasets = set()
@@ -636,7 +654,14 @@ def plot_auc_bar(
                 if row["model"] not in y_pos:
                     continue
                 y = y_pos[row["model"]]
-                ax.plot([row["lo"], row["hi"]], [y, y], color=color, lw=1.5, alpha=0.6, zorder=2)
+                ax.plot(
+                    [row["lo"], row["hi"]],
+                    [y, y],
+                    color=color,
+                    lw=1.5,
+                    alpha=0.6,
+                    zorder=2,
+                )
                 ax.scatter(row["mean"], y, color=color, marker=marker, s=size, zorder=3)
 
     # Alternating row shading
@@ -653,11 +678,20 @@ def plot_auc_bar(
 
     # Legend: one patch per dataset, one line-marker per statistic — two rows below x label.
     # fig.legend with constrained_layout handles spacing automatically.
-    legend_handles: list = [mpatches.Patch(color=color_map[ds], label=ds) for ds in datasets_in_data]
+    legend_handles: list = [
+        mpatches.Patch(color=color_map[ds], label=ds) for ds in datasets_in_data
+    ]
     for stat, (marker, _) in _STAT_MARKERS.items():
         legend_handles.append(
-            plt.Line2D([0], [0], marker=marker, color="gray", linestyle="None",
-                       markersize=20, label=stat)
+            plt.Line2D(
+                [0],
+                [0],
+                marker=marker,
+                color="gray",
+                linestyle="None",
+                markersize=20,
+                label=stat,
+            )
         )
     ncol = int(np.ceil(len(legend_handles) / 2))
     fig.legend(
@@ -890,7 +924,7 @@ def plot_difficulty_dumbbell(
 ) -> Path:
     """Dumbbell plot: Hard vs Easy alignment, per (model, statistic, dataset)."""
     if dataset_name_map is None:
-        dataset_name_map = {"rai": "Responsible AI", "welfare": "Welfare"}
+        dataset_name_map = DATASET_PRETTY_NAMES
 
     has_demo = summary.filter(pl.col("statistic").is_in(["Best", "Worst"])).height > 0
     statistics = ["Best", "Mean", "Worst"] if has_demo else ["Mean"]
@@ -904,7 +938,7 @@ def plot_difficulty_dumbbell(
         .to_list()
     )
 
-    keep_models = overall_order[:top_n + 1]
+    keep_models = overall_order[: top_n + 1]
 
     pretty = pretty_names or {}
     pretty_keep = [pretty.get(m, m) for m in keep_models]
@@ -927,8 +961,8 @@ def plot_difficulty_dumbbell(
         axes = [axes]
 
     n_stats = len(statistics)
-    stat_gap = 0.38   # vertical separation between statistics within one model row
-    block_gap = 1.4   # vertical separation between model rows
+    stat_gap = 0.38  # vertical separation between statistics within one model row
+    block_gap = 1.4  # vertical separation between model rows
 
     _pal = sns.color_palette("coolwarm", n_stats)
     _line_styles = ["-", "--", ":"]
