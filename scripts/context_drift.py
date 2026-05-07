@@ -201,13 +201,13 @@ def estimate_variances(
 
     return [
         VarianceEstimate(
-            label="Within-rater\nbetween-round",
+            label="Within-rater/between-round",
             mean=drift_mean,
             lower=drift_lo,
             upper=drift_hi,
         ),
         VarianceEstimate(
-            label="Between-rater\nwithin-round",
+            label="Between-rater/within-round",
             mean=rater_mean,
             lower=rater_lo,
             upper=rater_hi,
@@ -220,22 +220,33 @@ def estimate_variances(
 # ---------------------------------------------------------------------
 
 
-def plot_results(results: pd.DataFrame, outpath: Path, font_scale: float = 1.0) -> None:
-    datasets = results["dataset"].replace(DATASET_PRETTY_NAMES).unique().tolist()
+def plot_results(
+    results: pd.DataFrame,
+    outpath: Path,
+    font_scale: float = 1.0,
+) -> None:
+    # -----------------------------------------------------------------
+    # Data prep
+    # -----------------------------------------------------------------
+
+    results = results.copy()
+
+    results["dataset"] = results["dataset"].replace(DATASET_PRETTY_NAMES)
+
+    datasets = results["dataset"].unique().tolist()
     labels = results["comparison"].unique().tolist()
 
-    x = np.arange(len(datasets))
-    width = 0.35
+    # Compute asymmetric error bars for seaborn overlay
+    results["lower_err"] = results["mean"] - results["lower"]
+    results["upper_err"] = results["upper"] - results["mean"]
 
     # -----------------------------------------------------------------
-    # Styling controls
+    # Styling
     # -----------------------------------------------------------------
 
     FONT_SCALE = font_scale
 
-    palette = sns.color_palette("Set1", n_colors=len(labels))
-
-    PALETTE = {label: palette[i] for i, label in enumerate(labels)}
+    sns.set_theme(style="whitegrid")
 
     plt.rcParams.update(
         {
@@ -248,38 +259,75 @@ def plot_results(results: pd.DataFrame, outpath: Path, font_scale: float = 1.0) 
         }
     )
 
+    palette = sns.color_palette("Set1", n_colors=len(labels))
+
+    # -----------------------------------------------------------------
+    # Plot
     # -----------------------------------------------------------------
 
-    _fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    for i, label in enumerate(labels):
-        sub = results[results["comparison"] == label]
+    sns.barplot(
+        data=results,
+        x="dataset",
+        y="mean",
+        hue="comparison",
+        order=datasets,
+        hue_order=labels,
+        palette=palette,
+        errorbar=None,
+        ax=ax,
+    )
 
-        means = sub["mean"].to_numpy()
-        lowers = means - sub["lower"].to_numpy()
-        uppers = sub["upper"].to_numpy() - means
+    # Add asymmetric error bars manually
+    n_hue = len(labels)
 
-        ax.bar(
-            x + (i - 0.5) * width,
-            means,
-            width,
-            yerr=[lowers, uppers],
+    bars = [patch for patch in ax.patches if patch.get_height() != 0]
+
+    expected_rows = (
+        results.set_index(["dataset", "comparison"])
+        .loc[
+            pd.MultiIndex.from_product(
+                [datasets, labels],
+                names=["dataset", "comparison"],
+            )
+        ]
+        .reset_index()
+    )
+
+    for patch, (_, row) in zip(bars, expected_rows.iterrows()):
+        x = patch.get_x() + patch.get_width() / 2
+        y = patch.get_height()
+
+        ax.errorbar(
+            x,
+            y,
+            yerr=[[row["lower_err"]], [row["upper_err"]]],
+            fmt="none",
+            ecolor="black",
             capsize=5,
-            label=label,
-            color=PALETTE[label],  # <- palette control
+            linewidth=1,
         )
 
-    ax.set_xticks(x)
-    ax.set_xticklabels(datasets)
+    # -----------------------------------------------------------------
+    # Labels and legend
+    # -----------------------------------------------------------------
 
-    ax.set_ylabel("Mean pairwise-distance variance")
-    ax.set_xlabel("Dataset")
+    ax.set_ylabel("Mean pairwise variance")
+    ax.set_xlabel("")
 
-    ax.legend(frameon=False)
+    # Put legend below plot in a single row
+    ax.legend(
+        title=None,
+        frameon=False,
+        ncol=len(labels),
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.08),
+    )
 
     plt.tight_layout()
-    plt.savefig(outpath, dpi=300)
-    plt.close()
+    plt.savefig(outpath, dpi=300, bbox_inches="tight")
+    plt.close(fig)
 
 
 # ---------------------------------------------------------------------
