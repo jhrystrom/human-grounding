@@ -64,7 +64,10 @@ def cluster_user_session(
     # 1. Prep
     df = df.sort("statement_id")
     ids = df["statement_id"].to_list()
-    coords = df.select("x_normalised", "y_normalised").to_numpy()
+    try:
+        coords = df.select("x_normalised", "y_normalised").to_numpy()
+    except pl.exceptions.ColumnNotFoundError:
+        coords = df.select("x", "y").to_numpy()
     clusterer = AgglomerativeClustering(
         n_clusters=None, distance_threshold=distance_threshold, linkage="ward"
     )
