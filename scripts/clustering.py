@@ -54,7 +54,25 @@ def ids_from_mask(ids_: list[int], mask: list[bool]) -> list[int]:
     return [i for i, m in zip(ids_, mask) if m]
 
 
-def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experiment: str = "policy") -> None:
+def main(experiments: list[str], scale: float = 1.35, top: int = 20) -> None:
+    _aggregated_full = []
+    _combined_full = []
+    for experiment in experiments:
+        aggregated_df, combined_df = analyse_single(experiment)
+        _aggregated_full.append(
+            aggregated_df.with_columns(pl.lit(experiment).alias("experiment"))
+        )
+        _combined_full.append(
+            combined_df.with_columns(pl.lit(experiment).alias("experiment"))
+        )
+    aggregated_full = pl.concat(_aggregated_full)
+    combined_full = pl.concat(_combined_full)
+    plot_comparison(aggregated_full, combined_full, scale=scale, top=top)
+
+
+def analyse_single(
+    experiment: str = "policy",
+) -> tuple[pl.DataFrame, pl.DataFrame]:
     coordinates = pl.read_csv(COORDINATES[experiment]).with_columns(
         pl.col("user_id").str.strip_suffix("_coords")
     )
@@ -110,8 +128,6 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experime
 
     human_score_df = pl.DataFrame(scores)
     path = OUTPUT_DIR / f"human_cluster_consistency_{experiment}.csv"
-    if use_english:
-        path = append_english(path)
     human_score_df.write_csv(path)
 
     # ---- Model-vs-human consistency ----
@@ -139,7 +155,7 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experime
         for model in models:
             embeddings = (
                 human_grounding.evaluate.get_statement_embeddings(
-                    dataset=dataset, embedder_name=model, use_english=use_english
+                    dataset=dataset, embedder_name=model
                 )
                 .join(
                     pl.DataFrame({"statement_id": kept_ids}),
@@ -181,8 +197,6 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experime
 
     model_df = pl.DataFrame(model_scores)
     model_path = OUTPUT_DIR / f"model_cluster_consistency_{experiment}.csv"
-    if use_english:
-        model_path = append_english(model_path)
     model_df.write_csv(model_path)
 
     # ---- Aggregate + compare ----
@@ -196,13 +210,9 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experime
         *[pl.mean(metric).alias(metric) for metric in metrics]
     )
     aggregated_path = OUTPUT_DIR / f"cluster_consistency_aggregated_{experiment}.csv"
-    if use_english:
-        aggregated_path = append_english(aggregated_path)
     aggregated_df.write_csv(aggregated_path)
 
     gt_path = OUTPUT_DIR / f"human_alignment_bootstrapped_{experiment}.csv"
-    if use_english:
-        gt_path = append_english(gt_path)
     alignment_scores = pl.read_csv(gt_path)
     mmteb_scores = pl.read_csv(OUTPUT_DIR / "mmteb_with_ranks.csv")
 
@@ -235,7 +245,15 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experime
     logger.info(
         f"Spearman correlation between MMTEB and adjusted rand index: {spearman_mmteb} "
     )
+    return aggregated_df, combined_df
 
+
+def plot_comparison(
+    aggregated_df: pl.DataFrame,
+    combined_df: pl.DataFrame,
+    scale: float = 1.35,
+    top: int = 20,
+) -> None:
     # ---- Plotting ----
     sns.set_theme(style="whitegrid", font_scale=scale)
     for metric in metrics:
@@ -251,16 +269,14 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experime
             .with_columns(pl.col("model").replace(PRETTY_NAMES)),
             x="model",
             y=metric,
-            hue="type",
+            hue="experiment",
         )
         strip_plot.set(ylabel=metric.replace("_", " ").title())
         strip_plot.set_xlabel("")
         strip_plot.set_xticklabels(
             strip_plot.get_xticklabels(), rotation=45, ha="right"
         )
-        plot_path = PLOT_DIR / f"cluster_consistency_comparison_{metric}_{experiment}.pdf"
-        if use_english:
-            plot_path = append_english(plot_path)
+        plot_path = PLOT_DIR / f"cluster_consistency_comparison_{metric}.pdf"
         plt.savefig(
             plot_path,
             bbox_inches="tight",
@@ -269,7 +285,10 @@ def main(scale: float = 1.35, top: int = 20, use_english: bool = False, experime
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Evaluate clustering consistency", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description="Evaluate clustering consistency",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         "--scale", type=float, default=1.35, help="Font scale for the plots"
     )
@@ -277,11 +296,16 @@ if __name__ == "__main__":
         "--top", type=int, default=20, help="Number of top models to plot"
     )
     parser.add_argument(
-        "--english", action="store_true", help="Use English translations for statements"
-    )
-    parser.add_argument(
-        "--experiment", type=str, choices=["policy", "gov-ai"], default="policy"
+        "--experiments",
+        nargs="+",
+        type=str,
+        choices=["policy", "gov-ai"],
+        default=["policy", "gov-ai"],
     )
     args = parser.parse_args()
 
-    main(scale=args.scale, top=args.top, use_english=args.english, experiment=args.experiment)
+    main(
+        scale=args.scale,
+        top=args.top,
+        experiments=args.experiments,
+    )

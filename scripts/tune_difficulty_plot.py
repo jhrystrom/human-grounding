@@ -59,7 +59,9 @@ def _fake_summary() -> pl.DataFrame:
                 for statistic in STATISTICS:
                     stat_offsets = {"Best": 0.10, "Mean": 0.0, "Worst": -0.10}
                     mu = np.clip(
-                        base + ds_offset + diff_offset + stat_offsets[statistic], 0.0, 1.0
+                        base + ds_offset + diff_offset + stat_offsets[statistic],
+                        0.0,
+                        1.0,
                     )
                     ci_half = RNG.uniform(0.02, 0.06)
                     rows.append(
@@ -77,7 +79,9 @@ def _fake_summary() -> pl.DataFrame:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Tune difficulty dumbbell plot aesthetics")
+    parser = argparse.ArgumentParser(
+        description="Tune difficulty dumbbell plot aesthetics"
+    )
     parser.add_argument("--out", default="plots", help="Output directory")
     parser.add_argument("--file-type", default="png", choices=["pdf", "png", "svg"])
     parser.add_argument("--top-n", type=int, default=6)
@@ -97,7 +101,7 @@ def main() -> None:
         file_type=args.file_type,
         filename_prefix="tune_difficulty",
         font_scale=args.font_scale,
-        title=""
+        title="",
     )
     print(f"Saved → {out}")
 

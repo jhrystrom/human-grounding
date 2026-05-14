@@ -9,5 +9,6 @@ def main() -> None:
     )
     govai.write_csv(DATA_DIR / "govai_coordinates.csv")
 
+
 if __name__ == "__main__":
     main()
