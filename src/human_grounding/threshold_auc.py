@@ -1024,6 +1024,9 @@ def plot_difficulty_dumbbell(
         ax.set_title(ds)
         ax.set_xlim(0, 1)
         ax.xaxis.set_major_locator(mticker.MultipleLocator(0.1))
+        ax.xaxis.set_major_formatter(
+            mticker.FuncFormatter(lambda x, _: f"{x:.1f}".lstrip("0") or "0")
+        )
         ax.grid(axis="y", visible=False)
         ax.set_axisbelow(True)
 
@@ -1068,16 +1071,24 @@ def plot_difficulty_dumbbell(
             label=easy_label,
         ),
     ]
-    fig.legend(
-        handles=[*stat_handles, *diff_handles],
+    leg1 = fig.legend(
+        handles=stat_handles,
         loc="lower center",
-        bbox_to_anchor=(0.5, 0.1),
-        ncol=len(stat_handles) + len(diff_handles),
+        bbox_to_anchor=(0.5, 0.13),
+        ncol=len(stat_handles),
         frameon=False,
     )
-    fig.supxlabel("Alignment score", y=0.17)
+    fig.add_artist(leg1)
+    fig.legend(
+        handles=diff_handles,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.08),
+        ncol=len(diff_handles),
+        frameon=False,
+    )
+    fig.supxlabel("Alignment score", y=0.19)
     fig.suptitle(title, x=0.5)
-    plt.tight_layout(rect=(0, 0.14, 1, 0.96))
+    plt.tight_layout(rect=(0, 0.16, 1, 0.96))
 
     out_path = plot_dir / f"{filename_prefix}_difficulty.{file_type}"
     plt.savefig(out_path, bbox_inches="tight")
