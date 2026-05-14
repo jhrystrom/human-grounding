@@ -59,12 +59,8 @@ def main(experiments: list[str], scale: float = 1.35, top: int = 20) -> None:
     _combined_full = []
     for experiment in experiments:
         aggregated_df, combined_df = analyse_single(experiment)
-        _aggregated_full.append(
-            aggregated_df.with_columns(pl.lit(experiment).alias("experiment"))
-        )
-        _combined_full.append(
-            combined_df.with_columns(pl.lit(experiment).alias("experiment"))
-        )
+        _aggregated_full.append(aggregated_df.with_columns(pl.lit(experiment).alias("experiment")))
+        _combined_full.append(combined_df.with_columns(pl.lit(experiment).alias("experiment")))
     aggregated_full = pl.concat(_aggregated_full)
     combined_full = pl.concat(_combined_full)
     plot_comparison(aggregated_full, combined_full, scale=scale, top=top)
@@ -245,7 +241,11 @@ def analyse_single(
     logger.info(
         f"Spearman correlation between MMTEB and adjusted rand index: {spearman_mmteb} "
     )
-    return aggregated_df, combined_df
+
+    aggregated_by_dataset = combined_df.group_by("model", "dataset").agg(
+        *[pl.mean(metric).alias(metric) for metric in metrics]
+    )
+    return aggregated_by_dataset, combined_df
 
 
 def plot_comparison(
@@ -257,14 +257,20 @@ def plot_comparison(
     # ---- Plotting ----
     sns.set_theme(style="whitegrid", font_scale=scale)
     for metric in metrics:
-        ranks = (
-            aggregated_df.sort(metric, descending=True)
+        borda_ranks = (
+            aggregated_df
+            .with_columns(
+                pl.col(metric).rank(descending=True).over("experiment").alias("_rank")
+            )
+            .group_by("model")
+            .agg(pl.sum("_rank").alias("borda_score"))
+            .sort("borda_score")
             .with_row_index("rank")
-            .drop(metric)
+            .select("model", "rank")
             .head(top)
         )
         strip_plot = sns.barplot(
-            data=combined_df.join(ranks, on="model")
+            data=combined_df.join(borda_ranks, on="model")
             .sort("rank")
             .with_columns(pl.col("model").replace(PRETTY_NAMES)),
             x="model",
@@ -276,6 +282,10 @@ def plot_comparison(
         strip_plot.set_xticklabels(
             strip_plot.get_xticklabels(), rotation=45, ha="right"
         )
+        # Bold the `Human` label
+        for label in strip_plot.get_xticklabels():
+            if label.get_text() == "Human":
+                label.set_fontweight("bold")
         plot_path = PLOT_DIR / f"cluster_consistency_comparison_{metric}.pdf"
         plt.savefig(
             plot_path,

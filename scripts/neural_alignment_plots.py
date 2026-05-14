@@ -116,6 +116,8 @@ def main(
                     pl.col("model") != human_grounding.threshold_auc.HUMAN_MODEL_NAME
                 )
             )
+            # Save the gov-ai one separately for the clustering
+            auc_bootstraps.filter(pl.col("dataset") == "gov-ai").group_by("model").agg(pl.col("auc").mean()).rename({"auc": "alignment_score"}).write_csv(OUTPUT_DIR / "human_alignment_bootstrapped_gov-ai.csv")
         else:
             auc_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
                 combined_results=_get_combined(),
