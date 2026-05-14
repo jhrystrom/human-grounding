@@ -533,10 +533,18 @@ def compute_threshold_auc(
 
 
 def _auc_trapz_np(thresholds: np.ndarray, scores: np.ndarray) -> float:
+    """Normalized AUC of ``scores(thresholds)`` integrating over ``log(thresholds)``.
+
+    Matches :func:`human_grounding.alpha_reliability.normalized_auc_logx` so
+    model α-AUC and the human α-AUC reported in the paper (computed via the
+    alpha pipeline) sit on the same axis: log-space integration of α(d) over
+    log-spaced d. Assumes ``thresholds > 0`` (true for d = far/close ≥ 1).
+    """
     order = np.argsort(thresholds)
     x, y = thresholds[order], scores[order]
-    span = float(x[-1] - x[0])
-    return float(np.trapezoid(y, x) / span) if span > 0 else float(y.mean())
+    lx = np.log(x)
+    span = float(lx[-1] - lx[0])
+    return float(np.trapezoid(y, lx) / span) if span > 0 else float(y.mean())
 
 
 def _curve_to_group_auc(curve: pl.DataFrame) -> pl.DataFrame:
