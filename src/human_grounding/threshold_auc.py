@@ -319,6 +319,23 @@ def filter_by_distance_threshold(
     )
 
 
+def filter_by_distance_threshold_raw(
+    combined_results: pl.DataFrame,
+    threshold: float,
+) -> pl.DataFrame:
+    """Threshold-filter on ``pct_distance`` only, preserving raw judgments.
+
+    Unlike :func:`filter_by_distance_threshold`, this does NOT drop triplets
+    where within-round raters disagreed on which item is closer. Use for
+    pairwise α (Eq. 1) where the model is treated as an additional rater
+    alongside each human — pooling ``embedding_correct`` over the raw rows
+    yields ``2 * P(model agrees with rater) - 1`` per Eq. 1.
+    """
+    return combined_results.filter(pl.col("pct_distance") > threshold).drop(
+        "pct_distance"
+    )
+
+
 def join_demographics(
     filtered_comparisons: pl.DataFrame,
     welfare_demographics: pl.DataFrame | None = None,
@@ -487,7 +504,9 @@ def compute_threshold_auc(
 
     demo_frames = {}
     for t in tqdm(thresholds, desc="Precomputing"):
-        filtered = filter_by_distance_threshold(combined_results, t)
+        # Raw filter (no unanimity): model α = pooled pairwise α vs each rater
+        # per Eq. 1, matching the human-human baseline in the alpha CSV.
+        filtered = filter_by_distance_threshold_raw(combined_results, t)
         if filtered.height > 0:
             demo_frames[t] = join_demographics(
                 filtered, welfare_demographics, rai_demographics
@@ -760,6 +779,30 @@ def filter_by_pct_distance_quantile(
     return with_sorted_groups.join(agreement_indices, on="new_index", how="inner")
 
 
+def filter_by_pct_distance_quantile_raw(
+    combined_results: pl.DataFrame,
+    q_lo: float,
+    q_hi: float,
+) -> pl.DataFrame:
+    """Quantile-filter on ``pct_distance``, preserving raw per-rater judgments.
+
+    Unlike :func:`filter_by_pct_distance_quantile`, this does NOT drop triplets
+    where within-round raters disagreed on which item is closer. Use this for
+    human-human α (Eq. 1), which is defined over the raw triplet set — the
+    consensus-only subset would force pairwise agreement toward 1.
+    """
+    lo_val = combined_results["pct_distance"].quantile(q_lo)
+    hi_val = combined_results["pct_distance"].quantile(q_hi)
+    if lo_val is None or hi_val is None:
+        msg = "Could not compute pct_distance quantiles (empty input?)"
+        raise ValueError(msg)
+    lo = float(lo_val)
+    hi = float(hi_val)
+    return combined_results.filter(
+        (pl.col("pct_distance") >= lo) & (pl.col("pct_distance") <= hi)
+    ).drop("pct_distance")
+
+
 def compute_difficulty_split_alignment(
     combined_results: pl.DataFrame,
     welfare_demographics: pl.DataFrame | None = None,
@@ -771,8 +814,10 @@ def compute_difficulty_split_alignment(
 
     Splits triplets into the ``quantile`` lowest (hard) and highest (easy)
     ``pct_distance`` cases, then bootstraps a binary alignment score
-    (2*accuracy - 1) per group. Includes a ``Human`` row computed as
-    pairwise inter-rater agreement over the same splits.
+    (2*accuracy - 1) per group on the **raw** quantile-split set (no
+    within-round unanimity filter), so the model score is pooled pairwise α
+    against each rater per Eq. 1. Includes a ``Human`` row computed as
+    pairwise inter-rater α on the same raw set.
     """
     splits = {
         DIFFICULTY_LABELS["hard"]: (0.0, quantile),
@@ -781,7 +826,7 @@ def compute_difficulty_split_alignment(
 
     demo_frames: dict[str, pl.DataFrame] = {}
     for label, (lo, hi) in splits.items():
-        filtered = filter_by_pct_distance_quantile(combined_results, lo, hi)
+        filtered = filter_by_pct_distance_quantile_raw(combined_results, lo, hi)
         if filtered.height == 0:
             logger.warning(f"No comparisons in split {label}")
             continue
@@ -820,7 +865,12 @@ def _compute_human_human_binary_split(
     demo_frames: dict[str, pl.DataFrame],
     n_bootstrap: int,
 ) -> pl.DataFrame | None:
-    """Inter-rater binary agreement on the same triplets, per split."""
+    """Pairwise inter-rater α (Eq. 1) per difficulty split.
+
+    Expects ``demo_frames`` to be the **raw** quantile-filtered triplet set
+    (no within-round unanimity pre-filter); otherwise pairwise agreement is
+    forced toward 1 by construction.
+    """
     if not demo_frames:
         return None
 
@@ -1118,7 +1168,7 @@ def compute_human_human_spearman(
     # Precompute filtered + demographic-joined frames (same as compute_threshold_auc)
     demo_frames: dict[float, pl.DataFrame] = {}
     for t in thresholds:
-        filtered = filter_by_distance_threshold(combined_results, t)
+        filtered = filter_by_distance_threshold_raw(combined_results, t)
         if filtered.height > 0 and (
             welfare_demographics is not None or rai_demographics is not None
         ):
