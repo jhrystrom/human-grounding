@@ -49,6 +49,100 @@ def _get_experiment_name(experiments: list[str]) -> str:
     return "_".join(sorted(experiments))
 
 
+def _write_dataset_summary(
+    all_binary_auc: pl.DataFrame,
+    pretty_names: Mapping[str, str],
+    out_path: Path,
+) -> None:
+    """Write per-dataset Human vs best-model α-AUC summary, with gap CIs.
+
+    For each dataset: mean and 95% percentile CI across bootstrap iterations
+    (Human and the highest-scoring model). The gap CI pairs random iterations
+    independently across the two sources, since the Human baseline (alpha
+    pipeline) and model AUCs (compute_threshold_auc) bootstrap independently.
+    """
+    human_name = human_grounding.threshold_auc.HUMAN_MODEL_NAME
+
+    # Collapse across demographics: per-iteration mean per (model, dataset).
+    per_iter = all_binary_auc.group_by("model", "dataset", "iteration").agg(
+        pl.col("auc").mean().alias("auc"),
+    )
+
+    summary = per_iter.group_by("model", "dataset").agg(
+        pl.col("auc").mean().alias("mean"),
+        pl.col("auc").quantile(0.025).alias("lo"),
+        pl.col("auc").quantile(0.975).alias("hi"),
+    )
+
+    rng = np.random.default_rng(0)
+    n_pairs = 10000
+    lines: list[str] = [
+        "Dataset summary (binary α-AUC, mean across demographics)",
+        "=" * 70,
+        "",
+    ]
+
+    for ds in sorted(summary["dataset"].unique().to_list()):
+        ds_summary = summary.filter(pl.col("dataset") == ds)
+        lines.append(f"## {ds}")
+
+        h_row = ds_summary.filter(pl.col("model") == human_name)
+        human_iters: np.ndarray | None = None
+        h: dict | None = None
+        if h_row.is_empty():
+            lines.append("  Human:       (no baseline available)")
+        else:
+            h = h_row.row(0, named=True)
+            lines.append(
+                f"  Human:       {h['mean']:.3f}  [{h['lo']:.3f}, {h['hi']:.3f}]",
+            )
+            human_iters = (
+                per_iter.filter(
+                    (pl.col("model") == human_name) & (pl.col("dataset") == ds),
+                )
+                .get_column("auc")
+                .to_numpy()
+            )
+
+        model_rows = ds_summary.filter(pl.col("model") != human_name).sort(
+            "mean", descending=True,
+        )
+        if model_rows.is_empty():
+            lines.append("  (no model results for this dataset)")
+            lines.append("")
+            continue
+
+        best = model_rows.row(0, named=True)
+        pretty = pretty_names.get(best["model"], best["model"])
+        lines.append(
+            f"  Best model:  {pretty}  "
+            f"{best['mean']:.3f}  [{best['lo']:.3f}, {best['hi']:.3f}]",
+        )
+
+        if h is not None and human_iters is not None:
+            model_iters = (
+                per_iter.filter(
+                    (pl.col("model") == best["model"]) & (pl.col("dataset") == ds),
+                )
+                .get_column("auc")
+                .to_numpy()
+            )
+            i = rng.integers(0, len(human_iters), n_pairs)
+            j = rng.integers(0, len(model_iters), n_pairs)
+            gaps = human_iters[i] - model_iters[j]
+            gap_point = h["mean"] - best["mean"]
+            gap_lo = float(np.percentile(gaps, 2.5))
+            gap_hi = float(np.percentile(gaps, 97.5))
+            lines.append(
+                f"  Gap:         {gap_point * 100:.1f}pp  "
+                f"[{gap_lo * 100:.1f}pp, {gap_hi * 100:.1f}pp]",
+            )
+        lines.append("")
+
+    out_path.write_text("\n".join(lines))
+    logger.info(f"Wrote dataset summary to {out_path}")
+
+
 def main(
     font_scale: float,
     use_english: bool = False,
@@ -204,6 +298,11 @@ def main(
             aspect=1.8,
             filename_prefix=f"{experiment_name}_alignment_results",
         )
+
+        summary_path = OUTPUT_DIR / f"alignment_summary_{experiment_name}.txt"
+        if use_english:
+            summary_path = append_english(summary_path)
+        _write_dataset_summary(all_binary_auc, PRETTY_NAMES, summary_path)
 
     # --- SPEARMAN SUMMARY ---
     if spearman_bootstraps is not None and all_spearman is not None:
