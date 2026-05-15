@@ -29,6 +29,10 @@ COORDINATES = {
     "policy": "valid_coordinates.csv",
     "gov-ai": "govai_coordinates.csv",
 }
+EXPERIMENT_DATASETS: dict[str, list[str]] = {
+    "policy": ["welfare", "rai"],
+    "gov-ai": ["gov-ai"],
+}
 
 
 def get_embedding_alignments(
@@ -141,6 +145,131 @@ def _write_dataset_summary(
 
     out_path.write_text("\n".join(lines))
     logger.info(f"Wrote dataset summary to {out_path}")
+
+
+def plot_mmteb_correlation(
+    auc_bootstraps: pl.DataFrame,
+    experiment: str,
+    use_english: bool = False,
+    file_type: str = "pdf",
+) -> None:
+    """Rank-vs-rank dumbbell of Human-alignment vs MMTEB(Danish) for one experiment."""
+    datasets = EXPERIMENT_DATASETS.get(experiment, [experiment])
+    exp_bootstraps = auc_bootstraps.filter(pl.col("dataset").is_in(datasets))
+    if exp_bootstraps.is_empty():
+        logger.warning(f"No AUC rows for experiment {experiment}; skipping MMTEB plot")
+        return
+
+    aggregated_bootstraps = exp_bootstraps.group_by("model").agg(
+        pl.col("auc").mean().alias("alignment_score")
+    )
+
+    alignment_output = OUTPUT_DIR / f"human_alignment_bootstrapped_{experiment}.csv"
+    if use_english:
+        alignment_output = append_english(alignment_output)
+    aggregated_bootstraps.write_csv(alignment_output)
+
+    # Regex for extracting name within brackets
+    pattern = r"\[(.*?)\]"
+    mmteb_raw = pl.read_csv(OUTPUT_DIR / "mmteb-top-dan.csv")
+    # Use the leaderboard's Borda rank, then re-rank within our model subset so
+    # the resulting `Rank (MMTEB)` is dense (1..N) over only the models we share.
+    mmteb_data = mmteb_raw.with_columns(
+        pl.col("Model").str.extract(pattern).alias("model_name"),
+    ).select("model_name", "Rank (Borda)")
+    mmteb_with_ranks = (
+        mmteb_data.drop_nulls()
+        .join(
+            aggregated_bootstraps.select("model"),
+            left_on="model_name",
+            right_on="model",
+        )
+        .sort("Rank (Borda)")  # ascending: lower Borda rank = better
+        .with_row_index("Rank (MMTEB)")
+    )
+    mmteb_with_ranks_path = OUTPUT_DIR / f"mmteb_with_ranks_{experiment}.csv"
+    mmteb_with_ranks.write_csv(mmteb_with_ranks_path)
+
+    score_ranks = aggregated_bootstraps.sort(
+        "alignment_score", descending=True
+    ).with_row_index("rank")
+
+    rank_plot_data = (
+        score_ranks.filter(pl.col("rank") < TOP_N_TO_PLOT)
+        .join(mmteb_with_ranks, left_on="model", right_on="model_name")
+        .drop("alignment_score", "Rank (Borda)")
+        .rename({"rank": "Rank (Human)"})
+        .unpivot(
+            index="model",
+            variable_name="Ranking Type",
+            value_name="Rank",
+        )
+        .with_columns(pl.col("model").replace(PRETTY_NAMES))
+    )
+    if rank_plot_data.is_empty():
+        logger.warning(
+            f"No overlap between top-{TOP_N_TO_PLOT} human-aligned models and MMTEB "
+            f"for experiment {experiment}; skipping plot"
+        )
+        return
+
+    pdf = rank_plot_data.to_pandas()
+    mmteb = pdf[pdf["Ranking Type"] == "Rank (MMTEB)"]
+    human = pdf[pdf["Ranking Type"] == "Rank (Human)"]
+
+    # Sort by Human rank (ascending = best first)
+    human_sorted = human.sort_values("Rank")
+    models = human_sorted["model"].tolist()
+    x = np.arange(len(models))
+
+    mmteb = mmteb.set_index("model").loc[models].reset_index()
+    human = human.set_index("model").loc[models].reset_index()
+    sns.set_theme(style="whitegrid", font_scale=1.9)
+    _fig, ax = plt.subplots(figsize=(12, 8))
+
+    for i in range(len(models)):
+        ax.plot(
+            [x[i], x[i]],
+            [mmteb.iloc[i]["Rank"], human.iloc[i]["Rank"]],
+            color="gray",
+            linewidth=1,
+            zorder=1,
+        )
+
+    ax.scatter(
+        x,
+        mmteb["Rank"],
+        s=120,
+        color="green",
+        edgecolor="black",
+        label="MMTEB(Danish)",
+        zorder=2,
+    )
+    ax.scatter(
+        x,
+        human["Rank"],
+        s=120,
+        color="purple",
+        edgecolor="black",
+        label="Human Grounded",
+        zorder=2,
+    )
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(models, rotation=30, ha="right")
+    ax.set_ylabel("Model Rank")
+    ax.set_xlabel("")
+    ax.invert_yaxis()
+    ax.grid(True, axis="y", linestyle="--", alpha=0.6)
+    ax.legend(title="Score Type")
+
+    plt.tight_layout()
+    mmteb_fig_path = PLOT_DIR / f"mmteb_vs_human_ranking_{experiment}.{file_type}"
+    if use_english:
+        mmteb_fig_path = append_english(mmteb_fig_path)
+    plt.savefig(mmteb_fig_path, bbox_inches="tight")
+    plt.clf()
+    logger.info(f"Wrote MMTEB ranking plot for {experiment} to {mmteb_fig_path}")
 
 
 def main(
@@ -304,6 +433,15 @@ def main(
             summary_path = append_english(summary_path)
         _write_dataset_summary(all_binary_auc, PRETTY_NAMES, summary_path)
 
+        if auc_bootstraps is not None:
+            for exp in experiments:
+                plot_mmteb_correlation(
+                    auc_bootstraps,
+                    experiment=exp,
+                    use_english=use_english,
+                    file_type=file_type,
+                )
+
     # --- SPEARMAN SUMMARY ---
     if spearman_bootstraps is not None and all_spearman is not None:
         top10_spearman = (
@@ -395,20 +533,40 @@ def main(
             tbl[col] = tbl[col].map(lambda x: f"{x:.3f}" if pd.notna(x) else "")
         logger.info(f"\n### {ds}\n{tbl.to_markdown(index=False)}")
 
-    # --- CORRELATION WITH MMTEB ---
-    mmteb = pl.read_csv(OUTPUT_DIR / "mmteb_with_ranks.csv")
+    # --- CORRELATION WITH MMTEB (per experiment) ---
+    for exp in experiments:
+        mmteb_path = OUTPUT_DIR / f"mmteb_with_ranks_{exp}.csv"
+        if not mmteb_path.exists():
+            continue
+        mmteb = pl.read_csv(mmteb_path)
+        datasets = EXPERIMENT_DATASETS.get(exp, [exp])
 
-    if auc_bootstraps is not None:
-        avg_auc = auc_bootstraps.group_by("model").agg(pl.col("auc").mean())
-        combined = avg_auc.join(mmteb, left_on="model", right_on="model_name")
-        corr = spearmanr(combined["Mean (Task)"], combined["auc"])
-        logger.info(f"AUC vs MMTEB Spearman: {corr.correlation:.3f}")
+        # MMTEB ranks are ascending (1 = best); negate so positive Spearman = agreement.
+        mmteb_score = (-mmteb["Rank (MMTEB)"]).to_numpy()
+        mmteb_names = mmteb["model_name"].to_numpy()
+        mmteb_score_df = pl.DataFrame(
+            {"model_name": mmteb_names, "mmteb_score": mmteb_score}
+        )
 
-    if spearman_bootstraps is not None:
-        avg_sp = spearman_bootstraps.group_by("model").agg(pl.col("auc").mean())
-        combined = avg_sp.join(mmteb, left_on="model", right_on="model_name")
-        corr = spearmanr(combined["Mean (Task)"], combined["auc"])
-        logger.info(f"Spearman vs MMTEB: {corr.correlation:.3f}")
+        if auc_bootstraps is not None:
+            avg_auc = (
+                auc_bootstraps.filter(pl.col("dataset").is_in(datasets))
+                .group_by("model")
+                .agg(pl.col("auc").mean())
+            )
+            combined = avg_auc.join(mmteb_score_df, left_on="model", right_on="model_name")
+            corr = spearmanr(combined["mmteb_score"], combined["auc"])
+            logger.info(f"[{exp}] AUC vs MMTEB(Borda) Spearman: {corr.correlation:.3f}")
+
+        if spearman_bootstraps is not None:
+            avg_sp = (
+                spearman_bootstraps.filter(pl.col("dataset").is_in(datasets))
+                .group_by("model")
+                .agg(pl.col("auc").mean())
+            )
+            combined = avg_sp.join(mmteb_score_df, left_on="model", right_on="model_name")
+            corr = spearmanr(combined["mmteb_score"], combined["auc"])
+            logger.info(f"[{exp}] Spearman vs MMTEB(Borda): {corr.correlation:.3f}")
 
 
 if __name__ == "__main__":

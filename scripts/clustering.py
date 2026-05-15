@@ -5,6 +5,7 @@ import numpy as np
 import polars as pl
 import seaborn as sns
 from loguru import logger
+from scipy.stats import bootstrap, spearmanr
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, v_measure_score
 
@@ -54,7 +55,13 @@ def ids_from_mask(ids_: list[int], mask: list[bool]) -> list[int]:
     return [i for i, m in zip(ids_, mask) if m]
 
 
-def main(experiments: list[str], scale: float = 1.35, top: int = 20) -> None:
+def main(
+    experiments: list[str],
+    scale: float = 1.35,
+    top: int = 20,
+    n_bootstrap: int = 2000,
+    seed: int = 0,
+) -> None:
     _aggregated_full = []
     _combined_full = []
     for experiment in experiments:
@@ -63,7 +70,118 @@ def main(experiments: list[str], scale: float = 1.35, top: int = 20) -> None:
         _combined_full.append(combined_df.with_columns(pl.lit(experiment).alias("experiment")))
     aggregated_full = pl.concat(_aggregated_full)
     combined_full = pl.concat(_combined_full)
+
+    long_table = compute_spearman_table(
+        combined_full, experiments, n_bootstrap=n_bootstrap, seed=seed
+    )
+    long_path = OUTPUT_DIR / "cluster_spearman_by_experiment.csv"
+    long_table.write_csv(long_path)
+
+    formatted = long_table.with_columns(
+        (
+            pl.col("spearman").round(2).cast(pl.Utf8)
+            + " ["
+            + pl.col("ci_lo").round(2).cast(pl.Utf8)
+            + ", "
+            + pl.col("ci_hi").round(2).cast(pl.Utf8)
+            + "]"
+        ).alias("cell")
+    ).pivot(on="experiment", index="source", values="cell")
+
+    logger.info(f"Spearman vs ARI (per experiment, {n_bootstrap} bootstrap) -> {long_path}")
+    logger.info(f"\n{formatted.to_pandas().to_markdown(index=False)}")
+
     plot_comparison(aggregated_full, combined_full, scale=scale, top=top)
+
+
+def _bootstrap_spearman_ci(
+    x: np.ndarray,
+    y: np.ndarray,
+    rng: np.random.Generator,
+    n_bootstrap: int,
+) -> tuple[float, float, float]:
+    """Point estimate and BCa 95% CI of Spearman ρ via paired pairs-bootstrap."""
+    n = len(x)
+    point = float(spearmanr(x, y).statistic)
+    if n < 4:
+        return point, float("nan"), float("nan")
+
+    def _stat(a: np.ndarray, b: np.ndarray) -> float:
+        r = spearmanr(a, b).statistic
+        return float(r) if np.isfinite(r) else 0.0
+
+    res = bootstrap(
+        (x, y),
+        _stat,
+        paired=True,
+        vectorized=False,
+        n_resamples=n_bootstrap,
+        method="BCa",
+        random_state=rng,
+    )
+    return point, float(res.confidence_interval.low), float(res.confidence_interval.high)
+
+
+def compute_spearman_table(
+    combined_full: pl.DataFrame,
+    experiments: list[str],
+    metric: str = "adjusted_rand_index",
+    n_bootstrap: int = 2000,
+    seed: int = 0,
+) -> pl.DataFrame:
+    """Spearman ρ (with bootstrap 95% CI) between model ARI and each ranking source.
+
+    Resamples models (rows) with replacement to build the CI. Returns long-format
+    rows: ``(source, experiment, n_models, spearman, ci_lo, ci_hi)``.
+    """
+    rng = np.random.default_rng(seed)
+    rows: list[dict] = []
+    for exp in experiments:
+        per_model = (
+            combined_full.filter(pl.col("experiment") == exp)
+            .filter(pl.col("type") == "Model")
+            .group_by("model")
+            .agg(pl.mean(metric).alias(metric))
+        )
+
+        gt_path = OUTPUT_DIR / f"human_alignment_bootstrapped_{exp}.csv"
+        if gt_path.exists():
+            joined = pl.read_csv(gt_path).join(per_model, on="model", how="inner")
+            x = joined["alignment_score"].to_numpy()
+            y = joined[metric].to_numpy()
+            point, lo, hi = _bootstrap_spearman_ci(x, y, rng, n_bootstrap)
+            rows.append({
+                "source": "OurExercise",
+                "experiment": exp,
+                "n_models": joined.height,
+                "spearman": point,
+                "ci_lo": lo,
+                "ci_hi": hi,
+            })
+        else:
+            logger.warning(f"Missing {gt_path}; skipping OurExercise for {exp}")
+
+        mmteb_path = OUTPUT_DIR / f"mmteb_with_ranks_{exp}.csv"
+        if mmteb_path.exists():
+            joined = pl.read_csv(mmteb_path).join(
+                per_model, left_on="model_name", right_on="model", how="inner"
+            )
+            # Negate the subset-relative Borda rank so positive ρ = agreement.
+            x = (-joined["Rank (MMTEB)"]).to_numpy()
+            y = joined[metric].to_numpy()
+            point, lo, hi = _bootstrap_spearman_ci(x, y, rng, n_bootstrap)
+            rows.append({
+                "source": "MMTEB",
+                "experiment": exp,
+                "n_models": joined.height,
+                "spearman": point,
+                "ci_lo": lo,
+                "ci_hi": hi,
+            })
+        else:
+            logger.warning(f"Missing {mmteb_path}; skipping MMTEB for {exp}")
+
+    return pl.DataFrame(rows)
 
 
 def analyse_single(
@@ -208,40 +326,6 @@ def analyse_single(
     aggregated_path = OUTPUT_DIR / f"cluster_consistency_aggregated_{experiment}.csv"
     aggregated_df.write_csv(aggregated_path)
 
-    gt_path = OUTPUT_DIR / f"human_alignment_bootstrapped_{experiment}.csv"
-    alignment_scores = pl.read_csv(gt_path)
-    mmteb_scores = pl.read_csv(OUTPUT_DIR / "mmteb_with_ranks.csv")
-
-    spearman = (
-        alignment_scores.join(aggregated_df, on="model", how="inner")
-        .with_columns(pl.lit("all").alias("group"))
-        .group_by("group")
-        .agg(
-            pl.corr("alignment_score", "adjusted_rand_index", method="spearman").alias(
-                "spearman_adjusted_rand_index"
-            ),
-        )
-    )
-    logger.info(
-        f"Spearman correlation between grounding and adjusted rand index: {spearman} "
-    )
-
-    spearman_mmteb = (
-        mmteb_scores.join(
-            aggregated_df, left_on="model_name", right_on="model", how="inner"
-        )
-        .with_columns(pl.lit("all").alias("group"))
-        .group_by("group")
-        .agg(
-            pl.corr("Mean (Task)", "adjusted_rand_index", method="spearman").alias(
-                "spearman_mmteb_adjusted_rand_index"
-            ),
-        )
-    )
-    logger.info(
-        f"Spearman correlation between MMTEB and adjusted rand index: {spearman_mmteb} "
-    )
-
     aggregated_by_dataset = combined_df.group_by("model", "dataset").agg(
         *[pl.mean(metric).alias(metric) for metric in metrics]
     )
@@ -312,10 +396,21 @@ if __name__ == "__main__":
         choices=["policy", "gov-ai"],
         default=["policy", "gov-ai"],
     )
+    parser.add_argument(
+        "--n-bootstrap",
+        type=int,
+        default=2000,
+        help="Bootstrap iterations for Spearman CI",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=0, help="RNG seed for the bootstrap"
+    )
     args = parser.parse_args()
 
     main(
         scale=args.scale,
         top=args.top,
         experiments=args.experiments,
+        n_bootstrap=args.n_bootstrap,
+        seed=args.seed,
     )
