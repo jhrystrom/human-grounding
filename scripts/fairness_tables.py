@@ -11,6 +11,17 @@ Two tables, written separately:
   Delta_group with bootstrap 95 % CI and bootstrap p-value (one-sided
   test for Delta_group > 0). Reads the already-on-disk
   ``output/embedding_alignment_auc.csv`` so no AUC bootstrap is repeated.
+
+  **Bootstrap level.** The gap CIs inherit the bootstrap scheme used to
+  produce ``embedding_alignment_auc.csv``. With the default
+  ``hierarchical=True`` in ``compute_threshold_auc``
+  (``src/human_grounding/threshold_auc.py``), each per-(model, dataset,
+  demographic, iteration) AUC row is one draw from a two-level bootstrap
+  (rater resampling first, triplet resampling within rater), so the
+  per-iteration ``Delta_group = max - min`` values aggregated here are
+  also hierarchical draws -- the resulting CIs reflect both rater-level
+  and triplet-level variability. Re-run ``neural_alignment_plots.py``
+  to refresh the CSV under the new bootstrap.
 """
 
 import argparse
