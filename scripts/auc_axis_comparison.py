@@ -1,14 +1,27 @@
-"""Linear vs log-x alpha-AUC sensitivity check (reviewer Q1).
+"""AUC-parameterisation sensitivity check (reviewer Q1).
 
-Produces, per experiment dataset:
+Computes one master alpha(d) curve at a dense log-spaced grid and
+re-integrates it under several configurations:
 
-- per-(model, dataset) AUC computed under both log-x and linear-x integration
-  from the *same* alpha(d) curve,
-- Spearman rho between the two model rankings,
-- top-N overlap and the rows where the ranks disagree.
+- ``d_max`` in {4, 6.5, 8, 10} (n_points=30, log-x),
+- ``n_points`` in {15, 50} (d_max=6.5, log-x),
+- linear-d integration (d_max=6.5, n_points=30).
 
-Output: ``output/auc_axis_comparison.csv`` (per-model AUCs under both schemes)
-and ``output/auc_axis_comparison.log`` (human-readable summary).
+Each variant is compared against the main configuration
+(d_max=6.5, n_points=30, log-x) on per-model AUC averaged across
+all (experiment, dataset) cells. Reports:
+
+- full-rank Spearman rho,
+- top-10 Spearman rho (on the union of either configuration's top-10),
+- top-10 model-set overlap.
+
+Outputs:
+
+- ``output/auc_axis_comparison.csv`` -- per-(model, dataset, experiment)
+  AUC under log-x and linear-x integration at d_max=6.5,
+- ``output/auc_axis_comparison.log`` -- human-readable summary,
+- ``output/auc_sensitivity_table.tex`` -- LaTeX table matching
+  ``tab:auc-sensitivity``.
 """
 
 import argparse
@@ -63,7 +76,9 @@ def _curve_to_auc(curve: pl.DataFrame, scheme: str) -> pl.DataFrame:
     return pl.DataFrame(rows)
 
 
-def _compute_curve(experiment: str) -> pl.DataFrame:
+def _compute_curve(
+    experiment: str, thresholds: Sequence[float] | None = None
+) -> pl.DataFrame:
     """Run the standard binary-alpha pipeline and return the per-threshold curve."""
     full_dataset = pl.read_csv(DATA_DIR / COORDINATES[experiment])
     welfare_demographics = (
@@ -79,6 +94,7 @@ def _compute_curve(experiment: str) -> pl.DataFrame:
         rai_demographics=rai_demographics,
         n_bootstrap=10,
         metric="binary",
+        thresholds=list(thresholds) if thresholds is not None else None,
     )
     return curve
 
@@ -124,6 +140,156 @@ def _summarise(curve: pl.DataFrame, experiment: str, top_n: int) -> dict:
     return {"per_model": joined, "per_dataset": per_dataset}
 
 
+# ---------------------------------------------------------------------------
+# Sensitivity table (reviewer Q1, broader configurations)
+# ---------------------------------------------------------------------------
+
+MASTER_GRID = np.logspace(np.log10(1.0), np.log10(10.0), 100)
+
+MAIN_CONFIG: dict = {"d_max": 6.5, "n_points": 30, "scheme": "log"}
+
+# (label, config) in display order. Label is rendered verbatim in LaTeX.
+SENSITIVITY_CONFIGS: list[tuple[str, dict]] = [
+    (r"$d_{\max}=4$", {"d_max": 4.0, "n_points": 30, "scheme": "log"}),
+    (r"$d_{\max}=6.5$", {"d_max": 6.5, "n_points": 30, "scheme": "log"}),
+    (r"$d_{\max}=8$", {"d_max": 8.0, "n_points": 30, "scheme": "log"}),
+    (r"$d_{\max}=10$", {"d_max": 10.0, "n_points": 30, "scheme": "log"}),
+    (r"$n_{\mathrm{points}}=15$", {"d_max": 6.5, "n_points": 15, "scheme": "log"}),
+    (r"$n_{\mathrm{points}}=50$", {"d_max": 6.5, "n_points": 50, "scheme": "log"}),
+    (r"Linear-$d$ integration", {"d_max": 6.5, "n_points": 30, "scheme": "linear"}),
+]
+
+
+def _snap_to_master(target: np.ndarray, master: np.ndarray) -> list[float]:
+    """Map each target threshold to the nearest unique master-grid value."""
+    snapped = {float(master[int(np.argmin(np.abs(master - t)))]) for t in target}
+    return sorted(snapped)
+
+
+def _config_per_model_auc(
+    curve: pl.DataFrame,
+    config: dict,
+    master: np.ndarray,
+) -> pl.DataFrame:
+    """Per-model mean AUC under one configuration, averaged across all groups."""
+    target = np.logspace(np.log10(1.0), np.log10(config["d_max"]), config["n_points"])
+    snapped = _snap_to_master(target, master)
+    sub = curve.filter(pl.col("threshold").is_in(snapped))
+
+    auc_fn = ta._auc_trapz_np if config["scheme"] == "log" else _auc_linear
+    keys = [*ta._group_keys(sub), "iteration"]
+    rows = []
+    for key_vals, group in sub.group_by(keys):
+        rows.append(
+            {
+                **dict(zip(keys, key_vals)),
+                "auc": auc_fn(
+                    group["threshold"].to_numpy(),
+                    group["alignment_score"].to_numpy(),
+                ),
+            }
+        )
+    per_iter = pl.DataFrame(rows)
+    return per_iter.group_by("model").agg(pl.col("auc").mean().alias("auc"))
+
+
+def _compare_to_main(
+    main_auc: pl.DataFrame,
+    variant_auc: pl.DataFrame,
+    top_n: int,
+) -> tuple[float, float, int]:
+    """Return (full_rho, top_n_rho, top_n_overlap) comparing variant vs main."""
+    joined = main_auc.rename({"auc": "auc_main"}).join(
+        variant_auc.rename({"auc": "auc_variant"}), on="model", how="inner"
+    )
+    x = joined["auc_main"].to_numpy()
+    y = joined["auc_variant"].to_numpy()
+
+    full_rho = float(spearmanr(x, y).statistic) if len(x) >= 3 else float("nan")
+
+    top_main = set(
+        joined.sort("auc_main", descending=True).head(top_n)["model"].to_list()
+    )
+    top_var = set(
+        joined.sort("auc_variant", descending=True).head(top_n)["model"].to_list()
+    )
+    overlap = len(top_main & top_var)
+
+    union = sorted(top_main | top_var)
+    sub = joined.filter(pl.col("model").is_in(union))
+    top_rho = (
+        float(
+            spearmanr(
+                sub["auc_main"].to_numpy(), sub["auc_variant"].to_numpy()
+            ).statistic
+        )
+        if sub.height >= 3
+        else float("nan")
+    )
+    return full_rho, top_rho, overlap
+
+
+def _build_sensitivity_tex(
+    rows: list[tuple[str, float, float, int]],
+    top_n: int,
+) -> str:
+    header = (
+        r"\textbf{Configuration} & \textbf{Full-rank $\rho$} & "
+        r"\textbf{Top-" + str(top_n) + r" $\rho$} & "
+        r"\textbf{Top-" + str(top_n) + r" overlap} \\"
+    )
+    body = [
+        r"\begin{table}[t]",
+        r"\centering",
+        r"\small",
+        r"\caption{Sensitivity of model-grounding rankings to AUC parameterisation. "
+        r"Rank correlations are computed against the main configuration.}",
+        r"\label{tab:auc-sensitivity}",
+        r"\begin{tabular}{lccc}",
+        r"\toprule",
+        header,
+        r"\midrule",
+    ]
+    for label, full_rho, top_rho, overlap in rows:
+        body.append(
+            f"{label} & {full_rho:.2f} & {top_rho:.2f} & {overlap}/{top_n} \\\\"
+        )
+    body.extend([r"\bottomrule", r"\end{tabular}", r"\end{table}", ""])
+    return "\n".join(body)
+
+
+def _write_sensitivity_table(
+    master_curves: dict[str, pl.DataFrame],
+    top_n: int,
+    output_path: Path,
+) -> None:
+    """Aggregate per-experiment master curves and write the LaTeX sensitivity table."""
+    # Pool curves across experiments. demographics/group keys may differ across
+    # experiments; for the per-model aggregation only `model` and `auc` matter.
+    pooled = pl.concat(
+        [
+            df.with_columns(pl.lit(exp).alias("experiment"))
+            for exp, df in master_curves.items()
+        ],
+        how="vertical_relaxed",
+    )
+
+    main_auc = _config_per_model_auc(pooled, MAIN_CONFIG, MASTER_GRID)
+
+    rows: list[tuple[str, float, float, int]] = []
+    for label, config in SENSITIVITY_CONFIGS:
+        variant_auc = _config_per_model_auc(pooled, config, MASTER_GRID)
+        full_rho, top_rho, overlap = _compare_to_main(main_auc, variant_auc, top_n)
+        logger.info(
+            f"[sensitivity] {label}: full rho={full_rho:.4f}, "
+            f"top-{top_n} rho={top_rho:.4f}, top-{top_n} overlap={overlap}/{top_n}"
+        )
+        rows.append((label, full_rho, top_rho, overlap))
+
+    output_path.write_text(_build_sensitivity_tex(rows, top_n))
+    logger.info(f"LaTeX sensitivity table written to {output_path}")
+
+
 def main(experiments: Sequence[str], top_n: int = 10) -> None:
     log_path = OUTPUT_DIR / "auc_axis_comparison.log"
     csv_path = OUTPUT_DIR / "auc_axis_comparison.csv"
@@ -134,10 +300,18 @@ def main(experiments: Sequence[str], top_n: int = 10) -> None:
 
     all_per_model: list[pl.DataFrame] = []
     all_summaries: list[dict] = []
+    master_curves: dict[str, pl.DataFrame] = {}
     for experiment in experiments:
-        logger.info(f"Computing alpha curve for experiment={experiment}...")
-        curve = _compute_curve(experiment)
-        result = _summarise(curve, experiment, top_n=top_n)
+        logger.info(
+            f"Computing alpha curve for experiment={experiment} on master grid "
+            f"({len(MASTER_GRID)} log-spaced points in [1, 10])..."
+        )
+        curve = _compute_curve(experiment, thresholds=MASTER_GRID)
+        master_curves[experiment] = curve
+
+        # The original log-vs-linear summary, restricted to the main d_max range.
+        main_curve = curve.filter(pl.col("threshold") <= MAIN_CONFIG["d_max"])
+        result = _summarise(main_curve, experiment, top_n=top_n)
         all_per_model.append(result["per_model"])
         all_summaries.extend(result["per_dataset"])
 
@@ -154,6 +328,10 @@ def main(experiments: Sequence[str], top_n: int = 10) -> None:
     combined_per_model = pl.concat(all_per_model, how="vertical_relaxed")
     combined_per_model.write_csv(csv_path)
     logger.info(f"Per-model AUC table written to {csv_path}")
+
+    tex_path = OUTPUT_DIR / "auc_sensitivity_table.tex"
+    _write_sensitivity_table(master_curves, top_n=top_n, output_path=tex_path)
+
     logger.info(f"Log written to {log_path}")
 
 
