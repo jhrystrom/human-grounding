@@ -89,7 +89,7 @@ def _build_tex(
     rows: list[tuple[str, float, float, float]],
 ) -> str:
     body = [
-        r"\begin{table}[t]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\small",
         r"\caption{Sensitivity of downstream clustering results to the choice of $K$.}",
@@ -104,7 +104,7 @@ def _build_tex(
         body.append(
             f"{label} & {ari_rho:.2f} & {grounding_rho:.2f} & {mmteb_rho:.2f} \\\\"
         )
-    body.extend([r"\bottomrule", r"\end{tabular}", r"\end{table}", ""])
+    body.extend([r"\bottomrule", r"\end{tabular}", r"\end{table*}", ""])
     return "\n".join(body)
 
 
