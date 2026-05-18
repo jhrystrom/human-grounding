@@ -14,7 +14,6 @@ Two tables, written separately:
 """
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
@@ -22,13 +21,8 @@ import numpy as np
 import polars as pl
 from loguru import logger
 
-from human_grounding.data import (
-    get_all_statements,
-    get_rai_demographics,
-    get_welfare_demographics,
-)
+from human_grounding.data import get_rai_demographics, get_welfare_demographics
 from human_grounding.directories import DATA_DIR, OUTPUT_DIR
-from human_grounding.embed import get_all_models
 
 # Sibling-script imports (scripts/ is not a package)
 sys.path.append(str(Path(__file__).parent))
@@ -39,12 +33,6 @@ from alpha_distance_plot import (
     get_rater_pairs_by_dataset,
     load_coordinates,
 )
-from neural_alignment_plots import get_embedding_alignments
-
-NEURAL_COORDS_FILE = "valid_coordinates.csv"
-N_QUARTILES = 4
-N_BOOTSTRAP_CONTROLLED = 200
-_TOKEN_RE = re.compile(r"\w+", re.UNICODE)
 
 D_VALUES_COUNTS = (1.0, 2.0, 4.0)
 DATASET_PRETTY = {"rai": "Responsible AI", "welfare": "Welfare"}
@@ -195,164 +183,27 @@ def _bootstrap_stats(values: np.ndarray) -> tuple[float, float, float, float]:
     return mean, lo, hi, p_value
 
 
-def _build_gap_tex(
-    rows: list[tuple[str, str, dict[str, tuple[float, float, float, float]]]],
-) -> str:
-    """Render the raw vs controlled gap table.
-
-    Each input row is ``(dataset_pretty, model_label, stats)`` where
-    ``stats`` is ``{"raw": (mean, lo, hi, p), "controlled": (...)}``.
-    """
+def _build_gap_tex(rows: list[tuple[str, str, float, float, float, float]]) -> str:
     lines = [
         r"\begin{table*}[t]",
         r"\centering",
         r"\small",
-        r"\caption{Bootstrap tests for best--worst group gaps in model-grounding "
-        r"score. Raw uses the full triplet set; the controlled column "
-        r"stratifies each triplet by mean statement-length quartile and "
-        r"anchor-to-comparison Jaccard-overlap quartile, then averages across "
-        r"strata.}",
+        r"\caption{Bootstrap tests for best--worst group gaps in model-grounding AUC.}",
         r"\label{tab:group-gap-tests}",
-        r"\begin{tabular}{llccccc}",
+        r"\begin{tabular}{llccc}",
         r"\toprule",
-        r"\textbf{Dataset} & \textbf{Model} "
-        r"& $\Delta_{\mathrm{group}}$ (raw) "
-        r"& $\Delta_{\mathrm{group}}$ (ctrl.) "
-        r"& \textbf{95\% CI (ctrl.)} "
-        r"& \textbf{Bootstrap $p$ (ctrl.)} \\",
+        r"\textbf{Dataset} & \textbf{Model} & $\Delta_{\mathrm{group}}$ & "
+        r"\textbf{95\% CI} & \textbf{Bootstrap $p$} \\",
         r"\midrule",
     ]
-    for ds_pretty, model_label, stats in rows:
-        raw_mean = stats["raw"][0]
-        ctrl_mean, ctrl_lo, ctrl_hi, ctrl_p = stats["controlled"]
-        p_str = "<0.001" if ctrl_p < 0.001 else f"{ctrl_p:.3f}"
+    for ds_pretty, model_label, mean, lo, hi, p_value in rows:
+        p_str = "<0.001" if p_value < 0.001 else f"{p_value:.3f}"
         lines.append(
-            f"{ds_pretty} & {model_label} & "
-            f"{raw_mean:.3f} & {ctrl_mean:.3f} & "
-            f"[{ctrl_lo:.3f}, {ctrl_hi:.3f}] & {p_str} \\\\"
+            f"{ds_pretty} & {model_label} & {mean:.3f} & "
+            f"[{lo:.3f}, {hi:.3f}] & {p_str} \\\\"
         )
     lines.extend([r"\bottomrule", r"\end{tabular}", r"\end{table*}", ""])
     return "\n".join(lines)
-
-
-# ---------------------------------------------------------------------------
-# Controlled gap: per-triplet stratification by length quartile and Jaccard quartile
-# ---------------------------------------------------------------------------
-
-
-def _jaccard(a: set[str], b: set[str]) -> float:
-    union = a | b
-    return len(a & b) / len(union) if union else 0.0
-
-
-def _prepare_controlled_rows() -> pl.DataFrame:
-    """Per-triplet df with stratification columns and source-statement demographic."""
-    full_dataset = pl.read_csv(DATA_DIR / NEURAL_COORDS_FILE)
-    models = sorted(get_all_models())
-    combined = get_embedding_alignments(models, full_dataset, use_english=False)
-
-    statements = get_all_statements()
-    info: dict[int, dict] = {}
-    for row in statements.iter_rows(named=True):
-        text = row["cause"] or ""
-        info[int(row["statement_id"])] = {
-            "length": len(text),
-            "tokens": set(_TOKEN_RE.findall(text.lower())),
-        }
-
-    src = combined["source_idx"].to_numpy()
-    cls = combined["closer_idx"].to_numpy()
-    far = combined["farther_idx"].to_numpy()
-
-    def _length(arr: np.ndarray) -> np.ndarray:
-        return np.array([info[int(i)]["length"] for i in arr], dtype=float)
-
-    length_mean = (_length(src) + _length(cls) + _length(far)) / 3.0
-
-    toks_src = [info[int(i)]["tokens"] for i in src]
-    toks_cls = [info[int(i)]["tokens"] for i in cls]
-    toks_far = [info[int(i)]["tokens"] for i in far]
-    jaccard = np.array(
-        [
-            (_jaccard(s, c) + _jaccard(s, f)) / 2.0
-            for s, c, f in zip(toks_src, toks_cls, toks_far)
-        ]
-    )
-
-    df = combined.with_columns(
-        pl.Series("length_mean", length_mean),
-        pl.Series("jaccard", jaccard),
-    ).with_columns(
-        pl.col("length_mean")
-        .qcut(N_QUARTILES, labels=[str(i) for i in range(N_QUARTILES)])
-        .alias("length_q"),
-        pl.col("jaccard")
-        .qcut(N_QUARTILES, labels=[str(i) for i in range(N_QUARTILES)])
-        .alias("jaccard_q"),
-    )
-
-    rai_demo = (
-        get_rai_demographics(demographics="gender")
-        .select("cause_id", "demographic")
-        .unique(subset=["cause_id"], keep="first")
-    )
-    welfare_demo = (
-        get_welfare_demographics()
-        .select("cause_id", "demographic")
-        .unique(subset=["cause_id"], keep="first")
-    )
-    demos = pl.concat([rai_demo, welfare_demo], how="vertical_relaxed").unique(
-        subset=["cause_id"], keep="first"
-    )
-
-    df = (
-        df.drop("demographic", strict=False)
-        .join(demos, left_on="source_idx", right_on="cause_id", how="left")
-        .filter(
-            pl.col("demographic").is_not_null()
-            & ~pl.col("demographic").is_in(EXCLUDE_DEMOGRAPHICS)
-        )
-    )
-    return df.select(
-        "model",
-        "dataset",
-        "demographic",
-        "length_q",
-        "jaccard_q",
-        "embedding_correct",
-    )
-
-
-def _controlled_gap_per_model(rows: pl.DataFrame) -> pl.DataFrame:
-    """Per (model, dataset): stratified Delta_group = max - min over demographics."""
-    cell = rows.group_by(
-        ["model", "dataset", "demographic", "length_q", "jaccard_q"]
-    ).agg(pl.col("embedding_correct").mean().alias("acc"))
-    per_md = cell.group_by(["model", "dataset", "demographic"]).agg(
-        pl.col("acc").mean().alias("acc")
-    )
-    return (
-        per_md.with_columns((2 * pl.col("acc") - 1).alias("score"))
-        .group_by(["model", "dataset"])
-        .agg((pl.col("score").max() - pl.col("score").min()).alias("gap"))
-    )
-
-
-def _bootstrap_controlled_gaps(
-    rows: pl.DataFrame,
-    n_bootstrap: int = N_BOOTSTRAP_CONTROLLED,
-    seed: int = 0,
-) -> pl.DataFrame:
-    rng = np.random.default_rng(seed)
-    n = rows.height
-    iters: list[pl.DataFrame] = []
-    for b in range(n_bootstrap):
-        idx = rng.integers(0, n, size=n)
-        sample = rows[idx]
-        iters.append(
-            _controlled_gap_per_model(sample).with_columns(pl.lit(b).alias("iteration"))
-        )
-    return pl.concat(iters)
 
 
 def write_group_gap_table(output_path: Path) -> None:
@@ -364,17 +215,18 @@ def write_group_gap_table(output_path: Path) -> None:
         )
         raise FileNotFoundError(msg)
 
-    # ---- Raw gap from existing per-iteration AUC CSV ----
     auc_df = pl.read_csv(auc_path).filter(
         ~pl.col("demographics").is_in(EXCLUDE_DEMOGRAPHICS)
         & (pl.col("model") != "Human")
     )
     raw_gaps = _per_iter_gap(auc_df)
 
-    # Best model identity per dataset is fixed by mean AUC on the raw pool.
-    best_model_by_dataset: dict[str, str] = {}
+    rows: list[tuple[str, str, float, float, float, float]] = []
     for dataset in sorted(raw_gaps["dataset"].unique().to_list()):
-        best_model_by_dataset[dataset] = (
+        ds_pretty = DATASET_PRETTY.get(dataset, dataset)
+
+        # Best model: model with highest mean AUC over (demographic, iteration)
+        best_model = (
             auc_df.filter(pl.col("dataset") == dataset)
             .group_by("model")
             .agg(pl.col("auc").mean().alias("mean_auc"))
@@ -382,61 +234,21 @@ def write_group_gap_table(output_path: Path) -> None:
             .head(1)
             .item()
         )
-
-    # ---- Controlled (length+Jaccard stratified) gap from per-triplet data ----
-    logger.info("Preparing per-triplet rows for controlled-gap bootstrap...")
-    triplet_rows = _prepare_controlled_rows()
-    logger.info(
-        f"Running {N_BOOTSTRAP_CONTROLLED}-iteration controlled-gap bootstrap "
-        f"on {triplet_rows.height:,} triplet rows..."
-    )
-    ctrl_gaps = _bootstrap_controlled_gaps(triplet_rows)
-
-    rows: list[tuple[str, str, dict[str, tuple[float, float, float, float]]]] = []
-    for dataset in sorted(raw_gaps["dataset"].unique().to_list()):
-        ds_pretty = DATASET_PRETTY.get(dataset, dataset)
-        best_model = best_model_by_dataset[dataset]
-
-        raw_best = raw_gaps.filter(
+        best_gaps = raw_gaps.filter(
             (pl.col("dataset") == dataset) & (pl.col("model") == best_model)
         )["gap"].to_numpy()
-        raw_mean_per_iter = (
+        rows.append(
+            (ds_pretty, f"Best model ({best_model})", *_bootstrap_stats(best_gaps))
+        )
+
+        # Mean model: per-iteration mean of Delta_group across models
+        mean_gaps = (
             raw_gaps.filter(pl.col("dataset") == dataset)
             .group_by("iteration")
             .agg(pl.col("gap").mean().alias("gap"))["gap"]
             .to_numpy()
         )
-
-        ctrl_best = ctrl_gaps.filter(
-            (pl.col("dataset") == dataset) & (pl.col("model") == best_model)
-        )["gap"].to_numpy()
-        ctrl_mean_per_iter = (
-            ctrl_gaps.filter(pl.col("dataset") == dataset)
-            .group_by("iteration")
-            .agg(pl.col("gap").mean().alias("gap"))["gap"]
-            .to_numpy()
-        )
-
-        rows.append(
-            (
-                ds_pretty,
-                f"Best model ({best_model})",
-                {
-                    "raw": _bootstrap_stats(raw_best),
-                    "controlled": _bootstrap_stats(ctrl_best),
-                },
-            )
-        )
-        rows.append(
-            (
-                ds_pretty,
-                "Mean model",
-                {
-                    "raw": _bootstrap_stats(raw_mean_per_iter),
-                    "controlled": _bootstrap_stats(ctrl_mean_per_iter),
-                },
-            )
-        )
+        rows.append((ds_pretty, "Mean model", *_bootstrap_stats(mean_gaps)))
 
     output_path.write_text(_build_gap_tex(rows))
     logger.info(f"Group-gap table written to {output_path}")
