@@ -1,0 +1,18 @@
+\begin{table*}[t]
+\centering
+\small
+\caption{Lexical baseline performance. Ranks are computed within the full set of neural and lexical models.}
+\label{tab:lexical-baselines}
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Dataset} & \textbf{Baseline} & \textbf{Alignment AUC} & \textbf{AUC rank} & \textbf{Clustering ARI} & \textbf{ARI rank} \\
+\midrule
+Responsible AI & \texttt{tfidf-char35} & 0.218 & 22/34 & 0.183 & 3/34 \\
+Responsible AI & \texttt{jaccard-binary} & -0.045 & 34/34 & 0.014 & 34/34 \\
+Welfare & \texttt{tfidf-char35} & 0.268 & 23/34 & 0.312 & 12/34 \\
+Welfare & \texttt{jaccard-binary} & -0.158 & 34/34 & 0.013 & 34/34 \\
+Gov-AI & \texttt{tfidf-char35} & 0.153 & 32/34 & 0.103 & 26/34 \\
+Gov-AI & \texttt{jaccard-binary} & 0.101 & 34/34 & 0.032 & 34/34 \\
+\bottomrule
+\end{tabular}
+\end{table*}
