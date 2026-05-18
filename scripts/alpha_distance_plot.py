@@ -783,6 +783,27 @@ def create_alpha_distance_plots(
             verbose=verbose,
         )
 
+    # --- Empirical-De vs fixed-De=0.5 comparison (reviewer Q2) ---
+    if verbose:
+        print("\nComputing empirical-De alpha curves for between-rater pairs...")
+    alpha_fixed_de, alpha_empirical_de = compute_alpha_de_variants(
+        all_distances=all_distances,
+        rater_pairs_by_dataset=between_pairs_by_dataset,
+        d_values=d_values,
+        n_bootstrap=n_bootstrap,
+        seed=seed,
+        verbose=verbose,
+    )
+    empirical_de_path = PLOT_DIR / "empirical_de_alpha_curves.pdf"
+    create_empirical_de_plot(
+        d_values=d_values,
+        alpha_fixed_by_dataset=alpha_fixed_de,
+        alpha_empirical_by_dataset=alpha_empirical_de,
+        output_path=empirical_de_path,
+        font_scale=font_scale,
+        verbose=verbose,
+    )
+
     return {
         "d_values": d_values,
         "alpha_between": alpha_between,
@@ -801,6 +822,203 @@ def create_alpha_distance_plots(
         "between_alphas_by_demographic": between_alphas_by_demographic,
         "auc_barplot_path": str(PLOT_DIR / "agreement_auc_between_by_dataset.pdf"),
     }
+
+
+# ---------------------------------------------------------------------------
+# Empirical De vs fixed De=0.5 comparison (reviewer Q2)
+# ---------------------------------------------------------------------------
+
+
+def _triplet_counts(
+    dist1: np.ndarray, dist2: np.ndarray, threshold_d: float
+) -> tuple[int, int, int]:
+    """For one rater pair at threshold_d, return (agreements, valid, n_plus_total).
+
+    ``n_plus_total`` is the count of ``+1`` judgments across BOTH raters'
+    judgments on valid (non-ambiguous) triplets — the marginal needed for
+    the empirical-De Krippendorff alpha.
+    """
+    n = dist1.shape[0]
+    if n < 3:
+        return 0, 0, 0
+    anchors, points_i, points_j = generate_triplets_fully_vectorized(n)
+    j1 = vectorized_judgment(
+        dist1[anchors, points_i], dist1[anchors, points_j], threshold_d
+    )
+    j2 = vectorized_judgment(
+        dist2[anchors, points_i], dist2[anchors, points_j], threshold_d
+    )
+    valid_mask = (j1 != 0) & (j2 != 0)
+    valid = int(np.sum(valid_mask))
+    if valid == 0:
+        return 0, 0, 0
+    agreements = int(np.sum(j1[valid_mask] == j2[valid_mask]))
+    n_plus = int(np.sum(j1[valid_mask] == 1) + np.sum(j2[valid_mask] == 1))
+    return agreements, valid, n_plus
+
+
+def _alpha_from_counts(agreements: int, valid: int, n_plus: int) -> tuple[float, float]:
+    """Return (alpha_fixed_De, alpha_empirical_De) from accumulated counts."""
+    if valid == 0:
+        return 0.0, 0.0
+    p_agree = agreements / valid
+    do = 1.0 - p_agree
+    alpha_fixed = 2 * p_agree - 1.0  # equivalent to 1 - do/0.5
+
+    n_total = 2 * valid
+    p_plus = n_plus / n_total
+    de_emp = 2.0 * p_plus * (1.0 - p_plus)
+    alpha_emp = float("nan") if de_emp <= 0 else 1.0 - do / de_emp
+    return alpha_fixed, alpha_emp
+
+
+def compute_alpha_de_variants(
+    all_distances: dict[RaterKey, DistanceData],
+    rater_pairs_by_dataset: dict[str, list[RaterPair]],
+    d_values: np.ndarray,
+    n_bootstrap: int = 100,
+    seed: int | None = None,
+    verbose: bool = True,
+) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
+    """Bootstrap alpha(d) under both fixed De=0.5 and empirical marginal De.
+
+    Returns two dicts mapping dataset -> ``(n_bootstrap, n_d)`` array of alphas.
+    """
+    submatrix_pairs_by_dataset: dict[str, list[tuple[np.ndarray, np.ndarray]]] = {}
+    for dataset, rater_pairs in rater_pairs_by_dataset.items():
+        pairs: list[tuple[np.ndarray, np.ndarray]] = []
+        for key1, key2 in rater_pairs:
+            if key1 not in all_distances or key2 not in all_distances:
+                continue
+            stmts1 = all_distances[key1]["statement_ids"]
+            stmts2 = all_distances[key2]["statement_ids"]
+            indices1, indices2 = find_common_indices(stmts1, stmts2)
+            if len(indices1) < 3:
+                continue
+            sub1 = all_distances[key1]["dist_matrix"][np.ix_(indices1, indices1)]
+            sub2 = all_distances[key2]["dist_matrix"][np.ix_(indices2, indices2)]
+            pairs.append((sub1, sub2))
+        submatrix_pairs_by_dataset[dataset] = pairs
+
+    rng = np.random.default_rng(seed)
+    alpha_fixed_by_dataset: dict[str, np.ndarray] = {
+        ds: np.zeros((n_bootstrap, len(d_values))) for ds in submatrix_pairs_by_dataset
+    }
+    alpha_emp_by_dataset: dict[str, np.ndarray] = {
+        ds: np.zeros((n_bootstrap, len(d_values))) for ds in submatrix_pairs_by_dataset
+    }
+
+    for b in tqdm(
+        range(n_bootstrap), disable=not verbose, desc="De variants bootstrap"
+    ):
+        for i, threshold_d in enumerate(d_values):
+            for dataset, pairs in submatrix_pairs_by_dataset.items():
+                if not pairs:
+                    continue
+                sampled = rng.choice(len(pairs), size=len(pairs), replace=True)
+                agreements = valid = n_plus = 0
+                for idx in sampled:
+                    sub1, sub2 = pairs[idx]
+                    a, v, p = _triplet_counts(sub1, sub2, threshold_d)
+                    agreements += a
+                    valid += v
+                    n_plus += p
+                af, ae = _alpha_from_counts(agreements, valid, n_plus)
+                alpha_fixed_by_dataset[dataset][b, i] = af
+                alpha_emp_by_dataset[dataset][b, i] = ae
+
+    return alpha_fixed_by_dataset, alpha_emp_by_dataset
+
+
+def create_empirical_de_plot(
+    d_values: np.ndarray,
+    alpha_fixed_by_dataset: dict[str, np.ndarray],
+    alpha_empirical_by_dataset: dict[str, np.ndarray],
+    output_path: Path,
+    dataset_name_map: dict[str, str] | None = None,
+    font_scale: float = 1.5,
+    verbose: bool = True,
+) -> None:
+    """Overlay fixed-De=0.5 and empirical-De alpha(d) curves per dataset.
+
+    One panel per dataset; two lines per panel (with 95 % bootstrap bands).
+    """
+    from human_grounding.constants import DATASET_PRETTY_NAMES
+
+    if dataset_name_map is None:
+        dataset_name_map = DATASET_PRETTY_NAMES
+
+    datasets = sorted(
+        d
+        for d in alpha_fixed_by_dataset
+        if d in alpha_empirical_by_dataset and alpha_fixed_by_dataset[d].size > 0
+    )
+    if not datasets:
+        if verbose:
+            print("No datasets available for empirical-De plot.")
+        return
+
+    sns.set_theme(style="whitegrid", font_scale=font_scale)
+    fig, axes = plt.subplots(
+        1, len(datasets), figsize=(6.5 * len(datasets), 5), sharey=True
+    )
+    if len(datasets) == 1:
+        axes = [axes]
+
+    series = [
+        ("fixed", r"Fixed $D_e = 0.5$", "#1f77b4", "-"),
+        ("empirical", r"Empirical $D_e$", "#d62728", "--"),
+    ]
+
+    for ax, dataset in zip(axes, datasets, strict=False):
+        arrs = {
+            "fixed": alpha_fixed_by_dataset[dataset],
+            "empirical": alpha_empirical_by_dataset[dataset],
+        }
+        # Draw both CI bands first so neither overpaints the other's line.
+        for key, _label, colour, _style in series:
+            arr = arrs[key]
+            lo = np.nanpercentile(arr, 2.5, axis=0)
+            hi = np.nanpercentile(arr, 97.5, axis=0)
+            ax.fill_between(d_values, lo, hi, color=colour, alpha=0.15, zorder=1)
+        # Then both lines on top.
+        for key, label, colour, style in series:
+            arr = arrs[key]
+            mean = np.nanmean(arr, axis=0)
+            ax.plot(
+                d_values,
+                mean,
+                color=colour,
+                linewidth=2.2,
+                linestyle=style,
+                label=label,
+                zorder=3,
+            )
+
+        ax.axhline(y=0, color="black", linestyle="--", linewidth=1, alpha=0.7)
+        ax.set_xscale("log")
+        ax.xaxis.set_major_locator(
+            LogLocator(base=10.0, subs=np.arange(1, 10), numticks=15)
+        )
+        formatter = ScalarFormatter()
+        formatter.set_scientific(False)
+        formatter.set_useOffset(False)
+        ax.xaxis.set_major_formatter(formatter)
+        ax.set_xlim(d_values[0], d_values[-1])
+        ax.set_ylim(-0.1, 1.0)
+        ax.set_title(dataset_name_map.get(dataset, dataset))
+        ax.grid(True, alpha=0.3, which="major")
+        ax.grid(True, alpha=0.15, which="minor", linestyle=":")
+
+    axes[0].set_ylabel(r"Krippendorff's $\alpha$")
+    axes[0].legend(framealpha=0.9, loc="lower right")
+
+    fig.supxlabel(r"Distance ratio threshold $d$ (far / close)  [log scale]")
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    if verbose:
+        print(f"Empirical-De comparison plot saved to {output_path}")
 
 
 def build_alpha_dataframe(
