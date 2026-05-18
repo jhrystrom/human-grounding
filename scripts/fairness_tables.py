@@ -199,7 +199,11 @@ def _build_gap_tex(rows: list[tuple[str, str, float, float, float, float]]) -> s
         r"\begin{table*}[t]",
         r"\centering",
         r"\small",
-        r"\caption{Bootstrap tests for best--worst group gaps in model-grounding AUC.}",
+        r"\caption{Hierarchical-bootstrap tests for best--worst group gaps in "
+        r"model-grounding AUC. Each replicate resamples raters with "
+        r"replacement (per dataset), then resamples triplets within each "
+        r"sampled rater; the same rater resampling is held fixed across "
+        r"all $d$-thresholds within a replicate.}",
         r"\label{tab:group-gap-tests}",
         r"\begin{tabular}{llccc}",
         r"\toprule",
