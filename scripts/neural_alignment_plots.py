@@ -58,7 +58,7 @@ def _write_dataset_summary(
     pretty_names: Mapping[str, str],
     out_path: Path,
 ) -> None:
-    """Write per-dataset Human vs best-model α-AUC summary, with gap CIs.
+    """Write per-dataset Human vs best-model alpha-AUC summary, with gap CIs.
 
     For each dataset: mean and 95% percentile CI across bootstrap iterations
     (Human and the highest-scoring model). The gap CI pairs random iterations
@@ -81,7 +81,7 @@ def _write_dataset_summary(
     rng = np.random.default_rng(0)
     n_pairs = 10000
     lines: list[str] = [
-        "Dataset summary (binary α-AUC, mean across demographics)",
+        "Dataset summary (binary α-AUC, mean across demographics)",  # noqa: RUF001
         "=" * 70,
         "",
     ]
@@ -109,7 +109,8 @@ def _write_dataset_summary(
             )
 
         model_rows = ds_summary.filter(pl.col("model") != human_name).sort(
-            "mean", descending=True,
+            "mean",
+            descending=True,
         )
         if model_rows.is_empty():
             lines.append("  (no model results for this dataset)")
@@ -340,7 +341,11 @@ def main(
                 )
             )
             # Save the gov-ai one separately for the clustering
-            auc_bootstraps.filter(pl.col("dataset") == "gov-ai").group_by("model").agg(pl.col("auc").mean()).rename({"auc": "alignment_score"}).write_csv(OUTPUT_DIR / "human_alignment_bootstrapped_gov-ai.csv")
+            auc_bootstraps.filter(pl.col("dataset") == "gov-ai").group_by("model").agg(
+                pl.col("auc").mean()
+            ).rename({"auc": "alignment_score"}).write_csv(
+                OUTPUT_DIR / "human_alignment_bootstrapped_gov-ai.csv"
+            )
         else:
             auc_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
                 combined_results=_get_combined(),
@@ -554,7 +559,9 @@ def main(
                 .group_by("model")
                 .agg(pl.col("auc").mean())
             )
-            combined = avg_auc.join(mmteb_score_df, left_on="model", right_on="model_name")
+            combined = avg_auc.join(
+                mmteb_score_df, left_on="model", right_on="model_name"
+            )
             corr = spearmanr(combined["mmteb_score"], combined["auc"])
             logger.info(f"[{exp}] AUC vs MMTEB(Borda) Spearman: {corr.correlation:.3f}")
 
@@ -564,7 +571,9 @@ def main(
                 .group_by("model")
                 .agg(pl.col("auc").mean())
             )
-            combined = avg_sp.join(mmteb_score_df, left_on="model", right_on="model_name")
+            combined = avg_sp.join(
+                mmteb_score_df, left_on="model", right_on="model_name"
+            )
             corr = spearmanr(combined["mmteb_score"], combined["auc"])
             logger.info(f"[{exp}] Spearman vs MMTEB(Borda): {corr.correlation:.3f}")
 

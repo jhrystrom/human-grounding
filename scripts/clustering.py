@@ -7,7 +7,7 @@ import seaborn as sns
 from loguru import logger
 from scipy.stats import bootstrap, spearmanr
 from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import adjusted_rand_score, v_measure_score
+from sklearn.metrics import adjusted_rand_score, silhouette_score, v_measure_score
 
 import human_grounding.clustering
 import human_grounding.evaluate
@@ -25,6 +25,36 @@ COORDINATES = {
     "policy": OUTPUT_DIR / "normalised_coordinates.csv",
     "gov-ai": DATA_DIR / "govai_coordinates.csv",
 }
+
+
+K_SELECTION_CHOICES = ("human", "silhouette")
+SILHOUETTE_K_RANGE = range(2, 11)
+
+
+def pick_k_silhouette(
+    embeddings: np.ndarray,
+    k_range: range = SILHOUETTE_K_RANGE,
+) -> int:
+    """Pick K for Ward clustering by maximising silhouette score on `embeddings`.
+
+    K is constrained to `k_range` and clipped to `[2, n_samples - 1]`.
+    """
+    n = embeddings.shape[0]
+    candidates = [k for k in k_range if 2 <= k <= n - 1]
+    if not candidates:
+        return max(2, min(n - 1, 2))
+
+    best_k, best_score = candidates[0], -np.inf
+    for k in candidates:
+        labels = AgglomerativeClustering(n_clusters=k, linkage="ward").fit_predict(
+            embeddings
+        )
+        if len(np.unique(labels)) < 2:
+            continue
+        score = silhouette_score(embeddings, labels)
+        if score > best_score:
+            best_k, best_score = k, float(score)
+    return best_k
 
 
 def get_user_clusters(round_df: pl.DataFrame) -> tuple[list[int], list[int], list[int]]:
@@ -61,13 +91,18 @@ def main(
     top: int = 20,
     n_bootstrap: int = 2000,
     seed: int = 0,
+    k_selection: str = "human",
 ) -> None:
     _aggregated_full = []
     _combined_full = []
     for experiment in experiments:
-        aggregated_df, combined_df = analyse_single(experiment)
-        _aggregated_full.append(aggregated_df.with_columns(pl.lit(experiment).alias("experiment")))
-        _combined_full.append(combined_df.with_columns(pl.lit(experiment).alias("experiment")))
+        aggregated_df, combined_df = analyse_single(experiment, k_selection=k_selection)
+        _aggregated_full.append(
+            aggregated_df.with_columns(pl.lit(experiment).alias("experiment"))
+        )
+        _combined_full.append(
+            combined_df.with_columns(pl.lit(experiment).alias("experiment"))
+        )
     aggregated_full = pl.concat(_aggregated_full)
     combined_full = pl.concat(_combined_full)
 
@@ -88,7 +123,9 @@ def main(
         ).alias("cell")
     ).pivot(on="experiment", index="source", values="cell")
 
-    logger.info(f"Spearman vs ARI (per experiment, {n_bootstrap} bootstrap) -> {long_path}")
+    logger.info(
+        f"Spearman vs ARI (per experiment, {n_bootstrap} bootstrap) -> {long_path}"
+    )
     logger.info(f"\n{formatted.to_pandas().to_markdown(index=False)}")
 
     plot_comparison(aggregated_full, combined_full, scale=scale, top=top)
@@ -100,7 +137,7 @@ def _bootstrap_spearman_ci(
     rng: np.random.Generator,
     n_bootstrap: int,
 ) -> tuple[float, float, float]:
-    """Point estimate and BCa 95% CI of Spearman ρ via paired pairs-bootstrap."""
+    """Point estimate and BCa 95% CI of Spearman's rho via paired pairs-bootstrap."""
     n = len(x)
     point = float(spearmanr(x, y).statistic)
     if n < 4:
@@ -119,7 +156,11 @@ def _bootstrap_spearman_ci(
         method="BCa",
         random_state=rng,
     )
-    return point, float(res.confidence_interval.low), float(res.confidence_interval.high)
+    return (
+        point,
+        float(res.confidence_interval.low),
+        float(res.confidence_interval.high),
+    )
 
 
 def compute_spearman_table(
@@ -129,7 +170,7 @@ def compute_spearman_table(
     n_bootstrap: int = 2000,
     seed: int = 0,
 ) -> pl.DataFrame:
-    """Spearman ρ (with bootstrap 95% CI) between model ARI and each ranking source.
+    """Spearman's rho (with bootstrap 95% CI) between model ARI and each ranking source.
 
     Resamples models (rows) with replacement to build the CI. Returns long-format
     rows: ``(source, experiment, n_models, spearman, ci_lo, ci_hi)``.
@@ -150,14 +191,16 @@ def compute_spearman_table(
             x = joined["alignment_score"].to_numpy()
             y = joined[metric].to_numpy()
             point, lo, hi = _bootstrap_spearman_ci(x, y, rng, n_bootstrap)
-            rows.append({
-                "source": "OurExercise",
-                "experiment": exp,
-                "n_models": joined.height,
-                "spearman": point,
-                "ci_lo": lo,
-                "ci_hi": hi,
-            })
+            rows.append(
+                {
+                    "source": "OurExercise",
+                    "experiment": exp,
+                    "n_models": joined.height,
+                    "spearman": point,
+                    "ci_lo": lo,
+                    "ci_hi": hi,
+                }
+            )
         else:
             logger.warning(f"Missing {gt_path}; skipping OurExercise for {exp}")
 
@@ -166,18 +209,20 @@ def compute_spearman_table(
             joined = pl.read_csv(mmteb_path).join(
                 per_model, left_on="model_name", right_on="model", how="inner"
             )
-            # Negate the subset-relative Borda rank so positive ρ = agreement.
+            # Negate the subset-relative Borda rank so positive rho = agreement.
             x = (-joined["Rank (MMTEB)"]).to_numpy()
             y = joined[metric].to_numpy()
             point, lo, hi = _bootstrap_spearman_ci(x, y, rng, n_bootstrap)
-            rows.append({
-                "source": "MMTEB",
-                "experiment": exp,
-                "n_models": joined.height,
-                "spearman": point,
-                "ci_lo": lo,
-                "ci_hi": hi,
-            })
+            rows.append(
+                {
+                    "source": "MMTEB",
+                    "experiment": exp,
+                    "n_models": joined.height,
+                    "spearman": point,
+                    "ci_lo": lo,
+                    "ci_hi": hi,
+                }
+            )
         else:
             logger.warning(f"Missing {mmteb_path}; skipping MMTEB for {exp}")
 
@@ -186,7 +231,12 @@ def compute_spearman_table(
 
 def analyse_single(
     experiment: str = "policy",
+    k_selection: str = "human",
 ) -> tuple[pl.DataFrame, pl.DataFrame]:
+    if k_selection not in K_SELECTION_CHOICES:
+        msg = f"k_selection must be one of {K_SELECTION_CHOICES}, got {k_selection!r}"
+        raise ValueError(msg)
+    suffix = "" if k_selection == "human" else f"_{k_selection}"
     coordinates = pl.read_csv(COORDINATES[experiment]).with_columns(
         pl.col("user_id").str.strip_suffix("_coords")
     )
@@ -241,7 +291,7 @@ def analyse_single(
         )
 
     human_score_df = pl.DataFrame(scores)
-    path = OUTPUT_DIR / f"human_cluster_consistency_{experiment}.csv"
+    path = OUTPUT_DIR / f"human_cluster_consistency_{experiment}{suffix}.csv"
     human_score_df.write_csv(path)
 
     # ---- Model-vs-human consistency ----
@@ -284,14 +334,19 @@ def analyse_single(
             if embeddings.height != len(user_1):
                 continue
 
-            num_categories = (len(np.unique(user_1)) + len(np.unique(user_2))) // 2
+            emb_arr = embeddings["embedding"].to_numpy()
+
+            if k_selection == "silhouette":
+                num_categories = pick_k_silhouette(emb_arr)
+            else:
+                num_categories = (len(np.unique(user_1)) + len(np.unique(user_2))) // 2
             if num_categories < 2:
                 continue
 
             clusterer = AgglomerativeClustering(
                 n_clusters=num_categories, linkage="ward"
             )
-            clusterer.fit(embeddings["embedding"].to_numpy())
+            clusterer.fit(emb_arr)
             model_labels = clusterer.labels_.tolist()
 
             metric_scores = {}
@@ -310,7 +365,7 @@ def analyse_single(
             )
 
     model_df = pl.DataFrame(model_scores)
-    model_path = OUTPUT_DIR / f"model_cluster_consistency_{experiment}.csv"
+    model_path = OUTPUT_DIR / f"model_cluster_consistency_{experiment}{suffix}.csv"
     model_df.write_csv(model_path)
 
     # ---- Aggregate + compare ----
@@ -323,7 +378,9 @@ def analyse_single(
     aggregated_df = combined_df.group_by("model").agg(
         *[pl.mean(metric).alias(metric) for metric in metrics]
     )
-    aggregated_path = OUTPUT_DIR / f"cluster_consistency_aggregated_{experiment}.csv"
+    aggregated_path = (
+        OUTPUT_DIR / f"cluster_consistency_aggregated_{experiment}{suffix}.csv"
+    )
     aggregated_df.write_csv(aggregated_path)
 
     aggregated_by_dataset = combined_df.group_by("model", "dataset").agg(
@@ -342,8 +399,7 @@ def plot_comparison(
     sns.set_theme(style="whitegrid", font_scale=scale)
     for metric in metrics:
         borda_ranks = (
-            aggregated_df
-            .with_columns(
+            aggregated_df.with_columns(
                 pl.col(metric).rank(descending=True).over("experiment").alias("_rank")
             )
             .group_by("model")
@@ -405,6 +461,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "--seed", type=int, default=0, help="RNG seed for the bootstrap"
     )
+    parser.add_argument(
+        "--k-selection",
+        type=str,
+        default="human",
+        choices=K_SELECTION_CHOICES,
+        help=(
+            "How model K is chosen per round: 'human' (default, average human K) "
+            "or 'silhouette' (max silhouette over K in [2, 10])."
+        ),
+    )
     args = parser.parse_args()
 
     main(
@@ -413,4 +479,5 @@ if __name__ == "__main__":
         experiments=args.experiments,
         n_bootstrap=args.n_bootstrap,
         seed=args.seed,
+        k_selection=args.k_selection,
     )
