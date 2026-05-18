@@ -128,7 +128,7 @@ def main(
     )
     logger.info(f"\n{formatted.to_pandas().to_markdown(index=False)}")
 
-    plot_comparison(aggregated_full, combined_full, scale=scale, top=top)
+    plot_comparison(aggregated_full, combined_full, scale=scale, top=top, k_selection=k_selection)
 
 
 def _bootstrap_spearman_ci(
@@ -394,8 +394,10 @@ def plot_comparison(
     combined_df: pl.DataFrame,
     scale: float = 1.35,
     top: int = 20,
+    k_selection: str = "human",
 ) -> None:
     # ---- Plotting ----
+    suffix = "" if k_selection == "human" else f"_{k_selection}"
     sns.set_theme(style="whitegrid", font_scale=scale)
     for metric in metrics:
         borda_ranks = (
@@ -426,7 +428,7 @@ def plot_comparison(
         for label in strip_plot.get_xticklabels():
             if label.get_text() == "Human":
                 label.set_fontweight("bold")
-        plot_path = PLOT_DIR / f"cluster_consistency_comparison_{metric}.pdf"
+        plot_path = PLOT_DIR / f"cluster_consistency_comparison_{metric}{suffix}.pdf"
         plt.savefig(
             plot_path,
             bbox_inches="tight",

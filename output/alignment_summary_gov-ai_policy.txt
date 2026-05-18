@@ -3,15 +3,15 @@ Dataset summary (binary α-AUC, mean across demographics)
 
 ## gov-ai
   Human:       0.491  [0.479, 0.498]
-  Best model:  mmBERTscandi-base-embedding  0.335  [0.334, 0.336]
+  Best model:  mmBERTscandi-base-embedding  0.335  [0.333, 0.336]
   Gap:         15.7pp  [14.4pp, 16.4pp]
 
 ## rai
   Human:       0.637  [0.629, 0.643]
-  Best model:  multilingual-e5-large-instruct  0.378  [0.377, 0.379]
-  Gap:         25.9pp  [25.0pp, 26.6pp]
+  Best model:  multilingual-e5-large-instruct  0.378  [0.376, 0.379]
+  Gap:         26.0pp  [25.1pp, 26.6pp]
 
 ## welfare
   Human:       0.670  [0.660, 0.676]
-  Best model:  paraphrase-multilingual-mpnet  0.479  [0.478, 0.480]
-  Gap:         19.1pp  [18.1pp, 19.8pp]
+  Best model:  paraphrase-multilingual-mpnet  0.480  [0.479, 0.480]
+  Gap:         19.1pp  [18.1pp, 19.7pp]
