@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Sensitivity of model-grounding rankings to AUC parameterisation. Rank correlations are computed against the main configuration.}
+\label{tab:auc-sensitivity}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Configuration} & \textbf{Full-rank $\rho$} & \textbf{Top-10 $\rho$} & \textbf{Top-10 overlap} \\
+\midrule
+$d_{\max}=4$ & 1.00 & 0.95 & 9/10 \\
+$d_{\max}=6.5$ & 1.00 & 1.00 & 10/10 \\
+$d_{\max}=8$ & 1.00 & 0.99 & 10/10 \\
+$d_{\max}=10$ & 1.00 & 0.99 & 10/10 \\
+$n_{\mathrm{points}}=15$ & 1.00 & 1.00 & 10/10 \\
+$n_{\mathrm{points}}=50$ & 1.00 & 1.00 & 10/10 \\
+Linear-$d$ integration & 1.00 & 0.96 & 10/10 \\
+\bottomrule
+\end{tabular}
+\end{table}

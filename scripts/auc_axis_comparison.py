@@ -31,12 +31,13 @@ from pathlib import Path
 
 import numpy as np
 import polars as pl
+from joblib import Memory
 from loguru import logger
 from scipy.stats import spearmanr
 
 import human_grounding.threshold_auc as ta
 from human_grounding.data import get_rai_demographics, get_welfare_demographics
-from human_grounding.directories import DATA_DIR, OUTPUT_DIR
+from human_grounding.directories import CACHE_DIR, DATA_DIR, OUTPUT_DIR
 from human_grounding.embed import get_all_models
 
 # Sibling-script import (scripts/ is not a package)
@@ -48,6 +49,8 @@ COORDINATES = {
     "policy": "valid_coordinates.csv",
     "gov-ai": "govai_coordinates.csv",
 }
+
+memory = Memory(CACHE_DIR, verbose=0)
 
 
 def _auc_linear(thresholds: np.ndarray, scores: np.ndarray) -> float:
@@ -76,6 +79,7 @@ def _curve_to_auc(curve: pl.DataFrame, scheme: str) -> pl.DataFrame:
     return pl.DataFrame(rows)
 
 
+@memory.cache
 def _compute_curve(
     experiment: str, thresholds: Sequence[float] | None = None
 ) -> pl.DataFrame:
@@ -264,21 +268,25 @@ def _write_sensitivity_table(
     output_path: Path,
 ) -> None:
     """Aggregate per-experiment master curves and write the LaTeX sensitivity table."""
-    # Pool curves across experiments. demographics/group keys may differ across
-    # experiments; for the per-model aggregation only `model` and `auc` matter.
-    pooled = pl.concat(
-        [
-            df.with_columns(pl.lit(exp).alias("experiment"))
-            for exp, df in master_curves.items()
-        ],
-        how="vertical_relaxed",
-    )
+    # Compute per-model AUC within each experiment, then pool. Raw curves
+    # can't be concatenated directly because group-key columns (demographics)
+    # differ between experiments.
+    def _pool_per_model(config: dict) -> pl.DataFrame:
+        per_exp = [
+            _config_per_model_auc(curve, config, MASTER_GRID)
+            for curve in master_curves.values()
+        ]
+        return (
+            pl.concat(per_exp, how="vertical")
+            .group_by("model")
+            .agg(pl.col("auc").mean().alias("auc"))
+        )
 
-    main_auc = _config_per_model_auc(pooled, MAIN_CONFIG, MASTER_GRID)
+    main_auc = _pool_per_model(MAIN_CONFIG)
 
     rows: list[tuple[str, float, float, int]] = []
     for label, config in SENSITIVITY_CONFIGS:
-        variant_auc = _config_per_model_auc(pooled, config, MASTER_GRID)
+        variant_auc = _pool_per_model(config)
         full_rho, top_rho, overlap = _compare_to_main(main_auc, variant_auc, top_n)
         logger.info(
             f"[sensitivity] {label}: full rho={full_rho:.4f}, "
