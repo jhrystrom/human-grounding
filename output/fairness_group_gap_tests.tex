@@ -1,16 +1,16 @@
 \begin{table*}[t]
 \centering
 \small
-\caption{Bootstrap tests for best--worst group gaps in model-grounding AUC.}
+\caption{Hierarchical-bootstrap tests for best--worst group gaps in model-grounding AUC. Each replicate resamples raters with replacement (per dataset), then resamples triplets within each sampled rater; the same rater resampling is held fixed across all $d$-thresholds within a replicate.}
 \label{tab:group-gap-tests}
 \begin{tabular}{llccc}
 \toprule
 \textbf{Dataset} & \textbf{Model} & $\Delta_{\mathrm{group}}$ & \textbf{95\% CI} & \textbf{Bootstrap $p$} \\
 \midrule
-Responsible AI & Best model (multilingual-e5-large-instruct) & 0.032 & [0.029, 0.035] & <0.001 \\
-Responsible AI & Mean model & 0.018 & [0.018, 0.019] & <0.001 \\
-Welfare & Best model (paraphrase-multilingual-mpnet-base-v2) & 0.065 & [0.058, 0.068] & <0.001 \\
-Welfare & Mean model & 0.076 & [0.074, 0.077] & <0.001 \\
+Responsible AI & Best model (multilingual-e5-large-instruct) & 0.028 & [0.026, 0.029] & <0.001 \\
+Responsible AI & Mean model & 0.018 & [0.017, 0.019] & <0.001 \\
+Welfare & Best model (paraphrase-multilingual-mpnet-base-v2) & 0.068 & [0.062, 0.073] & <0.001 \\
+Welfare & Mean model & 0.078 & [0.077, 0.080] & <0.001 \\
 \bottomrule
 \end{tabular}
 \end{table*}
