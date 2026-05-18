@@ -327,7 +327,7 @@ def filter_by_distance_threshold_raw(
 
     Unlike :func:`filter_by_distance_threshold`, this does NOT drop triplets
     where within-round raters disagreed on which item is closer. Use for
-    pairwise α (Eq. 1) where the model is treated as an additional rater
+    pairwise alpha (Eq. 1) where the model is treated as an additional rater
     alongside each human — pooling ``embedding_correct`` over the raw rows
     yields ``2 * P(model agrees with rater) - 1`` per Eq. 1.
     """
@@ -458,12 +458,55 @@ def _calculate_spearman_score(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+def _hierarchical_sample(
+    df: pl.DataFrame,
+    sampled_users_by_dataset: dict[str, list],
+    rng: np.random.Generator,
+) -> pl.DataFrame:
+    """Two-level bootstrap: outer (users) is fixed by the caller, inner (triplets) resampled here.
+
+    For each (dataset, sampled_user) instance, take that user's rows in
+    ``df`` and resample them with replacement. Users absent from ``df``
+    (e.g. dropped by the d-filter) simply contribute nothing for this
+    replicate at this threshold.
+    """
+    if "user_id" not in df.columns:
+        # Fall back to naive triplet bootstrap if user_id was not preserved.
+        return df.sample(fraction=1.0, with_replacement=True)
+
+    parts: list[pl.DataFrame] = []
+    for (ds_value,), g in df.group_by("dataset"):
+        ds = str(ds_value)
+        users = sampled_users_by_dataset.get(ds)
+        if not users:
+            continue
+        user_rows = {str(u): ug for (u,), ug in g.group_by("user_id")}
+        for u in users:
+            ug = user_rows.get(str(u))
+            if ug is None or ug.height == 0:
+                continue
+            inner_seed = int(rng.integers(0, 2**31 - 1))
+            parts.append(
+                ug.sample(fraction=1.0, with_replacement=True, seed=inner_seed)
+            )
+    return pl.concat(parts) if parts else df.clear()
+
+
 def _bootstrap_one_replicate(
-    demo_frames: dict[float, pl.DataFrame], iteration: int, metric: str = "binary"
+    demo_frames: dict[float, pl.DataFrame],
+    iteration: int,
+    metric: str = "binary",
+    sampled_users_by_dataset: dict[str, list] | None = None,
+    rng: np.random.Generator | None = None,
 ) -> pl.DataFrame:
     rows = []
     for threshold, df in demo_frames.items():
-        sample = df.sample(fraction=1.0, with_replacement=True)
+        if sampled_users_by_dataset is None:
+            sample = df.sample(fraction=1.0, with_replacement=True)
+        else:
+            if rng is None:
+                rng = np.random.default_rng()
+            sample = _hierarchical_sample(df, sampled_users_by_dataset, rng)
 
         if metric == "spearman":
             agg = _calculate_spearman_score(sample)
@@ -481,6 +524,22 @@ def _bootstrap_one_replicate(
     return pl.concat(rows)
 
 
+def _users_per_dataset(demo_frames: dict) -> dict[str, list[str]]:
+    """Unique user_ids per dataset, taken from the most-populated frame.
+
+    Accepts either the threshold-keyed (float) or label-keyed (str) demo_frames.
+    """
+    if not demo_frames:
+        return {}
+    canonical = max(demo_frames.values(), key=lambda f: f.height)
+    if "user_id" not in canonical.columns:
+        return {}
+    return {
+        str(ds_value): g["user_id"].unique().to_list()
+        for (ds_value,), g in canonical.group_by("dataset")
+    }
+
+
 # ---------------------------------------------------------------------------
 # 3. Main Entry Points
 # ---------------------------------------------------------------------------
@@ -493,8 +552,18 @@ def compute_threshold_auc(
     thresholds: Sequence[float] | None = None,
     n_bootstrap: int = 100,
     metric: str = "binary",
+    hierarchical: bool = True,
+    seed: int = 0,
 ) -> tuple[pl.DataFrame, pl.DataFrame]:
-    """Sweep thresholds and return per-group AUC or point-estimate Spearman."""
+    """Sweep thresholds and return per-group AUC or point-estimate Spearman.
+
+    With ``hierarchical=True`` (default), each replicate first resamples
+    raters (with replacement, per dataset) and then resamples triplets
+    within each sampled rater. The same set of resampled raters is reused
+    across all thresholds within a replicate. This produces wider, more
+    honest CIs than naive triplet-row resampling because it accounts for
+    rater-level variation.
+    """
 
     # For Spearman at d=1, we only need the threshold 1.0
     if metric == "spearman" and thresholds is None:
@@ -504,7 +573,7 @@ def compute_threshold_auc(
 
     demo_frames = {}
     for t in tqdm(thresholds, desc="Precomputing"):
-        # Raw filter (no unanimity): model α = pooled pairwise α vs each rater
+        # Raw filter (no unanimity): model alpha = pooled pairwise alpha vs each rater
         # per Eq. 1, matching the human-human baseline in the alpha CSV.
         filtered = filter_by_distance_threshold_raw(combined_results, t)
         if filtered.height > 0:
@@ -512,10 +581,33 @@ def compute_threshold_auc(
                 filtered, welfare_demographics, rai_demographics
             )
 
-    replicate_frames = [
-        _bootstrap_one_replicate(demo_frames, iteration=i, metric=metric)
-        for i in tqdm(range(n_bootstrap), desc="Bootstrap replicates")
-    ]
+    users_by_dataset = _users_per_dataset(demo_frames) if hierarchical else {}
+    rng = np.random.default_rng(seed)
+
+    desc = (
+        "Bootstrap replicates (hierarchical)"
+        if hierarchical
+        else "Bootstrap replicates"
+    )
+    replicate_frames: list[pl.DataFrame] = []
+    for i in tqdm(range(n_bootstrap), desc=desc):
+        sampled_users: dict[str, list] | None
+        if hierarchical and users_by_dataset:
+            sampled_users = {
+                ds: [users[j] for j in rng.integers(0, len(users), size=len(users))]
+                for ds, users in users_by_dataset.items()
+            }
+        else:
+            sampled_users = None
+        replicate_frames.append(
+            _bootstrap_one_replicate(
+                demo_frames,
+                iteration=i,
+                metric=metric,
+                sampled_users_by_dataset=sampled_users,
+                rng=rng,
+            )
+        )
     curve = pl.concat(replicate_frames)
 
     # If it's Spearman (point estimate), AUC is just the value itself
@@ -536,8 +628,8 @@ def _auc_trapz_np(thresholds: np.ndarray, scores: np.ndarray) -> float:
     """Normalized AUC of ``scores(thresholds)`` integrating over ``log(thresholds)``.
 
     Matches :func:`human_grounding.alpha_reliability.normalized_auc_logx` so
-    model α-AUC and the human α-AUC reported in the paper (computed via the
-    alpha pipeline) sit on the same axis: log-space integration of α(d) over
+    model alpha-AUC and the human alpha-AUC reported in the paper (computed via the
+    alpha pipeline) sit on the same axis: log-space integration of alpha(d) over
     log-spaced d. Assumes ``thresholds > 0`` (true for d = far/close ≥ 1).
     """
     order = np.argsort(thresholds)
@@ -796,7 +888,7 @@ def filter_by_pct_distance_quantile_raw(
 
     Unlike :func:`filter_by_pct_distance_quantile`, this does NOT drop triplets
     where within-round raters disagreed on which item is closer. Use this for
-    human-human α (Eq. 1), which is defined over the raw triplet set — the
+    human-human alpha (Eq. 1), which is defined over the raw triplet set — the
     consensus-only subset would force pairwise agreement toward 1.
     """
     lo_val = combined_results["pct_distance"].quantile(q_lo)
@@ -817,15 +909,17 @@ def compute_difficulty_split_alignment(
     rai_demographics: pl.DataFrame | None = None,
     n_bootstrap: int = 50,
     quantile: float = 0.2,
+    hierarchical: bool = True,
+    seed: int = 0,
 ) -> pl.DataFrame:
     """Compute per-(model, dataset, demographics, difficulty) alignment scores.
 
     Splits triplets into the ``quantile`` lowest (hard) and highest (easy)
     ``pct_distance`` cases, then bootstraps a binary alignment score
     (2*accuracy - 1) per group on the **raw** quantile-split set (no
-    within-round unanimity filter), so the model score is pooled pairwise α
+    within-round unanimity filter), so the model score is pooled pairwise alpha
     against each rater per Eq. 1. Includes a ``Human`` row computed as
-    pairwise inter-rater α on the same raw set.
+    pairwise inter-rater alpha on the same raw set.
     """
     splits = {
         DIFFICULTY_LABELS["hard"]: (0.0, quantile),
@@ -842,10 +936,28 @@ def compute_difficulty_split_alignment(
             filtered, welfare_demographics, rai_demographics
         )
 
+    users_by_dataset = _users_per_dataset(demo_frames) if hierarchical else {}
+    rng = np.random.default_rng(seed)
+
     rows: list[pl.DataFrame] = []
-    for i in tqdm(range(n_bootstrap), desc="Difficulty bootstrap"):
+    desc = (
+        "Difficulty bootstrap (hierarchical)"
+        if hierarchical
+        else "Difficulty bootstrap"
+    )
+    for i in tqdm(range(n_bootstrap), desc=desc):
+        if hierarchical and users_by_dataset:
+            sampled_users: dict[str, list] | None = {
+                ds: [users[j] for j in rng.integers(0, len(users), size=len(users))]
+                for ds, users in users_by_dataset.items()
+            }
+        else:
+            sampled_users = None
         for label, df in demo_frames.items():
-            sample = df.sample(fraction=1.0, with_replacement=True)
+            if sampled_users is None:
+                sample = df.sample(fraction=1.0, with_replacement=True)
+            else:
+                sample = _hierarchical_sample(df, sampled_users, rng)
             agg = (
                 sample.group_by(_group_keys(sample))
                 .agg(
@@ -873,7 +985,7 @@ def _compute_human_human_binary_split(
     demo_frames: dict[str, pl.DataFrame],
     n_bootstrap: int,
 ) -> pl.DataFrame | None:
-    """Pairwise inter-rater α (Eq. 1) per difficulty split.
+    """Pairwise inter-rater alpha (Eq. 1) per difficulty split.
 
     Expects ``demo_frames`` to be the **raw** quantile-filtered triplet set
     (no within-round unanimity pre-filter); otherwise pairwise agreement is
@@ -1160,6 +1272,8 @@ def compute_human_human_spearman(
     rai_demographics: pl.DataFrame | None = None,
     thresholds: list[float] | None = None,
     n_bootstrap: int = 100,
+    hierarchical: bool = True,
+    seed: int = 0,
 ) -> pl.DataFrame:
     """Compute human-human Spearman alignment per demographic group.
 
@@ -1197,10 +1311,24 @@ def compute_human_human_spearman(
             }
         )
 
+    users_by_dataset = _users_per_dataset(demo_frames) if hierarchical else {}
+    rng = np.random.default_rng(seed)
+
     rows = []
-    for i in tqdm(range(n_bootstrap), desc="Human bootstrap"):
+    desc = "Human bootstrap (hierarchical)" if hierarchical else "Human bootstrap"
+    for i in tqdm(range(n_bootstrap), desc=desc):
+        if hierarchical and users_by_dataset:
+            sampled_users: dict[str, list] | None = {
+                ds: [users[j] for j in rng.integers(0, len(users), size=len(users))]
+                for ds, users in users_by_dataset.items()
+            }
+        else:
+            sampled_users = None
         for _, demo_df in demo_frames.items():
-            sample = demo_df.sample(fraction=1.0, with_replacement=True)
+            if sampled_users is None:
+                sample = demo_df.sample(fraction=1.0, with_replacement=True)
+            else:
+                sample = _hierarchical_sample(demo_df, sampled_users, rng)
 
             has_demo = "demographics" in sample.columns
             group_keys = ["dataset", "demographics"] if has_demo else ["dataset"]
