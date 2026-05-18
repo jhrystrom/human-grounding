@@ -6,6 +6,7 @@ from joblib import Memory
 from tqdm import tqdm
 
 import human_grounding.instruct_embed
+import human_grounding.lexical_embed
 import human_grounding.model2vec_embed
 import human_grounding.oai as oai
 import human_grounding.sentence_embed
@@ -144,11 +145,13 @@ def get_all_models() -> dict[str, Embedder]:
     sentence_transformers = human_grounding.sentence_embed.all_models()
     model2vec_models = human_grounding.model2vec_embed.all_models()
     instruct_models = human_grounding.instruct_embed.all_models()
+    lexical_models = human_grounding.lexical_embed.all_models()
     return {
         **openai_models,
         **sentence_transformers,
         **model2vec_models,
         **instruct_models,
+        **lexical_models,
     }  # ty:ignore[invalid-return-type]
 
 
