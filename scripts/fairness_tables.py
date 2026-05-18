@@ -50,7 +50,9 @@ DATASET_PRETTY = {"rai": "Responsible AI", "welfare": "Welfare"}
 RAI_DEMO_PRETTY = {"Mand": "Men", "Kvinde": "Women"}
 EXCLUDE_DEMOGRAPHICS = {"Unknown", "unknown", "0"}
 COORDS_FILE = "combined_coordinates.csv"
-ALIGNMENT_CSV = "embedding_alignment_auc.csv"
+# Per-experiment alignment CSV written by ``neural_alignment_plots.py``;
+# contains the bootstrap iterations under the (now hierarchical) AUC pipeline.
+ALIGNMENT_CSV = "alignment_results_policy.csv"
 
 
 # ---------------------------------------------------------------------------
@@ -225,13 +227,15 @@ def write_group_gap_table(output_path: Path) -> None:
     auc_path = OUTPUT_DIR / ALIGNMENT_CSV
     if not auc_path.exists():
         msg = (
-            f"{auc_path} not found. Run neural_alignment_plots.py first to "
-            "produce the per-(model, dataset, demographic, iteration) AUC CSV."
+            f"{auc_path} not found. Run neural_alignment_plots.py first "
+            "(it writes this CSV in its persistence block) to produce the "
+            "per-(model, dataset, demographic, iteration) AUC rows."
         )
         raise FileNotFoundError(msg)
 
     auc_df = pl.read_csv(auc_path).filter(
-        ~pl.col("demographics").is_in(EXCLUDE_DEMOGRAPHICS)
+        (pl.col("metric") == "binary_auc")
+        & ~pl.col("demographics").is_in(EXCLUDE_DEMOGRAPHICS)
         & (pl.col("model") != "Human")
     )
     raw_gaps = _per_iter_gap(auc_df)
