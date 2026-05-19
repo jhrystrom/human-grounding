@@ -178,16 +178,7 @@ Also logs:
 - Spearman ρ between MMTEB score and clustering ARI
 
 ## Pipeline order
-
-Run the scripts in this order for a full reproduction:
-
-```
-combine_coordinates.py        # merge raw session CSVs
-translate_statements.py       # (optional) generate English translations
-alpha_distance_plot.py        # RQ1: human reliability
-neural_alignment_plots.py     # RQ2: model alignment
-clustering.py                 # RQ3: downstream clustering
-```
+To reproduce the pipeline, simply run `make reproduce` which will run the pipeline in the correct order with the correct arguments.
 
 ## Citation
 
