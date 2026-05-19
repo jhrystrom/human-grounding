@@ -305,6 +305,10 @@ def main(
     _combined: pl.DataFrame | None = None
     _embeddings_computed = False
 
+    triplets_path = DATA_DIR / f"raw_triplets_{experiment_name}.parquet"
+    if use_english:
+        triplets_path = append_english(triplets_path)
+
     def _get_combined() -> pl.DataFrame:
         nonlocal _combined, _embeddings_computed
         if _combined is None:
@@ -312,7 +316,14 @@ def main(
                 models, full_dataset, use_english=use_english
             )
             _embeddings_computed = True
+            _combined.write_parquet(triplets_path)
+            logger.info(f"Wrote raw triplets to {triplets_path}")
         return _combined
+
+    # Ensure the raw-triplets parquet exists — downstream fairness analyses
+    # (scripts/fairness_tables.py) read it to add lexical/length controls.
+    if not triplets_path.exists():
+        _get_combined()
 
     def _load_human_aucs() -> pl.DataFrame | None:
         """Load human AUC from alpha files for all experiments that have one."""
