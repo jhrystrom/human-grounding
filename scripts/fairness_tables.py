@@ -589,37 +589,27 @@ def _build_controlled_gap_tex(
         ]
     ],
 ) -> str:
+    # Six-column layout (Dataset, Model, then Delta+CI and p, twice). Delta
+    # and its CI share a cell so the table stays within column width.
     lines = [
         r"\begin{table*}[t]",
         r"\centering",
         r"\small",
+        r"\setlength{\tabcolsep}{4pt}",
         r"\caption{Best--worst demographic group gaps in model-grounding "
         r"accuracy for the highest-mean-AUC model per dataset, before and "
-        r"after adjustment for lexical and length confounds. "
-        r"$\Delta_{\mathrm{group}}$ is the per-iteration "
-        r"$\max - \min$ AUC across demographics drawn from the "
-        r"hierarchical-bootstrap rows in "
-        r"\texttt{alignment\_results\_policy.csv}. "
-        r"$\Delta_{\mathrm{adj}}$ is the analogous max-minus-min in "
-        r"predicted $P(\text{embedding correct})$ from a logistic "
-        r"regression of triplet correctness on group dummies plus "
-        r"controls: $\log$ token counts of the source, closer, and "
-        r"farther statements and Jaccard token overlap between "
-        r"source--closer and source--farther. Predictions are made at "
-        r"the in-sample mean of the controls; each adjusted replicate "
-        r"resamples raters with replacement and refits the regression. "
-        r"Groups are defined by the demographic of each triplet's "
-        r"source (anchor) statement. Bootstrap $p$ is the one-sided "
-        r"proportion of replicates with $\Delta \le 0$.}",
+        r"after adjustment for lexical and length confounds. See main text "
+        r"for definitions of $\Delta_{\mathrm{group}}$, "
+        r"$\Delta_{\mathrm{adj}}$, and the bootstrap procedure.}",
         r"\label{tab:group-gap-controlled}",
-        r"\begin{tabular}{llcccccc}",
+        r"\begin{tabular}{llcccc}",
         r"\toprule",
-        r" & & \multicolumn{3}{c}{\textbf{Unadjusted}} & "
-        r"\multicolumn{3}{c}{\textbf{Lexical + length adjusted}} \\",
-        r"\cmidrule(lr){3-5} \cmidrule(lr){6-8}",
+        r" & & \multicolumn{2}{c}{\textbf{Unadjusted}} & "
+        r"\multicolumn{2}{c}{\textbf{Adjusted}} \\",
+        r"\cmidrule(lr){3-4} \cmidrule(lr){5-6}",
         r"\textbf{Dataset} & \textbf{Model} & "
-        r"$\Delta_{\mathrm{group}}$ & \textbf{95\% CI} & $p$ & "
-        r"$\Delta_{\mathrm{adj}}$ & \textbf{95\% CI} & $p$ \\",
+        r"$\Delta_{\mathrm{group}}$ [95\% CI] & $p$ & "
+        r"$\Delta_{\mathrm{adj}}$ [95\% CI] & $p$ \\",
         r"\midrule",
     ]
     for ds_pretty, model_label, unadj, adj in rows:
@@ -627,8 +617,8 @@ def _build_controlled_gap_tex(
         a_mean, a_lo, a_hi, a_p = adj
         lines.append(
             f"{ds_pretty} & {model_label} & "
-            f"{u_mean:.3f} & [{u_lo:.3f}, {u_hi:.3f}] & {_fmt_p(u_p)} & "
-            f"{a_mean:.3f} & [{a_lo:.3f}, {a_hi:.3f}] & {_fmt_p(a_p)} \\\\"
+            f"{u_mean:.3f} [{u_lo:.3f},\\,{u_hi:.3f}] & {_fmt_p(u_p)} & "
+            f"{a_mean:.3f} [{a_lo:.3f},\\,{a_hi:.3f}] & {_fmt_p(a_p)} \\\\"
         )
     lines.extend([r"\bottomrule", r"\end{tabular}", r"\end{table*}", ""])
     return "\n".join(lines)
@@ -727,7 +717,7 @@ def write_controlled_group_gap_table(
         rows.append(
             (
                 ds_pretty,
-                f"Best model ({best_model})",
+                best_model,
                 _bootstrap_stats(unadj_gaps),
                 _bootstrap_stats(adj_gaps),
             )

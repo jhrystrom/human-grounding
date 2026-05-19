@@ -1,16 +1,17 @@
 \begin{table*}[t]
 \centering
 \small
-\caption{Best--worst demographic group gaps in model-grounding accuracy for the highest-mean-AUC model per dataset, before and after adjustment for lexical and length confounds. $\Delta_{\mathrm{group}}$ is the per-iteration $\max - \min$ AUC across demographics drawn from the hierarchical-bootstrap rows in \texttt{alignment\_results\_policy.csv}. $\Delta_{\mathrm{adj}}$ is the analogous max-minus-min in predicted $P(\text{embedding correct})$ from a logistic regression of triplet correctness on group dummies plus controls: $\log$ token counts of the source, closer, and farther statements and Jaccard token overlap between source--closer and source--farther. Predictions are made at the in-sample mean of the controls; each adjusted replicate resamples raters with replacement and refits the regression. Groups are defined by the demographic of each triplet's source (anchor) statement. Bootstrap $p$ is the one-sided proportion of replicates with $\Delta \le 0$.}
+\setlength{\tabcolsep}{4pt}
+\caption{Best--worst demographic group gaps in model-grounding accuracy for the highest-mean-AUC model per dataset, before and after adjustment for lexical and length confounds. See main text for definitions of $\Delta_{\mathrm{group}}$, $\Delta_{\mathrm{adj}}$, and the bootstrap procedure.}
 \label{tab:group-gap-controlled}
-\begin{tabular}{llcccccc}
+\begin{tabular}{llcccc}
 \toprule
- & & \multicolumn{3}{c}{\textbf{Unadjusted}} & \multicolumn{3}{c}{\textbf{Lexical + length adjusted}} \\
-\cmidrule(lr){3-5} \cmidrule(lr){6-8}
-\textbf{Dataset} & \textbf{Model} & $\Delta_{\mathrm{group}}$ & \textbf{95\% CI} & $p$ & $\Delta_{\mathrm{adj}}$ & \textbf{95\% CI} & $p$ \\
+ & & \multicolumn{2}{c}{\textbf{Unadjusted}} & \multicolumn{2}{c}{\textbf{Adjusted}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+\textbf{Dataset} & \textbf{Model} & $\Delta_{\mathrm{group}}$ [95\% CI] & $p$ & $\Delta_{\mathrm{adj}}$ [95\% CI] & $p$ \\
 \midrule
-Responsible AI & Best model (multilingual-e5-large-instruct) & 0.028 & [0.026, 0.029] & <0.001 & 0.010 & [0.007, 0.015] & <0.001 \\
-Welfare & Best model (paraphrase-multilingual-mpnet-base-v2) & 0.068 & [0.062, 0.073] & <0.001 & 0.032 & [0.024, 0.051] & <0.001 \\
+Responsible AI & multilingual-e5-large-instruct & 0.028 [0.026,\,0.029] & <0.001 & 0.011 [0.007,\,0.016] & <0.001 \\
+Welfare & paraphrase-multilingual-mpnet-base-v2 & 0.068 [0.062,\,0.073] & <0.001 & 0.033 [0.021,\,0.045] & <0.001 \\
 \bottomrule
 \end{tabular}
 \end{table*}
