@@ -7,6 +7,12 @@ from human_grounding.directories import DATA_DIR, OUTPUT_DIR
 ROUND_COLS = ["user_id", "dataset", "seed"]
 STATEMENT_COLS = ["source_idx", "closer_idx", "farther_idx"]
 
+DATASET_DISPLAY_NAMES = {
+    "gov-ai": "Gov-AI",
+    "rai": "RAI",
+    "welfare": "Welfare",
+}
+
 
 def make_statement_coverage_table(
     round_df: pl.DataFrame,
@@ -44,18 +50,9 @@ def make_statement_coverage_table(
         .unique()
     )
 
-    # Add an "All" dataset aggregation.
-    long_with_all = pl.concat(
-        [
-            long_df,
-            long_df.with_columns(pl.lit("All").alias("dataset")),
-        ],
-        how="vertical",
-    )
-
     # Per-statement number of rounds in which statement appears.
     statement_occurrences = (
-        long_with_all
+        long_df
         .group_by(["dataset", "statement_idx"])
         .agg(pl.len().alias("round_occurrences"))
     )
@@ -73,9 +70,9 @@ def make_statement_coverage_table(
     # Build one unordered statement pair per round.
     # This uses a self-join within each round, then keeps statement_a < statement_b.
     pairs = (
-        long_with_all
+        long_df
         .join(
-            long_with_all,
+            long_df,
             on=ROUND_COLS,
             how="inner",
             suffix="_b",
@@ -136,37 +133,53 @@ def make_statement_coverage_table(
         )
     )
 
-    # Put "All" at the bottom.
-    final = (
+    display = (
         final
-        .with_columns((pl.col("dataset") == "All").alias("_is_all"))
-        .sort(["_is_all", "dataset"])
-        .drop("_is_all")
+        .with_columns(
+            pl.col("dataset")
+            .replace_strict(DATASET_DISPLAY_NAMES, default=pl.col("dataset"))
+            .alias("dataset_display"),
+        )
     )
 
-    latex_df = final.select(
-    pl.col("dataset").alias("Dataset"),
-    pl.col("n_statements").alias("Statements"),
-    pl.col("mean_occurrences").alias("Mean occurrences"),
-    pl.col("median_occurrences").alias("Median occurrences"),
-    pl.col("pct_pairs_cooccurring").alias(r"\% pairs co-occurring"),
-)
+    fmt = f"%.{decimals}f"
 
-    latex = latex_df.to_pandas().to_latex(
-    index=False,
-    escape=False,
-    column_format="lrrrr",
-    float_format="%.2f",
-    caption="Statement occurrence and co-occurrence statistics by dataset.",
-    label="tab:statement_coverage",
-)
+    def row(record: dict) -> str:
+        return " & ".join(
+            [
+                record["dataset_display"],
+                f"{record['n_statements']}",
+                fmt % record["mean_occurrences"],
+                fmt % record["median_occurrences"],
+                fmt % record["pct_pairs_cooccurring"],
+            ]
+        ) + r" \\"
 
-    # Optional: slightly more publication-ready booktabs table.
-    latex = latex.replace("\\toprule", "\\toprule")
-    latex = latex.replace("\\midrule", "\\midrule")
-    latex = latex.replace("\\bottomrule", "\\bottomrule")
+    body_rows = [row(r) for r in display.to_dicts()]
 
-    Path(output_path).write_text(latex)
+    lines = [
+        r"\begin{table*}[t]",
+        r"\centering",
+        r"\small",
+        r"\caption{Statement occurrence and co-occurrence statistics by dataset "
+        r"(\secref{sec:data}). Occurrences count the rounds in which a statement "
+        r"appears in any role; co-occurrence is the share of all unordered "
+        r"statement pairs that share at least one round.}",
+        r"\label{tab:coverage}",
+        r"\begin{tabular}{lrrrr}",
+        r"\toprule",
+        r" & & \multicolumn{2}{c}{Occurrences per statement} & Co-occurring \\",
+        r"\cmidrule(lr){3-4}",
+        r"Dataset & Statements & Mean & Median & \% of pairs \\",
+        r"\midrule",
+        *body_rows,
+        r"\bottomrule",
+        r"\end{tabular}",
+        r"\end{table*}",
+        "",
+    ]
+
+    Path(output_path).write_text("\n".join(lines))
 
     return final
 
