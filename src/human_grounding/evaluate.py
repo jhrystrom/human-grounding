@@ -136,17 +136,18 @@ def get_statement_embeddings(
 
 
 def get_oracle_statement_embeddings(
-    dataset: str, coordinates: pl.DataFrame
+    dataset: str, oracle_embeddings: pl.DataFrame
 ) -> pl.DataFrame:
-    """Statement table with a fitted Human-MDS oracle embedding column.
+    """Statement table with the fitted Human-MDS oracle embedding column.
 
     Mirrors the schema of :func:`get_statement_embeddings` (statement metadata
     plus an ``embedding`` column) so the oracle flows through the rest of the
-    pipeline as just another model, but the embedding is fitted from the human
-    layouts in ``coordinates`` rather than from statement text.
+    pipeline as just another model. ``oracle_embeddings`` is the *single global*
+    per-dataset embedding (one vector per ``statement_id``, fitted over all
+    rounds and raters by :func:`evaluate_human_embedding_match`); the join here
+    simply restricts it to the statements of the current group.
     """
     statements = statement_readers[dataset]()
-    oracle_embeddings = human_grounding.oracle.fit_oracle_embeddings(coordinates)
     return statements.join(
         oracle_embeddings,
         left_on="cause_id",
@@ -165,7 +166,10 @@ def fake_cache(x: str) -> str:
 
 @memory.cache
 def human_embedding_match_new(
-    model: str, coordinates: pl.DataFrame, use_english: bool = False
+    model: str,
+    coordinates: pl.DataFrame,
+    use_english: bool = False,
+    oracle_embeddings: pl.DataFrame | None = None,
 ) -> pl.DataFrame:
     dataset = coordinates["dataset"].first()
     is_oracle = human_grounding.oracle.is_oracle_model(model)
@@ -173,9 +177,11 @@ def human_embedding_match_new(
         pl.int_range(pl.len()).over("user_id").alias("row_idx")
     )
     if is_oracle:
-        # The oracle is fitted from the layouts themselves, so it consumes the
-        # coordinates instead of the statement text.
-        statement_base = get_oracle_statement_embeddings(dataset, coordinates)
+        # The oracle uses the single global per-dataset embedding fitted from
+        # all layouts (passed in), not the statement text.
+        if oracle_embeddings is None:
+            raise ValueError("Oracle model requires precomputed oracle_embeddings")
+        statement_base = get_oracle_statement_embeddings(dataset, oracle_embeddings)
     else:
         statement_base = get_statement_embeddings(
             dataset=dataset, embedder_name=model, use_english=use_english
@@ -282,6 +288,17 @@ def create_all_comparisons(all_coordinates: pl.DataFrame) -> pl.DataFrame:
 def evaluate_human_embedding_match(
     model: str, all_coordinates: pl.DataFrame, use_english: bool = False
 ) -> pl.DataFrame:
+    # Oracle: fit ONE global embedding per dataset (one vector per statement,
+    # over all rounds and raters) up front, so a statement shared across seeds
+    # keeps a single representation. Neural models get their per-statement text
+    # embedding inside human_embedding_match_new.
+    oracle_by_dataset: dict[str, pl.DataFrame] = {}
+    if human_grounding.oracle.is_oracle_model(model):
+        for (dataset,), ds_group in all_coordinates.group_by("dataset"):
+            oracle_by_dataset[str(dataset)] = (
+                human_grounding.oracle.fit_oracle_embeddings(ds_group)
+            )
+
     results = []
     for (dataset, seed), group in all_coordinates.group_by(["dataset", "seed"]):
         if group.height < 40:
@@ -290,7 +307,10 @@ def evaluate_human_embedding_match(
             )
             continue
         comparison_demographics = human_embedding_match_new(
-            model=model, coordinates=group, use_english=use_english
+            model=model,
+            coordinates=group,
+            use_english=use_english,
+            oracle_embeddings=oracle_by_dataset.get(str(dataset)),
         )
         results.append(comparison_demographics)
     return pl.concat(results, how="vertical_relaxed")
