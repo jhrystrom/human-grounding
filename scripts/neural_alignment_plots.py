@@ -131,6 +131,7 @@ def _write_dataset_summary(
             f"{best['mean']:.3f}  [{best['lo']:.3f}, {best['hi']:.3f}]",
         )
 
+        model_iters: np.ndarray | None = None
         if h is not None and human_iters is not None:
             model_iters = (
                 per_iter.filter(
@@ -148,6 +149,44 @@ def _write_dataset_summary(
             lines.append(
                 f"  Gap:         {gap_point * 100:.1f}pp  "
                 f"[{gap_lo * 100:.1f}pp, {gap_hi * 100:.1f}pp]",
+            )
+
+        oracle_row = ds_summary.filter(
+            pl.col("model") == human_grounding.oracle.ORACLE_MODEL_NAME
+        )
+        if oracle_row.is_empty():
+            lines.append("  Oracle:      (no oracle available)")
+        else:
+            o = oracle_row.row(0, named=True)
+            lines.append(
+                f"  Oracle:      {o['mean']:.3f}  [{o['lo']:.3f}, {o['hi']:.3f}]",
+            )
+            if model_iters is None:
+                model_iters = (
+                    per_iter.filter(
+                        (pl.col("model") == best["model"])
+                        & (pl.col("dataset") == ds),
+                    )
+                    .get_column("auc")
+                    .to_numpy()
+                )
+            oracle_iters = (
+                per_iter.filter(
+                    (pl.col("model") == human_grounding.oracle.ORACLE_MODEL_NAME)
+                    & (pl.col("dataset") == ds),
+                )
+                .get_column("auc")
+                .to_numpy()
+            )
+            i = rng.integers(0, len(oracle_iters), n_pairs)
+            j = rng.integers(0, len(model_iters), n_pairs)
+            oracle_gaps = oracle_iters[i] - model_iters[j]
+            oracle_gap_point = o["mean"] - best["mean"]
+            oracle_gap_lo = float(np.percentile(oracle_gaps, 2.5))
+            oracle_gap_hi = float(np.percentile(oracle_gaps, 97.5))
+            lines.append(
+                f"  Gap (oracle): {oracle_gap_point * 100:.1f}pp  "
+                f"[{oracle_gap_lo * 100:.1f}pp, {oracle_gap_hi * 100:.1f}pp]",
             )
         lines.append("")
 

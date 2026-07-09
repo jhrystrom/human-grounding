@@ -5,13 +5,19 @@ Dataset summary (binary α-AUC, mean across demographics)
   Human:       0.491  [0.479, 0.498]
   Best model:  mmBERTscandi-base-embedding  0.336  [0.309, 0.373]
   Gap:         15.5pp  [11.5pp, 18.9pp]
+  Oracle:      0.627  [0.602, 0.648]
+  Gap (oracle): 29.2pp  [24.1pp, 33.4pp]
 
 ## rai
   Human:       0.638  [0.632, 0.642]
   Best model:  multilingual-e5-large-instruct  0.375  [0.369, 0.382]
   Gap:         26.3pp  [25.0pp, 27.2pp]
+  Oracle:      0.504  [0.483, 0.521]
+  Gap (oracle): 12.9pp  [10.3pp, 14.9pp]
 
 ## welfare
   Human:       0.670  [0.664, 0.674]
   Best model:  paraphrase-multilingual-mpnet  0.476  [0.442, 0.492]
   Gap:         19.4pp  [17.3pp, 23.2pp]
+  Oracle:      0.609  [0.568, 0.629]
+  Gap (oracle): 13.3pp  [7.8pp, 18.0pp]
