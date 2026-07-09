@@ -29,9 +29,11 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+import numpy as np
 import polars as pl
 import seaborn as sns
 from loguru import logger
+from matplotlib.lines import Line2D
 from tqdm import tqdm
 
 import human_grounding.evaluate
@@ -111,8 +113,12 @@ def plot_prompt_context_auc_bar(
     facet_width: float = 9.0,
     file_type: str = "pdf",
 ) -> Path:
-    """Grid of horizontal AUC bars: rows = context type, cols = dataset, hue =
-    prompt variation.
+    """Lollipop chart: cols = dataset, y = model, hue = prompt variation.
+
+    Each (model, variant) pair draws one horizontal stem per dataset panel,
+    connecting its Generic AUC (open marker) to its Dataset-Context AUC
+    (filled marker). Reading along a stem shows the effect of adding dataset
+    context; comparing stem colours within a panel shows prompt robustness.
 
     Parameters
     ----------
@@ -185,69 +191,191 @@ def plot_prompt_context_auc_bar(
         pl.col("variant").replace(variant_name_map).alias("variant"),
     )
 
-    # Order y-axis by mean Generic AUC across variations (best on top).
-    model_order = (
-        plot_data.filter(pl.col("context_type") == GENERIC_LABEL)
-        .group_by("model")
-        .agg(pl.col("auc").mean())
-        .sort("auc", descending=True)
-        .get_column("model")
-        .to_list()
+    # Mean + percentile CI per (model, dataset, context_type, variant) across
+    # bootstrap iterations.
+    lower_q = (100 - ci) / 200
+    upper_q = 1 - lower_q
+    summary = (
+        plot_data.group_by("model", "dataset", "context_type", "variant")
+        .agg(
+            pl.col("auc").mean().alias("mean"),
+            pl.col("auc").quantile(lower_q, interpolation="linear").alias("low"),
+            pl.col("auc").quantile(upper_q, interpolation="linear").alias("high"),
+        )
+        .to_pandas()
     )
 
-    pdf = plot_data.to_pandas()
-    dataset_order = sorted(pdf["dataset"].unique())
-    row_order = [GENERIC_LABEL, CONTEXT_LABEL]
+    # Order y-axis by mean Generic AUC across variations (best on top).
+    model_order = (
+        summary[summary["context_type"] == GENERIC_LABEL]
+        .groupby("model")["mean"]
+        .mean()
+        .sort_values(ascending=False)
+        .index.tolist()
+    )
+
+    # Wide layout: one row per (model, dataset, variant) with Generic/Context
+    # stats side by side, so each row draws directly into one stem.
+    wide = summary.pivot(
+        index=["model", "dataset", "variant"],
+        columns="context_type",
+        values=["mean", "low", "high"],
+    )
+    wide.columns = [f"{stat}_{ctx}" for stat, ctx in wide.columns]
+    wide = wide.reset_index()
+
+    dataset_order = sorted(wide["dataset"].unique())
     hue_order = [variant_name_map[v] for v in PROMPT_VARIATIONS]
     palette = dict(zip(hue_order, sns.color_palette("colorblind", len(hue_order))))
 
     sns.set_theme(style="whitegrid", font_scale=font_scale)
 
-    g = sns.catplot(
-        data=pdf,
-        x="auc",
-        y="model",
-        hue="variant",
-        col="dataset",
-        row="context_type",
-        col_order=dataset_order,
-        row_order=row_order,
-        hue_order=hue_order,
-        order=model_order,
-        kind="bar",
-        palette=palette,
-        height=height,
-        width=0.8,
-        aspect=facet_width / height,
-        orient="h",
-        errorbar=("ci", ci),
-        margin_titles=True,
+    n_models = len(model_order)
+    n_variants = len(hue_order)
+    # Bottom-to-top y position so the best generic model ends up on top.
+    model_pos = {model: i for i, model in enumerate(reversed(model_order))}
+    offsets = np.linspace(-0.32, 0.32, n_variants)
+
+    fig, axes = plt.subplots(
+        1,
+        len(dataset_order),
+        figsize=(facet_width * len(dataset_order), height),
+        sharey=True,
     )
+    axes = np.atleast_1d(axes)
 
-    g.set_titles(col_template="{col_name}", row_template="{row_name}")
-    g.set_axis_labels("", "")
-    g.figure.supxlabel("Alignment AUC (normalised)")
+    for ax, dataset in zip(axes, dataset_order):
+        subset = wide[wide["dataset"] == dataset]
+        for variant, offset in zip(hue_order, offsets):
+            color = palette[variant]
+            variant_rows = subset[subset["variant"] == variant]
+            for _, row in variant_rows.iterrows():
+                y = model_pos[row["model"]] + offset
+                gen_mean = row[f"mean_{GENERIC_LABEL}"]
+                ctx_mean = row[f"mean_{CONTEXT_LABEL}"]
 
-    locator = mticker.MaxNLocator(nbins="auto", min_n_ticks=4)
-    for ax in g.axes.flat:
-        ax.xaxis.set_major_locator(locator)
+                ax.plot(
+                    [gen_mean, ctx_mean],
+                    [y, y],
+                    color=color,
+                    linewidth=1.6,
+                    alpha=0.7,
+                    zorder=1,
+                    solid_capstyle="round",
+                )
+                for label, mean_val, marker_kwargs in (
+                    (
+                        GENERIC_LABEL,
+                        gen_mean,
+                        {"facecolor": "white", "edgecolor": color},
+                    ),
+                    (
+                        CONTEXT_LABEL,
+                        ctx_mean,
+                        {"facecolor": color, "edgecolor": color},
+                    ),
+                ):
+                    low = row[f"low_{label}"]
+                    high = row[f"high_{label}"]
+                    ax.errorbar(
+                        mean_val,
+                        y,
+                        xerr=[[mean_val - low], [high - mean_val]],
+                        fmt="none",
+                        ecolor=color,
+                        elinewidth=1,
+                        capsize=2,
+                        alpha=0.6,
+                        zorder=2,
+                    )
+                    ax.scatter(
+                        mean_val,
+                        y,
+                        s=70,
+                        linewidth=1.6,
+                        zorder=3,
+                        **marker_kwargs,
+                    )
+
+        ax.set_title(dataset)
+        ax.set_xlabel("")
+        ax.set_ylabel("")
+        ax.set_ylim(-0.6, n_models - 0.4)
+        ax.yaxis.grid(False)
+        ax.xaxis.set_major_locator(mticker.MaxNLocator(nbins="auto", min_n_ticks=4))
         ax.xaxis.set_major_formatter(
             mticker.FuncFormatter(lambda x, _: f"{x:.2f}".lstrip("0") or "0")
         )
 
-    sns.move_legend(
-        g,
-        "lower center",
+    axes[0].set_yticks(list(model_pos.values()))
+    axes[0].set_yticklabels(list(model_pos.keys()))
+
+
+    fig.supxlabel("Alignment AUC (normalised)", y=-0.05)
+
+    variant_handles = [
+        Line2D(
+            [0],
+            [0],
+            color=palette[variant],
+            marker="o",
+            markerfacecolor=palette[variant],
+            linestyle="-",
+            markersize=8,
+            label=variant,
+        )
+        for variant in hue_order
+    ]
+    context_handles = [
+        Line2D(
+            [0],
+            [0],
+            color="dimgray",
+            marker="o",
+            markerfacecolor="white",
+            markeredgecolor="dimgray",
+            linestyle="none",
+            markersize=8,
+            label=GENERIC_LABEL,
+        ),
+        Line2D(
+            [0],
+            [0],
+            color="dimgray",
+            marker="o",
+            markerfacecolor="dimgray",
+            markeredgecolor="dimgray",
+            linestyle="none",
+            markersize=8,
+            label=CONTEXT_LABEL,
+        ),
+    ]
+
+    legend_y_position = -0.17
+    legend_x = 0.4
+    legend_offset = -0.06
+    variant_legend = fig.legend(
+        handles=variant_handles,
+        loc="lower center",
         ncol=len(hue_order),
         frameon=False,
-        bbox_to_anchor=(0.5, -0.05),
+        bbox_to_anchor=(legend_x, legend_y_position),
+        title=None,
+    )
+    fig.add_artist(variant_legend)
+    fig.legend(
+        handles=context_handles,
+        loc="lower center",
+        ncol=2,
+        frameon=False,
+        bbox_to_anchor=(legend_x, legend_y_position + legend_offset),
         title=None,
     )
 
-    out_path = plot_dir / f"instruct_prompt_context_auc_bar.{file_type}"
+    out_path = plot_dir / f"instruct_prompt_context_auc_lollipop.{file_type}"
     plt.savefig(out_path, bbox_inches="tight")
     plt.close("all")
-    logger.info(f"Saved instruct prompt x context AUC bar chart to {out_path}")
+    logger.info(f"Saved instruct prompt x context AUC lollipop chart to {out_path}")
     return out_path
 
 
