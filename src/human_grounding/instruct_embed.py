@@ -43,7 +43,7 @@ PROMPT_VARIATIONS: dict[str, str] = {
     "similarity": "Retrieve semantically similar statements",
     "grouping": "Group statements that express the same idea",
     "topic": "Identify statements about the same topic",
-    "meaning": "Represent the statement for meaning-based comparison",
+    "meaning": "Find statements that have the same meaning",
 }
 
 # Per-base-model prompt template. ``{instruction}`` is filled with the variant's

@@ -30,7 +30,7 @@ import human_grounding.evaluate
 import human_grounding.threshold_auc
 from human_grounding.constants import DATASET_PRETTY_NAMES, PRETTY_NAMES
 from human_grounding.data import get_rai_demographics, get_welfare_demographics
-from human_grounding.directories import OUTPUT_DIR, PLOT_DIR
+from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
 from human_grounding.instruct_embed import (
     AVAILABLE_MODELS,
     PROMPT_VARIATIONS,
@@ -56,7 +56,7 @@ def _get_embedding_alignments(
             model=model, all_coordinates=full_dataset
         )
         results.append(comparisons)
-    return pl.concat(results).drop("cause", "source", "size")
+    return pl.concat(results, how="vertical_relaxed").drop("cause", "source", "size")
 
 
 # ---------------------------------------------------------------------------
@@ -217,7 +217,7 @@ def main(
     use_cache: bool = False,
     file_type: str = "pdf",
 ) -> None:
-    full_dataset = pl.read_csv(OUTPUT_DIR / "valid_coordinates.csv")
+    full_dataset = pl.read_csv(DATA_DIR / "valid_coordinates.csv")
     # One deterministic model name per (base model, prompt variation).
     models = variant_model_names(AVAILABLE_MODELS)
 
