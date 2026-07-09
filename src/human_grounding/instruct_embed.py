@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from functools import partial
+from typing import NamedTuple
 
 from joblib import Memory
 
@@ -25,16 +26,20 @@ memory = Memory(CACHE_DIR, verbose=0)
 
 
 # ---------------------------------------------------------------------------
-# Prompt (instruction) variations for robustness experiments
+# Instruction variations for robustness experiments
 # ---------------------------------------------------------------------------
-# To test how sensitive alignment is to the phrasing of the task instruction,
-# we run each base model under several instruction phrasings. Each variation is
-# turned into a *distinct, deterministic* model name (``{base}{SEP}{variant}``)
-# so joblib's caches — which are keyed on the model name — never collide across
-# variations. ``PROMPT_VARIATIONS[DEFAULT_VARIANT]`` reproduces the historical
-# "standard" instruction, so the default variant matches the legacy base model.
+# We probe two independent axes of the instruction:
+#   1. *Prompt variation* — how the task itself is phrased (PROMPT_VARIATIONS).
+#   2. *Dataset context*   — an optional domain prefix that tells the model which
+#                            dataset the statements come from (DATASET_INSTRUCTION_PREFIX).
+# Crossing them lets a single plot compare prompt-robustness AND the effect of
+# adding dataset context. Each (base, variant, context) triple is turned into a
+# *distinct, deterministic* model name so joblib's caches — which are keyed on
+# the model name — never collide. ``PROMPT_VARIATIONS[DEFAULT_VARIANT]`` with no
+# context reproduces the historical "standard" instruction.
 
 VARIANT_SEPARATOR = "__prompt-"
+CONTEXT_SEPARATOR = "__ctx-"
 DEFAULT_VARIANT = "cluster"
 
 # Core natural-language instruction per variant key.
@@ -46,44 +51,70 @@ PROMPT_VARIATIONS: dict[str, str] = {
     "meaning": "Find statements that have the same meaning",
 }
 
+# Optional domain prefix prepended to the instruction, keyed by dataset name.
+# A model carrying one of these is meant to be evaluated *only* on that dataset.
+DATASET_INSTRUCTION_PREFIX: dict[str, str] = {
+    "rai": "The statements are about responsible AI. ",
+    "welfare": "The statements are about social welfare policy. ",
+}
+
 # Per-base-model prompt template. ``{instruction}`` is filled with the variant's
-# core instruction above. Models absent here use the bare instruction, which is
-# how sentence-transformers expects the ``prompt=`` argument for most models.
+# core instruction above (optionally with a dataset-context prefix). Models
+# absent here use the bare instruction, which is how sentence-transformers
+# expects the ``prompt=`` argument for most models.
 PROMPT_TEMPLATES: dict[str, str] = {
     "multilingual-e5-large-instruct": "Instruct: {instruction}\nQuery: ",
     "EmbeddingGemma-Scandi-300m": "task: {instruction} | query: ",
 }
 
 
-def make_variant_name(base_model: str, variant: str) -> str:
-    """Deterministic model name encoding a (base_model, prompt variant) pair."""
-    return f"{base_model}{VARIANT_SEPARATOR}{variant}"
+class ModelSpec(NamedTuple):
+    """Decoded parts of a (possibly variant) model name.
 
-
-def parse_variant_name(model_name: str) -> tuple[str, str | None]:
-    """Split a model name into ``(base_model, variant)``.
-
-    ``variant`` is ``None`` for a plain base-model name (legacy behaviour).
+    ``variant`` and ``context`` are ``None`` when absent — a plain base-model
+    name decodes to ``ModelSpec(base, None, None)`` (legacy behaviour).
     """
+
+    base: str
+    variant: str | None
+    context: str | None
+
+
+def make_variant_name(base_model: str, variant: str, context: str | None = None) -> str:
+    """Deterministic model name encoding (base_model, prompt variant, context)."""
+    name = f"{base_model}{VARIANT_SEPARATOR}{variant}"
+    if context is not None:
+        name += f"{CONTEXT_SEPARATOR}{context}"
+    return name
+
+
+def parse_variant_name(model_name: str) -> ModelSpec:
+    """Decode a model name into its ``ModelSpec`` parts."""
+    context: str | None = None
+    if CONTEXT_SEPARATOR in model_name:
+        model_name, context = model_name.split(CONTEXT_SEPARATOR, 1)
     if VARIANT_SEPARATOR in model_name:
         base, variant = model_name.split(VARIANT_SEPARATOR, 1)
-        return base, variant
-    return model_name, None
+        return ModelSpec(base, variant, context)
+    return ModelSpec(model_name, None, context)
 
 
 def variant_model_names(base_models: set[str] | None = None) -> list[str]:
-    """All ``{base}{SEP}{variant}`` names across base models and variations."""
+    """Every variant model name: each base and prompt variation, generic and
+    with each dataset context."""
     bases = AVAILABLE_MODELS if base_models is None else base_models
-    return [
-        make_variant_name(base, variant)
-        for base in sorted(bases)
-        for variant in PROMPT_VARIATIONS
-    ]
+    names: list[str] = []
+    for base in sorted(bases):
+        for variant in PROMPT_VARIATIONS:
+            names.append(make_variant_name(base, variant))
+            for context in DATASET_INSTRUCTION_PREFIX:
+                names.append(make_variant_name(base, variant, context))
+    return names
 
 
 def resolve_instruction(model_name: str) -> str:
     """Return the full prompt string for a base or variant model name."""
-    base, variant = parse_variant_name(model_name)
+    base, variant, context = parse_variant_name(model_name)
     if variant is None:
         # Legacy base model: preserve the exact historical instruction (and thus
         # its existing cache entries).
@@ -93,12 +124,20 @@ def resolve_instruction(model_name: str) -> str:
             f"Unknown prompt variant {variant!r}. "
             f"Available: {sorted(PROMPT_VARIATIONS)}"
         )
+    core = PROMPT_VARIATIONS[variant]
+    if context is not None:
+        if context not in DATASET_INSTRUCTION_PREFIX:
+            raise ValueError(
+                f"Unknown dataset context {context!r}. "
+                f"Available: {sorted(DATASET_INSTRUCTION_PREFIX)}"
+            )
+        core = f"{DATASET_INSTRUCTION_PREFIX[context]}{core}"
     template = PROMPT_TEMPLATES.get(base, "{instruction}")
-    return template.format(instruction=PROMPT_VARIATIONS[variant])
+    return template.format(instruction=core)
 
 
 def get_sentence_embedder(model_name: str) -> Embedder:
-    base_model, _ = parse_variant_name(model_name)
+    base_model = parse_variant_name(model_name).base
     model = load_model(base_model)
     instruction = resolve_instruction(model_name)
 
@@ -117,7 +156,7 @@ def get_sentence_embedder(model_name: str) -> Embedder:
 def load_model(model_name: str) -> SentenceEmbedder:
     from sentence_transformers import SentenceTransformer
 
-    base_model, _ = parse_variant_name(model_name)
+    base_model = parse_variant_name(model_name).base
     if base_model not in AVAILABLE_MODELS:
         raise ValueError(
             f"Model {base_model} not available. Available models: {AVAILABLE_MODELS}"

@@ -1,15 +1,23 @@
-"""Plot instruction-prompt robustness of instruct embedding models.
+"""Plot instruction robustness of instruct embedding models on two axes.
 
-For each base instruct model we evaluate several *prompt variations* — different
-natural-language phrasings of the same clustering/similarity task (see
-``human_grounding.instruct_embed.PROMPT_VARIATIONS``). A faceted horizontal bar
-chart (one panel per dataset) then shows the AUC per model, coloured by prompt
-variation. Tight bars across variations = the model is robust to how the
-instruction is phrased; wide spread = it is prompt-sensitive.
+Each embedding run crosses two independent axes of the instruction:
 
-Because embeddings are cached by model name, each (base model, prompt variation)
-pair is run under a *distinct, deterministic* variant name
-(``{base}__prompt-{variant}``) so the caches never collide across variations.
+  1. *Prompt variation* — different natural-language phrasings of the same
+     clustering/similarity task (``instruct_embed.PROMPT_VARIATIONS``).
+  2. *Dataset context*  — "Generic" (no domain prefix) vs "Dataset Context"
+     (a domain prefix telling the model which dataset the statements come from,
+     ``instruct_embed.DATASET_INSTRUCTION_PREFIX``).
+
+The figure is a grid of horizontal-bar panels: rows = context type
+(Generic / Dataset Context), columns = dataset, y = base model, bar colour =
+prompt variation. Reading *down a column* shows the effect of adding dataset
+context; reading the *coloured bars within a panel* shows prompt robustness.
+
+Because embeddings are cached by model name, each (base model, prompt variation,
+dataset context) triple is run under a *distinct, deterministic* variant name
+(``{base}__prompt-{variant}[__ctx-{dataset}]``) so caches never collide.
+Dataset-context models are evaluated only on their matching dataset, so every
+comparison stays within the same dataset.
 """
 
 from __future__ import annotations
@@ -33,13 +41,17 @@ from human_grounding.data import get_rai_demographics, get_welfare_demographics
 from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
 from human_grounding.instruct_embed import (
     AVAILABLE_MODELS,
+    DATASET_INSTRUCTION_PREFIX,
     PROMPT_VARIATIONS,
+    make_variant_name,
     parse_variant_name,
-    variant_model_names,
 )
 
 if TYPE_CHECKING:
     pass
+
+GENERIC_LABEL = "Generic"
+CONTEXT_LABEL = "Dataset Context"
 
 
 # ---------------------------------------------------------------------------
@@ -47,13 +59,35 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 
 
+def _model_dataset_pairs(
+    full_dataset: pl.DataFrame,
+) -> list[tuple[str, pl.DataFrame]]:
+    """(model_name, coordinates) to evaluate, crossing prompt and dataset context.
+
+    Generic variants run on the whole coordinate frame; each dataset-context
+    variant runs only on the rows of its own dataset, so its domain prefix
+    always matches the data being scored.
+    """
+    datasets = set(full_dataset["dataset"].unique().to_list())
+    pairs: list[tuple[str, pl.DataFrame]] = []
+    for base in sorted(AVAILABLE_MODELS):
+        for variant in PROMPT_VARIATIONS:
+            pairs.append((make_variant_name(base, variant), full_dataset))
+            for context in DATASET_INSTRUCTION_PREFIX:
+                if context not in datasets:
+                    continue
+                subset = full_dataset.filter(pl.col("dataset") == context)
+                pairs.append((make_variant_name(base, variant, context), subset))
+    return pairs
+
+
 def _get_embedding_alignments(
-    models: list[str], full_dataset: pl.DataFrame
+    model_dataset_pairs: list[tuple[str, pl.DataFrame]],
 ) -> pl.DataFrame:
     results = []
-    for model in tqdm(models, desc="Prompt variants"):
+    for model, coordinates in tqdm(model_dataset_pairs, desc="Prompt x context"):
         comparisons = human_grounding.evaluate.evaluate_human_embedding_match(
-            model=model, all_coordinates=full_dataset
+            model=model, all_coordinates=coordinates
         )
         results.append(comparisons)
     return pl.concat(results, how="vertical_relaxed").drop("cause", "source", "size")
@@ -64,7 +98,7 @@ def _get_embedding_alignments(
 # ---------------------------------------------------------------------------
 
 
-def plot_prompt_robustness_auc_bar(
+def plot_prompt_context_auc_bar(
     group_auc: pl.DataFrame,
     plot_dir: Path,
     *,
@@ -73,18 +107,19 @@ def plot_prompt_robustness_auc_bar(
     variant_name_map: Mapping[str, str] | None = None,
     font_scale: float = 1.35,
     ci: float = 95.0,
-    height: float = 10.0,
+    height: float = 8.0,
     facet_width: float = 9.0,
     file_type: str = "pdf",
 ) -> Path:
-    """Faceted horizontal AUC bar chart coloured by prompt variation.
+    """Grid of horizontal AUC bars: rows = context type, cols = dataset, hue =
+    prompt variation.
 
     Parameters
     ----------
     group_auc:
         ``[model, dataset, demographics, iteration, auc]`` as returned by
         ``compute_threshold_auc``, where ``model`` is a variant name
-        (``{base}__prompt-{variant}``).
+        (``{base}__prompt-{variant}[__ctx-{dataset}]``).
     plot_dir:
         Directory for the output file.
     pretty_names:
@@ -115,17 +150,21 @@ def plot_prompt_robustness_auc_bar(
     if variant_name_map is None:
         variant_name_map = {v: v.capitalize() for v in PROMPT_VARIATIONS}
 
-    # Tag each row with its base model and prompt variant.
+    # Tag each row with base model, prompt variant and context type.
     tagged_rows = []
     for row in group_auc.to_dicts():
-        base, variant = parse_variant_name(row["model"])
+        base, variant, context = parse_variant_name(row["model"])
         if variant is None:
             # Not a prompt-variant model; skip (e.g. stray base rows).
+            continue
+        # Dataset-context models are only meaningful on their own dataset.
+        if context is not None and context != row["dataset"]:
             continue
         tagged_rows.append(
             {
                 "base_model": base,
                 "variant": variant,
+                "context_type": GENERIC_LABEL if context is None else CONTEXT_LABEL,
                 "dataset": row["dataset"],
                 "iteration": row["iteration"],
                 "auc": row["auc"],
@@ -134,11 +173,11 @@ def plot_prompt_robustness_auc_bar(
 
     tagged = pl.DataFrame(tagged_rows)
 
-    # Per-(base_model, dataset, variant, iteration) mean AUC (averaging across
-    # demographic groups, matching the "Mean" bar in plot_auc_bar).
-    per_iter = tagged.group_by("base_model", "dataset", "variant", "iteration").agg(
-        pl.col("auc").mean()
-    )
+    # Per-(base_model, dataset, context_type, variant, iteration) mean AUC
+    # (averaging across demographic groups, matching plot_auc_bar's "Mean").
+    per_iter = tagged.group_by(
+        "base_model", "dataset", "context_type", "variant", "iteration"
+    ).agg(pl.col("auc").mean())
 
     plot_data = per_iter.with_columns(
         pl.col("base_model").replace(pretty_names).alias("model"),
@@ -146,9 +185,10 @@ def plot_prompt_robustness_auc_bar(
         pl.col("variant").replace(variant_name_map).alias("variant"),
     )
 
-    # Order y-axis by mean AUC across all variations (best on top).
+    # Order y-axis by mean Generic AUC across variations (best on top).
     model_order = (
-        plot_data.group_by("model")
+        plot_data.filter(pl.col("context_type") == GENERIC_LABEL)
+        .group_by("model")
         .agg(pl.col("auc").mean())
         .sort("auc", descending=True)
         .get_column("model")
@@ -157,6 +197,7 @@ def plot_prompt_robustness_auc_bar(
 
     pdf = plot_data.to_pandas()
     dataset_order = sorted(pdf["dataset"].unique())
+    row_order = [GENERIC_LABEL, CONTEXT_LABEL]
     hue_order = [variant_name_map[v] for v in PROMPT_VARIATIONS]
     palette = dict(zip(hue_order, sns.color_palette("colorblind", len(hue_order))))
 
@@ -168,7 +209,9 @@ def plot_prompt_robustness_auc_bar(
         y="model",
         hue="variant",
         col="dataset",
+        row="context_type",
         col_order=dataset_order,
+        row_order=row_order,
         hue_order=hue_order,
         order=model_order,
         kind="bar",
@@ -178,9 +221,10 @@ def plot_prompt_robustness_auc_bar(
         aspect=facet_width / height,
         orient="h",
         errorbar=("ci", ci),
+        margin_titles=True,
     )
 
-    g.set_titles("{col_name}")
+    g.set_titles(col_template="{col_name}", row_template="{row_name}")
     g.set_axis_labels("", "")
     g.figure.supxlabel("Alignment AUC (normalised)")
 
@@ -196,14 +240,14 @@ def plot_prompt_robustness_auc_bar(
         "lower center",
         ncol=len(hue_order),
         frameon=False,
-        bbox_to_anchor=(0.5, -0.1),
+        bbox_to_anchor=(0.5, -0.05),
         title=None,
     )
 
-    out_path = plot_dir / f"instruct_prompt_robustness_auc_bar.{file_type}"
+    out_path = plot_dir / f"instruct_prompt_context_auc_bar.{file_type}"
     plt.savefig(out_path, bbox_inches="tight")
     plt.close("all")
-    logger.info(f"Saved instruct prompt-robustness AUC bar chart to {out_path}")
+    logger.info(f"Saved instruct prompt x context AUC bar chart to {out_path}")
     return out_path
 
 
@@ -218,18 +262,19 @@ def main(
     file_type: str = "pdf",
 ) -> None:
     full_dataset = pl.read_csv(DATA_DIR / "valid_coordinates.csv")
-    # One deterministic model name per (base model, prompt variation).
-    models = variant_model_names(AVAILABLE_MODELS)
 
     welfare_demographics = get_welfare_demographics()
     rai_demographics = get_rai_demographics()
 
-    auc_output_path = OUTPUT_DIR / "instruct_prompt_robustness_auc.csv"
+    auc_output_path = OUTPUT_DIR / "instruct_prompt_context_auc.csv"
 
     if use_cache:
         auc_bootstraps = pl.read_csv(auc_output_path)
     else:
-        combined_results = _get_embedding_alignments(models, full_dataset)
+        # One deterministic run per (base model, prompt variation, context),
+        # each on the coordinates its instruction is meant for.
+        pairs = _model_dataset_pairs(full_dataset)
+        combined_results = _get_embedding_alignments(pairs)
         auc_bootstraps, _ = human_grounding.threshold_auc.compute_threshold_auc(
             combined_results=combined_results,
             welfare_demographics=welfare_demographics,
@@ -238,7 +283,7 @@ def main(
         )
         auc_bootstraps.write_csv(auc_output_path)
 
-    plot_prompt_robustness_auc_bar(
+    plot_prompt_context_auc_bar(
         auc_bootstraps,
         plot_dir=PLOT_DIR,
         pretty_names=PRETTY_NAMES,
@@ -249,7 +294,7 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Generate instruction prompt-robustness AUC plots",
+        description="Generate instruction prompt x dataset-context AUC plots",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
