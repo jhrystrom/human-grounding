@@ -14,6 +14,7 @@ from scipy.stats import spearmanr
 from tqdm import tqdm
 
 import human_grounding.evaluate
+import human_grounding.oracle
 import human_grounding.threshold_auc
 from human_grounding.constants import DATASET_PRETTY_NAMES, PRETTY_NAMES
 from human_grounding.data import (
@@ -108,7 +109,13 @@ def _write_dataset_summary(
                 .to_numpy()
             )
 
-        model_rows = ds_summary.filter(pl.col("model") != human_name).sort(
+        # Exclude the Human baseline and the Human-MDS oracle: both are
+        # reference upper bounds, not text models competing for "best model".
+        model_rows = ds_summary.filter(
+            ~pl.col("model").is_in(
+                [human_name, human_grounding.oracle.ORACLE_MODEL_NAME]
+            )
+        ).sort(
             "mean",
             descending=True,
         )
@@ -290,7 +297,9 @@ def main(
     welfare_demographics = (
         get_welfare_demographics() if "policy" in experiments else None
     )
-    models = sorted(get_all_models())
+    # Append the Human-MDS oracle as an extra "model": it is fitted from the
+    # human layouts (see human_grounding.oracle) and evaluated identically.
+    models = [*sorted(get_all_models()), human_grounding.oracle.ORACLE_MODEL_NAME]
     rai_demographics = get_rai_demographics() if "policy" in experiments else None
 
     experiment_name = _get_experiment_name(experiments)

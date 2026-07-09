@@ -8,6 +8,7 @@ from loguru import logger
 from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 
 import human_grounding.embed
+import human_grounding.oracle
 from human_grounding.data import (
     get_govai,
     get_responsible_ai_demographics,
@@ -134,6 +135,26 @@ def get_statement_embeddings(
     )
 
 
+def get_oracle_statement_embeddings(
+    dataset: str, coordinates: pl.DataFrame
+) -> pl.DataFrame:
+    """Statement table with a fitted Human-MDS oracle embedding column.
+
+    Mirrors the schema of :func:`get_statement_embeddings` (statement metadata
+    plus an ``embedding`` column) so the oracle flows through the rest of the
+    pipeline as just another model, but the embedding is fitted from the human
+    layouts in ``coordinates`` rather than from statement text.
+    """
+    statements = statement_readers[dataset]()
+    oracle_embeddings = human_grounding.oracle.fit_oracle_embeddings(coordinates)
+    return statements.join(
+        oracle_embeddings,
+        left_on="cause_id",
+        right_on="statement_id",
+        how="inner",
+    )
+
+
 @memory.cache
 def fake_cache(x: str) -> str:
     import time
@@ -147,12 +168,19 @@ def human_embedding_match_new(
     model: str, coordinates: pl.DataFrame, use_english: bool = False
 ) -> pl.DataFrame:
     dataset = coordinates["dataset"].first()
+    is_oracle = human_grounding.oracle.is_oracle_model(model)
     real_coordinates = coordinates.sort("user_id", "statement_id").with_columns(
         pl.int_range(pl.len()).over("user_id").alias("row_idx")
     )
-    statement_embeddings = get_statement_embeddings(
-        dataset=dataset, embedder_name=model, use_english=use_english
-    ).join(
+    if is_oracle:
+        # The oracle is fitted from the layouts themselves, so it consumes the
+        # coordinates instead of the statement text.
+        statement_base = get_oracle_statement_embeddings(dataset, coordinates)
+    else:
+        statement_base = get_statement_embeddings(
+            dataset=dataset, embedder_name=model, use_english=use_english
+        )
+    statement_embeddings = statement_base.join(
         real_coordinates,
         left_on="cause_id",
         right_on="statement_id",
@@ -164,7 +192,14 @@ def human_embedding_match_new(
     for (_,), statement_embeddings_group in statement_embeddings.group_by("user_id"):
         sorted_group = statement_embeddings_group.sort("row_idx")
         # --- MODEL distances (already exists) ---
-        embedding_distances = cosine_distances(sorted_group["embedding"].to_numpy())
+        # The oracle embedding is fitted to reproduce Euclidean distances, so it
+        # is scored under Euclidean distance; text models use cosine.
+        embeddings = sorted_group["embedding"].to_numpy()
+        embedding_distances = (
+            euclidean_distances(embeddings)
+            if is_oracle
+            else cosine_distances(embeddings)
+        )
         # --- HUMAN distances (NEW) ---
         human_distances = euclidean_distances(sorted_group[["x", "y"]].to_numpy())
         # --- Triplets ---
