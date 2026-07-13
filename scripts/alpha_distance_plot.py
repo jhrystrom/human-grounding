@@ -729,7 +729,7 @@ def create_alpha_distance_plots(
 
     # Report within rater agreement
     logger.debug(f"Within-rater agreement (overall): {alpha_within.mean():.3f} (mean)")
-    
+
     # Build and save CSV data (unchanged)
     alpha_df = build_alpha_dataframe(
         d_values,

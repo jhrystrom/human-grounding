@@ -1,0 +1,268 @@
+% key-values.tex -- canonical numeric API for the manuscript.
+% Generated 2026-07-13 16:55 by scripts/report_canonical_values.py from artifacts in output/.
+% \input this file in the preamble; use e.g. \ResponsibleAIModelGap in text.
+% Empty groups {} mark values not derivable from current artifacts (see comment).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Dataset statistics
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Number of unique source statements in the Responsible AI corpus
+\newcommand{\ResponsibleAITotalStatements}{873}
+
+% Number of unique source statements in the Welfare corpus
+\newcommand{\WelfareTotalStatements}{377}
+
+% Number of unique source statements in the Government AI corpus
+\newcommand{\GovAITotalStatements}{338}
+
+% Unique statements included in the Responsible AI exercise
+\newcommand{\ResponsibleAIExerciseStatements}{294}
+
+% Unique statements included in the Welfare exercise
+\newcommand{\WelfareExerciseStatements}{174}
+
+% Unique statements included in the Government AI exercise
+\newcommand{\GovAIExerciseStatements}{244}
+
+% Number of individual statement placements collected across all exercises
+\newcommand{\TotalStatementPlacements}{2640}
+
+% Mean number of occurrences per included statement (Responsible AI)
+\newcommand{\ResponsibleAIStatementOccurrences}{3.95}
+
+% Mean number of occurrences per included statement (Welfare)
+\newcommand{\WelfareStatementOccurrences}{3.45}
+
+% Mean number of occurrences per included statement (Government AI)
+\newcommand{\GovAIStatementOccurrences}{3.44}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Human reliability
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Threshold (tau) at which human inter-rater reliability reaches alpha ~ 0.8 (mean of RAI and Welfare between-rater curves)
+\newcommand{\HumanReliabilityThreshold}{3.1}
+
+% Human inter-rater reliability (AUC) for Responsible AI
+\newcommand{\ResponsibleAIHumanAUC}{0.636}
+
+% Human inter-rater reliability (AUC) for Welfare
+\newcommand{\WelfareHumanAUC}{0.673}
+
+% Human inter-rater reliability (AUC) for Government AI
+\newcommand{\GovAIHumanAUC}{0.489}
+
+% Human within-rater reliability summary (mean within-rater AUC, RAI & Welfare)
+\newcommand{\WithinRaterAUC}{0.764}
+
+% Minimum retained triplets for any protected group at tau = 4
+\newcommand{\MinimumProtectedGroupTriplets}{469}
+
+% Minimum retained triplets across Responsible AI gender groups at tau = 4
+\newcommand{\ResponsibleAIProtectedTriplets}{1522}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Human demographic reliability
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% NOTE: empty until the alpha data is regenerated with the gender fix
+% (RAI split by gender, Unknown dropped); values fill in automatically.
+
+% Human alignment AUC for male statement authors (Responsible AI)
+\newcommand{\ResponsibleAIMenAUC}{}
+
+% Human alignment AUC for female statement authors (Responsible AI)
+\newcommand{\ResponsibleAIWomenAUC}{}
+
+% Lower confidence interval for male AUC
+\newcommand{\ResponsibleAIMenAUCLO}{}
+
+% Upper confidence interval for male AUC
+\newcommand{\ResponsibleAIMenAUCHI}{}
+
+% Lower confidence interval for female AUC
+\newcommand{\ResponsibleAIWomenAUCLO}{}
+
+% Upper confidence interval for female AUC
+\newcommand{\ResponsibleAIWomenAUCHI}{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Neural-human alignment
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Best-performing embedding model (overall)
+\newcommand{\BestEmbeddingModel}{paraphrase-multilingual-mpnet}
+
+% Second-best embedding model (overall)
+\newcommand{\SecondEmbeddingModel}{multilingual-e5-large-instruct}
+
+% Mean alignment AUC of the best embedding model across datasets
+\newcommand{\BestEmbeddingModelAUC}{0.385}
+
+% Human-model performance gap in pp (Responsible AI)
+\newcommand{\ResponsibleAIModelGap}{26.2}
+
+% Human-model performance gap in pp (Welfare)
+\newcommand{\WelfareModelGap}{19.7}
+
+% Human-model performance gap in pp (Government AI)
+\newcommand{\GovAIModelGap}{15.3}
+
+% Lower CI for Responsible AI gap (pp)
+\newcommand{\ResponsibleAIModelGapLO}{24.8}
+
+% Upper CI for Responsible AI gap (pp)
+\newcommand{\ResponsibleAIModelGapHI}{27.3}
+
+% Lower CI for Welfare gap (pp)
+\newcommand{\WelfareModelGapLO}{17.6}
+
+% Upper CI for Welfare gap (pp)
+\newcommand{\WelfareModelGapHI}{23.5}
+
+% Lower CI for Government AI gap (pp)
+\newcommand{\GovAIModelGapLO}{11.4}
+
+% Upper CI for Government AI gap (pp)
+\newcommand{\GovAIModelGapHI}{18.2}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Oracle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Oracle alignment AUC for Responsible AI
+\newcommand{\ResponsibleAIOracleAUC}{0.504}
+
+% Oracle alignment AUC for Welfare
+\newcommand{\WelfareOracleAUC}{0.609}
+
+% Oracle alignment AUC for Government AI
+\newcommand{\GovAIOracleAUC}{0.627}
+
+% Oracle-model gap in pp for Responsible AI
+\newcommand{\ResponsibleAIOracleGap}{12.9}
+
+% Oracle-model gap in pp for Welfare
+\newcommand{\WelfareOracleGap}{13.3}
+
+% Oracle-model gap in pp for Government AI
+\newcommand{\GovAIOracleGap}{29.2}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MMTEB comparison
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Rank of the best grounded model on MMTEB (within shared model set)
+\newcommand{\BestGroundedMMTEBRank}{13}
+
+% Spearman correlation between MMTEB ranking and grounded ranking (policy)
+\newcommand{\MMTEBGroundedSpearman}{0.62}
+
+% P-value for MMTEB correlation (policy)
+\newcommand{\MMTEBGroundedPValue}{0.0001}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Fairness
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Group alignment disparity for Responsible AI
+\newcommand{\ResponsibleAIGroupGap}{0.028}
+
+% Group alignment disparity for Welfare
+\newcommand{\WelfareGroupGap}{0.068}
+
+% Adjusted group alignment disparity for Responsible AI
+\newcommand{\ResponsibleAIAdjustedGroupGap}{0.011}
+
+% Adjusted group alignment disparity for Welfare
+\newcommand{\WelfareAdjustedGroupGap}{0.032}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Downstream clustering
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Human clustering ARI (mean across datasets)
+\newcommand{\HumanARI}{0.286}
+
+% Human clustering ARI for Responsible AI
+\newcommand{\ResponsibleAIHumanARI}{0.307}
+
+% Best-model clustering ARI for Responsible AI
+\newcommand{\ResponsibleAIBestModelARI}{0.274}
+
+% Human clustering ARI for Welfare
+\newcommand{\WelfareHumanARI}{0.394}
+
+% Best-model clustering ARI for Welfare
+\newcommand{\WelfareBestModelARI}{0.274}
+
+% Human clustering ARI for Government AI
+\newcommand{\GovAIHumanARI}{0.159}
+
+% Best-model clustering ARI for Government AI
+\newcommand{\GovAIBestModelARI}{0.195}
+
+% Grounding-clustering Spearman correlation (policy)
+\newcommand{\GroundingClusteringCorrelation}{0.85}
+
+% Lower CI for grounding-clustering correlation
+\newcommand{\GroundingClusteringCorrelationLO}{0.63}
+
+% Upper CI for grounding-clustering correlation
+\newcommand{\GroundingClusteringCorrelationHI}{0.94}
+
+% MMTEB-clustering correlation (policy)
+\newcommand{\MMTEBClusteringCorrelation}{0.56}
+
+% Ward vs k-means rank correlation (not persisted; run scripts/clustering.py)
+\newcommand{\WardKMeansCorrelation}{}
+
+% Difference in human-model ARI gap between Ward and k-means (not persisted)
+\newcommand{\WardKMeansGapDifference}{}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Instruction robustness
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Maximum improvement over the default (plain-model) instruction
+\newcommand{\MaximumInstructionGain}{0.075}
+
+% Remaining oracle gap (pp) for the best instruction-tuned model
+\newcommand{\InstructionOracleGap}{11.5}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Headline numbers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Minimum reported stakeholder-model gap in the paper (pp)
+\newcommand{\HeadlineGapMinimum}{15}
+
+% Maximum reported stakeholder-model gap in the paper (pp)
+\newcommand{\HeadlineGapMaximum}{26}
+
+% Headline downstream grounding-clustering correlation
+\newcommand{\HeadlineGroundingCorrelation}{0.9}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Text fragments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Name of the best embedding model
+\newcommand{\BestEmbeddingModelName}{\texttt{paraphrase-multilingual-mpnet}}
+
+% Name of the benchmark
+\newcommand{\EmbeddingBenchmark}{MMTEB}
+
+% Name of the oracle
+\newcommand{\OracleName}{Human-MDS oracle}

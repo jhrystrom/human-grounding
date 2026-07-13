@@ -128,7 +128,9 @@ def main(
     )
     logger.info(f"\n{formatted.to_pandas().to_markdown(index=False)}")
 
-    plot_comparison(aggregated_full, combined_full, scale=scale, top=top, k_selection=k_selection)
+    plot_comparison(
+        aggregated_full, combined_full, scale=scale, top=top, k_selection=k_selection
+    )
 
 
 def _bootstrap_spearman_ci(

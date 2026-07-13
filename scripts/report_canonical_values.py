@@ -1896,9 +1896,640 @@ def build_report() -> str:
     return "\n".join(parts)
 
 
+# --------------------------------------------------------------------------- #
+# key-values.tex  (\newcommand definitions — the paper's numeric API)
+# --------------------------------------------------------------------------- #
+KEY_VALUES_PATH = OUTPUT_DIR / "key-values.tex"
+
+# Internal dataset -> command-name prefix (descriptive, not abbreviated).
+CMD_PREFIX = {"rai": "ResponsibleAI", "welfare": "Welfare", "gov-ai": "GovAI"}
+
+
+def _tex_cmd(name: str, value: object, comment: str) -> str:
+    """One documented ``\\newcommand`` (blank value stays an empty group)."""
+    val = "" if value is None else str(value)
+    return f"% {comment}\n" + rf"\newcommand{{\{name}}}{{{val}}}"
+
+
+def _tex_banner(title: str) -> str:
+    bar = "%" * 68
+    return f"{bar}\n%% {title}\n{bar}"
+
+
+def _pp_num(text: str | None) -> float | None:
+    """Parse a 'NN.Npp' gap string into a float (None if empty)."""
+    if not text:
+        return None
+    return float(text.replace("pp", "").strip())
+
+
+def _pp_ci(ci_text: str | None) -> tuple[float, float] | None:
+    """Parse a '25.0pp, 27.2pp' CI string into floats."""
+    if not ci_text:
+        return None
+    parts = [p.strip().replace("pp", "") for p in ci_text.split(",")]
+    if len(parts) != 2:
+        return None
+    return float(parts[0]), float(parts[1])
+
+
+def _within_rater_auc() -> dict[str, float]:
+    """Per-dataset within-rater alpha-AUC from the dataset-level alpha curves.
+
+    Dataset-level curves are demographic-agnostic, so this is unaffected by the
+    gender/education split.
+    """
+    from human_grounding.alpha_reliability import normalized_auc_logx
+
+    alpha = _alpha_frames()
+    if alpha is None:
+        return {}
+    curve = (
+        alpha.filter(
+            (pl.col("group_type") == "dataset")
+            & (pl.col("reliability_type") == "within")
+        )
+        .group_by("group_name", "d")
+        .agg(pl.col("krippendorf").mean().alias("k"))
+    )
+    out = {}
+    for ds, grp in curve.group_by("group_name"):
+        g = grp.sort("d")
+        out[ds[0]] = float(normalized_auc_logx(g["k"].to_numpy(), g["d"].to_numpy()))
+    return out
+
+
+def _human_gender_auc() -> dict[str, tuple[float, float, float]]:
+    """Human-human reliability AUC + 95% CI per RAI gender group.
+
+    Reads the between-rater alpha curves for the ``Kvinde``/``Mand`` groups from
+    the alpha data (present only once the pipeline is regenerated with the gender
+    demographic fix). Per bootstrap iteration the curve is integrated to one AUC
+    via ``normalized_auc_logx``; we then take the mean and 2.5/97.5 percentiles.
+    Returns ``{}`` while the alpha data still splits RAI by education.
+    """
+    import numpy as np
+
+    from human_grounding.alpha_reliability import normalized_auc_logx
+
+    alpha = _alpha_frames()
+    if alpha is None:
+        return {}
+    gender = alpha.filter(
+        (pl.col("group_type") == "demographic")
+        & (pl.col("group_name").is_in(["Kvinde", "Mand"]))
+        & (pl.col("reliability_type") == "between")
+    )
+    if gender.is_empty():
+        return {}
+    out: dict[str, tuple[float, float, float]] = {}
+    for grp, sub in gender.group_by("group_name"):
+        aucs = []
+        for _it, itsub in sub.group_by("iteration_id"):
+            c = itsub.sort("d")
+            aucs.append(
+                float(
+                    normalized_auc_logx(c["krippendorf"].to_numpy(), c["d"].to_numpy())
+                )
+            )
+        arr = np.array(aucs, dtype=float)
+        out[grp[0]] = (
+            float(arr.mean()),
+            float(np.percentile(arr, 2.5)),
+            float(np.percentile(arr, 97.5)),
+        )
+    return out
+
+
+def build_key_values_tex() -> str:
+    bootstraps = load_alignment_bootstraps()
+    means = dataset_model_means(bootstraps) if bootstraps is not None else None
+    facts = parse_alignment_summary()
+    spearman = read_csv("cluster_spearman_by_experiment.csv")
+    mmteb = _build_mmteb_spearman()
+    instruct = _build_instruct(bootstraps)
+    human_ari = _human_ari()
+    within = _within_rater_auc()
+    alpha = _alpha_frames()
+    tau08 = _tau_at_alpha(alpha) if alpha is not None else {}
+    oracle_auc = {ds: float(f["oracle"]) for ds, f in facts.items() if "oracle" in f}
+
+    cov = read_text("statement_coverage_table.tex")
+    coverage_rows = parse_latex_rows(cov) if cov else []
+    used = {COVERAGE_NAME_TO_DS.get(r[0], r[0]): r[1] for r in coverage_rows}
+    occ = {COVERAGE_NAME_TO_DS.get(r[0], r[0]): r[2] for r in coverage_rows}
+
+    _, triplet_group_rows = _build_triplet_data()
+
+    def _int(cell: str) -> int:
+        c = cell.replace(",", "")
+        return int(c) if c.lstrip("-").isdigit() else 10**12
+
+    d4_all = [_int(r[4]) for r in triplet_group_rows if len(r) >= 5]
+    d4_rai = [
+        _int(r[4])
+        for r in triplet_group_rows
+        if len(r) >= 5 and r[0] == pretty_dataset("rai")
+    ]
+    min_group_triplets = min(d4_all) if d4_all else None
+    rai_min_triplets = min(d4_rai) if d4_rai else None
+
+    # Source-corpus statement counts (full corpus, pre-sampling).
+    source = {}
+    try:
+        from human_grounding.data import get_govai, get_responsible_ai, get_welfare
+
+        source = {
+            "rai": get_responsible_ai().select("cause_id").n_unique(),
+            "welfare": get_welfare().select("cause_id").n_unique(),
+            "gov-ai": get_govai().select("cause_id").n_unique(),
+        }
+    except Exception:  # raw corpus optional
+        source = {}
+
+    # Overall best / second model by mean AUC across datasets.
+    best_name = second_name = None
+    best_overall_auc = None
+    if means is not None:
+        overall = (
+            means.filter(~pl.col("model").is_in(list(NON_MODEL_ROWS)))
+            .group_by("model")
+            .agg(pl.col("mean_auc").mean().alias("a"))
+            .sort("a", descending=True)
+        )
+        rows = overall.head(2).to_dicts()
+        if rows:
+            best_name = pretty_model(rows[0]["model"])
+            best_overall_auc = rows[0]["a"]
+        if len(rows) > 1:
+            second_name = pretty_model(rows[1]["model"])
+
+    # Fairness raw / adjusted disparity (first number in each CI cell).
+    controlled = read_text("fairness_group_gap_controlled.tex")
+    fair = {}
+    for r in parse_latex_rows(controlled) if controlled else []:
+        if len(r) >= 6:
+            ds = next((d for d in DATASETS if pretty_dataset(d) == r[0]), None)
+            if ds:
+                fair[ds] = {"raw": r[2].split()[0], "adj": r[4].split()[0]}
+
+    # Best-model clustering ARI per dataset.
+    best_model_ari = {}
+    for exp in EXPERIMENT_DATASETS:
+        agg = read_csv(f"cluster_consistency_aggregated_{exp}.csv")
+        if agg is None:
+            continue
+        best = (
+            agg.filter(~pl.col("model").is_in(list(NON_MODEL_ROWS)))
+            .sort("adjusted_rand_index", descending=True)
+            .row(0, named=True)
+        )
+        for ds in EXPERIMENT_DATASETS[exp]:
+            best_model_ari[ds] = (
+                pretty_model(best["model"]),
+                best["adjusted_rand_index"],
+            )
+
+    # Instruction robustness headline numbers.
+    max_gain = None
+    instr_oracle_gap = None
+    if instruct is not None:
+        deltas = instruct.get_column("delta_default").drop_nulls()
+        if len(deltas) > 0:
+            max_gain = float(deltas.max())
+        if oracle_auc:
+            best_cell = instruct.group_by("base_model", "dataset").agg(
+                pl.col("auc").max().alias("v")
+            )
+            gaps = [
+                oracle_auc[r["dataset"]] - r["v"]
+                for r in best_cell.to_dicts()
+                if r["dataset"] in oracle_auc
+            ]
+            if gaps:
+                instr_oracle_gap = min(gaps) * 100  # pp, best-instructed model
+
+    # Headline gap range.
+    gap_vals = [
+        _pp_num(facts[d].get("gap")) for d in DATASETS if facts.get(d, {}).get("gap")
+    ]
+    gap_vals = [g for g in gap_vals if g is not None]
+    grounding_policy = None
+    if spearman is not None:
+        row = spearman.filter(
+            (pl.col("source") == "OurExercise") & (pl.col("experiment") == "policy")
+        )
+        if not row.is_empty():
+            grounding_policy = row.row(0, named=True)
+
+    def f3(x: object) -> str:
+        return "" if x is None else f"{float(x):.3f}"
+
+    def f2(x: object) -> str:
+        return "" if x is None else f"{float(x):.2f}"
+
+    def f1(x: object) -> str:
+        return "" if x is None else f"{float(x):.1f}"
+
+    blocks: list[str] = []
+
+    # -- Dataset statistics ------------------------------------------------- #
+    lines = [_tex_banner("Dataset statistics")]
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}TotalStatements",
+                source.get(ds, ""),
+                f"Number of unique source statements in the {pretty_dataset(ds)} corpus",
+            )
+        )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}ExerciseStatements",
+                used.get(ds, ""),
+                f"Unique statements included in the {pretty_dataset(ds)} exercise",
+            )
+        )
+    lines.append(
+        _tex_cmd(
+            "TotalStatementPlacements",
+            SPEC["total_placements_approx"],
+            "Number of individual statement placements collected across all exercises",
+        )
+    )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}StatementOccurrences",
+                occ.get(ds, ""),
+                f"Mean number of occurrences per included statement ({pretty_dataset(ds)})",
+            )
+        )
+    blocks.append("\n\n".join(lines))
+
+    # -- Human reliability -------------------------------------------------- #
+    lines = [_tex_banner("Human reliability")]
+    rai_tau = tau08.get(("rai", "between"))
+    wf_tau = tau08.get(("welfare", "between"))
+    thr = None
+    if rai_tau and wf_tau:
+        thr = (rai_tau[0] + wf_tau[0]) / 2
+    lines.append(
+        _tex_cmd(
+            "HumanReliabilityThreshold",
+            f1(thr),
+            "Threshold (tau) at which human inter-rater reliability reaches alpha ~ 0.8 "
+            "(mean of RAI and Welfare between-rater curves)",
+        )
+    )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}HumanAUC",
+                facts.get(ds, {}).get("human", ""),
+                f"Human inter-rater reliability (AUC) for {pretty_dataset(ds)}",
+            )
+        )
+    wr = [within.get(d) for d in ("rai", "welfare") if within.get(d) is not None]
+    wr_summary = sum(wr) / len(wr) if wr else None
+    lines.append(
+        _tex_cmd(
+            "WithinRaterAUC",
+            f3(wr_summary),
+            "Human within-rater reliability summary (mean within-rater AUC, RAI & Welfare)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MinimumProtectedGroupTriplets",
+            "" if min_group_triplets is None else f"{min_group_triplets}",
+            "Minimum retained triplets for any protected group at tau = 4",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "ResponsibleAIProtectedTriplets",
+            "" if rai_min_triplets is None else f"{rai_min_triplets}",
+            "Minimum retained triplets across Responsible AI gender groups at tau = 4",
+        )
+    )
+    blocks.append("\n\n".join(lines))
+
+    # -- Human demographic reliability -------------------------------------- #
+    # Fills automatically once the alpha data is regenerated with the gender fix
+    # (RAI split by gender, Unknown dropped); empty while it is education-split.
+    gender = _human_gender_auc()  # {"Mand": (auc, lo, hi), "Kvinde": (auc, lo, hi)}
+    men, women = gender.get("Mand"), gender.get("Kvinde")
+    lines = [_tex_banner("Human demographic reliability")]
+    if not gender:
+        lines.append(
+            "% NOTE: empty until the alpha data is regenerated with the gender fix\n"
+            "% (RAI split by gender, Unknown dropped); values fill in automatically."
+        )
+    lines += [
+        _tex_cmd(
+            "ResponsibleAIMenAUC",
+            f3(men[0]) if men else "",
+            "Human alignment AUC for male statement authors (Responsible AI)",
+        ),
+        _tex_cmd(
+            "ResponsibleAIWomenAUC",
+            f3(women[0]) if women else "",
+            "Human alignment AUC for female statement authors (Responsible AI)",
+        ),
+        _tex_cmd(
+            "ResponsibleAIMenAUCLO",
+            f3(men[1]) if men else "",
+            "Lower confidence interval for male AUC",
+        ),
+        _tex_cmd(
+            "ResponsibleAIMenAUCHI",
+            f3(men[2]) if men else "",
+            "Upper confidence interval for male AUC",
+        ),
+        _tex_cmd(
+            "ResponsibleAIWomenAUCLO",
+            f3(women[1]) if women else "",
+            "Lower confidence interval for female AUC",
+        ),
+        _tex_cmd(
+            "ResponsibleAIWomenAUCHI",
+            f3(women[2]) if women else "",
+            "Upper confidence interval for female AUC",
+        ),
+    ]
+    blocks.append("\n\n".join(lines))
+
+    # -- Neural-human alignment --------------------------------------------- #
+    lines = [_tex_banner("Neural-human alignment")]
+    lines.append(
+        _tex_cmd(
+            "BestEmbeddingModel",
+            best_name or "",
+            "Best-performing embedding model (overall)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "SecondEmbeddingModel",
+            second_name or "",
+            "Second-best embedding model (overall)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "BestEmbeddingModelAUC",
+            f3(best_overall_auc),
+            "Mean alignment AUC of the best embedding model across datasets",
+        )
+    )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}ModelGap",
+                f1(_pp_num(facts.get(ds, {}).get("gap"))),
+                f"Human-model performance gap in pp ({pretty_dataset(ds)})",
+            )
+        )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        ci = _pp_ci(facts.get(ds, {}).get("gap_ci"))
+        lines.append(
+            _tex_cmd(
+                f"{p}ModelGapLO",
+                f1(ci[0]) if ci else "",
+                f"Lower CI for {pretty_dataset(ds)} gap (pp)",
+            )
+        )
+        lines.append(
+            _tex_cmd(
+                f"{p}ModelGapHI",
+                f1(ci[1]) if ci else "",
+                f"Upper CI for {pretty_dataset(ds)} gap (pp)",
+            )
+        )
+    blocks.append("\n\n".join(lines))
+
+    # -- Oracle ------------------------------------------------------------- #
+    lines = [_tex_banner("Oracle")]
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}OracleAUC",
+                facts.get(ds, {}).get("oracle", ""),
+                f"Oracle alignment AUC for {pretty_dataset(ds)}",
+            )
+        )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}OracleGap",
+                f1(_pp_num(facts.get(ds, {}).get("oracle_gap"))),
+                f"Oracle-model gap in pp for {pretty_dataset(ds)}",
+            )
+        )
+    blocks.append("\n\n".join(lines))
+
+    # -- MMTEB comparison --------------------------------------------------- #
+    lines = [_tex_banner("MMTEB comparison")]
+    pol = mmteb.get("policy", {})
+    best_rank = str(pol.get("best_rank", "")).split(" of ")[0] if pol else ""
+    lines.append(
+        _tex_cmd(
+            "BestGroundedMMTEBRank",
+            best_rank,
+            "Rank of the best grounded model on MMTEB (within shared model set)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MMTEBGroundedSpearman",
+            f2(pol.get("rho")) if pol else "",
+            "Spearman correlation between MMTEB ranking and grounded ranking (policy)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MMTEBGroundedPValue",
+            f"{pol['p']:.4f}" if pol else "",
+            "P-value for MMTEB correlation (policy)",
+        )
+    )
+    blocks.append("\n\n".join(lines))
+
+    # -- Fairness ----------------------------------------------------------- #
+    lines = [_tex_banner("Fairness")]
+    for ds in ("rai", "welfare"):
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}GroupGap",
+                fair.get(ds, {}).get("raw", ""),
+                f"Group alignment disparity for {pretty_dataset(ds)}",
+            )
+        )
+    for ds in ("rai", "welfare"):
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}AdjustedGroupGap",
+                fair.get(ds, {}).get("adj", ""),
+                f"Adjusted group alignment disparity for {pretty_dataset(ds)}",
+            )
+        )
+    blocks.append("\n\n".join(lines))
+
+    # -- Downstream clustering ---------------------------------------------- #
+    lines = [_tex_banner("Downstream clustering")]
+    aris = [human_ari[d]["ari"] for d in DATASETS if d in human_ari]
+    lines.append(
+        _tex_cmd(
+            "HumanARI",
+            f3(sum(aris) / len(aris) if aris else None),
+            "Human clustering ARI (mean across datasets)",
+        )
+    )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        h = human_ari.get(ds)
+        lines.append(
+            _tex_cmd(
+                f"{p}HumanARI",
+                f3(h["ari"]) if h else "",
+                f"Human clustering ARI for {pretty_dataset(ds)}",
+            )
+        )
+        bm = best_model_ari.get(ds)
+        lines.append(
+            _tex_cmd(
+                f"{p}BestModelARI",
+                f3(bm[1]) if bm else "",
+                f"Best-model clustering ARI for {pretty_dataset(ds)}",
+            )
+        )
+    lines.append(
+        _tex_cmd(
+            "GroundingClusteringCorrelation",
+            f2(grounding_policy["spearman"]) if grounding_policy else "",
+            "Grounding-clustering Spearman correlation (policy)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "GroundingClusteringCorrelationLO",
+            f2(grounding_policy["ci_lo"]) if grounding_policy else "",
+            "Lower CI for grounding-clustering correlation",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "GroundingClusteringCorrelationHI",
+            f2(grounding_policy["ci_hi"]) if grounding_policy else "",
+            "Upper CI for grounding-clustering correlation",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MMTEBClusteringCorrelation",
+            _spear_val(spearman, "MMTEB", "policy") if spearman is not None else "",
+            "MMTEB-clustering correlation (policy)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "WardKMeansCorrelation",
+            "",
+            "Ward vs k-means rank correlation (not persisted; run scripts/clustering.py)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "WardKMeansGapDifference",
+            "",
+            "Difference in human-model ARI gap between Ward and k-means (not persisted)",
+        )
+    )
+    blocks.append("\n\n".join(lines))
+
+    # -- Instruction robustness --------------------------------------------- #
+    lines = [_tex_banner("Instruction robustness")]
+    lines.append(
+        _tex_cmd(
+            "MaximumInstructionGain",
+            f3(max_gain),
+            "Maximum improvement over the default (plain-model) instruction",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "InstructionOracleGap",
+            f1(instr_oracle_gap),
+            "Remaining oracle gap (pp) for the best instruction-tuned model",
+        )
+    )
+    blocks.append("\n\n".join(lines))
+
+    # -- Headline numbers --------------------------------------------------- #
+    lines = [_tex_banner("Headline numbers")]
+    lines.append(
+        _tex_cmd(
+            "HeadlineGapMinimum",
+            f"{int(min(gap_vals))}" if gap_vals else "",
+            "Minimum reported stakeholder-model gap in the paper (pp)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "HeadlineGapMaximum",
+            f"{round(max(gap_vals))}" if gap_vals else "",
+            "Maximum reported stakeholder-model gap in the paper (pp)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "HeadlineGroundingCorrelation",
+            f1(grounding_policy["spearman"]) if grounding_policy else "",
+            "Headline downstream grounding-clustering correlation",
+        )
+    )
+    blocks.append("\n\n".join(lines))
+
+    # -- Text fragments ----------------------------------------------------- #
+    lines = [_tex_banner("Text fragments")]
+    lines.append(
+        _tex_cmd(
+            "BestEmbeddingModelName",
+            rf"\texttt{{{best_name}}}" if best_name else "",
+            "Name of the best embedding model",
+        )
+    )
+    lines.append(_tex_cmd("EmbeddingBenchmark", "MMTEB", "Name of the benchmark"))
+    lines.append(_tex_cmd("OracleName", "Human-MDS oracle", "Name of the oracle"))
+    blocks.append("\n\n".join(lines))
+
+    now = _dt.datetime.now().strftime("%Y-%m-%d %H:%M")
+    header = (
+        f"% key-values.tex -- canonical numeric API for the manuscript.\n"
+        f"% Generated {now} by scripts/report_canonical_values.py from artifacts in output/.\n"
+        f"% \\input this file in the preamble; use e.g. \\ResponsibleAIModelGap in text.\n"
+        f"% Empty groups {{}} mark values not derivable from current artifacts (see comment)."
+    )
+    return header + "\n\n" + "\n\n\n".join(blocks) + "\n"
+
+
 def main() -> None:
     REPORT_PATH.write_text(build_report())
     print(f"Wrote canonical values report to {REPORT_PATH}")
+    KEY_VALUES_PATH.write_text(build_key_values_tex())
+    print(f"Wrote LaTeX key-values to {KEY_VALUES_PATH}")
 
 
 if __name__ == "__main__":

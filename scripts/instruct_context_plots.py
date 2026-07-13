@@ -310,7 +310,6 @@ def plot_prompt_context_auc_bar(
     axes[0].set_yticks(list(model_pos.values()))
     axes[0].set_yticklabels(list(model_pos.keys()))
 
-
     fig.supxlabel("Alignment AUC (normalised)", y=-0.05)
 
     variant_handles = [

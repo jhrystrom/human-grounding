@@ -691,7 +691,9 @@ def write_controlled_group_gap_table(
     triplets = _attach_source_demographic(filtered)
     triplets = _add_lexical_features(triplets)
 
-    controlled = _bootstrap_controlled_gaps(triplets, n_bootstrap=n_bootstrap, seed=seed)
+    controlled = _bootstrap_controlled_gaps(
+        triplets, n_bootstrap=n_bootstrap, seed=seed
+    )
     if controlled.is_empty():
         msg = "Controlled-gap bootstrap produced no rows; aborting table write."
         raise RuntimeError(msg)

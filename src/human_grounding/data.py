@@ -128,7 +128,13 @@ def get_welfare_demographics() -> pl.DataFrame:
 
 
 def get_demographics() -> pl.DataFrame:
-    rai = _get_rai_demographics_education().select("cause_id", "demographic")
+    # RAI's protected attribute is gender (Kvinde/Mand); the missing-group
+    # "Unknown" is excluded from the demographic reliability analysis.
+    rai = (
+        get_rai_demographics("gender")
+        .select("cause_id", "demographic")
+        .filter(pl.col("demographic") != "Unknown")
+    )
     welfare = get_welfare_demographics().select("cause_id", "demographic")
     return pl.concat([rai, welfare], how="vertical_relaxed").rename(
         {"cause_id": "statement_id"}

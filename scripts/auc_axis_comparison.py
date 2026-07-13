@@ -268,6 +268,7 @@ def _write_sensitivity_table(
     output_path: Path,
 ) -> None:
     """Aggregate per-experiment master curves and write the LaTeX sensitivity table."""
+
     # Compute per-model AUC within each experiment, then pool. Raw curves
     # can't be concatenated directly because group-key columns (demographics)
     # differ between experiments.

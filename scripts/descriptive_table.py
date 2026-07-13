@@ -37,8 +37,7 @@ def make_statement_coverage_table(
 
     # Long format: one row per statement appearance in a round.
     long_df = (
-        round_df
-        .select(ROUND_COLS + STATEMENT_COLS)
+        round_df.select(ROUND_COLS + STATEMENT_COLS)
         .unpivot(
             index=ROUND_COLS,
             on=STATEMENT_COLS,
@@ -51,27 +50,20 @@ def make_statement_coverage_table(
     )
 
     # Per-statement number of rounds in which statement appears.
-    statement_occurrences = (
-        long_df
-        .group_by(["dataset", "statement_idx"])
-        .agg(pl.len().alias("round_occurrences"))
+    statement_occurrences = long_df.group_by(["dataset", "statement_idx"]).agg(
+        pl.len().alias("round_occurrences")
     )
 
-    occurrence_stats = (
-        statement_occurrences
-        .group_by("dataset")
-        .agg(
-            pl.len().alias("n_statements"),
-            pl.mean("round_occurrences").alias("mean_occurrences"),
-            pl.median("round_occurrences").alias("median_occurrences"),
-        )
+    occurrence_stats = statement_occurrences.group_by("dataset").agg(
+        pl.len().alias("n_statements"),
+        pl.mean("round_occurrences").alias("mean_occurrences"),
+        pl.median("round_occurrences").alias("median_occurrences"),
     )
 
     # Build one unordered statement pair per round.
     # This uses a self-join within each round, then keeps statement_a < statement_b.
     pairs = (
-        long_df
-        .join(
+        long_df.join(
             long_df,
             on=ROUND_COLS,
             how="inner",
@@ -92,33 +84,24 @@ def make_statement_coverage_table(
         )
     )
 
-    cooccurring_pairs = (
-        pairs
-        .group_by("dataset")
-        .agg(pl.len().alias("n_pairs_cooccurring"))
+    cooccurring_pairs = pairs.group_by("dataset").agg(
+        pl.len().alias("n_pairs_cooccurring")
     )
 
-    pair_denominators = (
-        occurrence_stats
-        .select("dataset", "n_statements")
-        .with_columns(
-            (
-                pl.col("n_statements") * (pl.col("n_statements") - 1) / 2
-            ).cast(pl.Int64).alias("n_possible_pairs")
-        )
+    pair_denominators = occurrence_stats.select("dataset", "n_statements").with_columns(
+        (pl.col("n_statements") * (pl.col("n_statements") - 1) / 2)
+        .cast(pl.Int64)
+        .alias("n_possible_pairs")
     )
 
     final = (
-        occurrence_stats
-        .join(cooccurring_pairs, on="dataset", how="left")
+        occurrence_stats.join(cooccurring_pairs, on="dataset", how="left")
         .join(pair_denominators, on=["dataset", "n_statements"], how="left")
         .with_columns(
             pl.col("n_pairs_cooccurring").fill_null(0),
-            (
-                100
-                * pl.col("n_pairs_cooccurring")
-                / pl.col("n_possible_pairs")
-            ).alias("pct_pairs_cooccurring")
+            (100 * pl.col("n_pairs_cooccurring") / pl.col("n_possible_pairs")).alias(
+                "pct_pairs_cooccurring"
+            ),
         )
         .select(
             "dataset",
@@ -133,27 +116,27 @@ def make_statement_coverage_table(
         )
     )
 
-    display = (
-        final
-        .with_columns(
-            pl.col("dataset")
-            .replace_strict(DATASET_DISPLAY_NAMES, default=pl.col("dataset"))
-            .alias("dataset_display"),
-        )
+    display = final.with_columns(
+        pl.col("dataset")
+        .replace_strict(DATASET_DISPLAY_NAMES, default=pl.col("dataset"))
+        .alias("dataset_display"),
     )
 
     fmt = f"%.{decimals}f"
 
     def row(record: dict) -> str:
-        return " & ".join(
-            [
-                record["dataset_display"],
-                f"{record['n_statements']}",
-                fmt % record["mean_occurrences"],
-                fmt % record["median_occurrences"],
-                fmt % record["pct_pairs_cooccurring"],
-            ]
-        ) + r" \\"
+        return (
+            " & ".join(
+                [
+                    record["dataset_display"],
+                    f"{record['n_statements']}",
+                    fmt % record["mean_occurrences"],
+                    fmt % record["median_occurrences"],
+                    fmt % record["pct_pairs_cooccurring"],
+                ]
+            )
+            + r" \\"
+        )
 
     body_rows = [row(r) for r in display.to_dicts()]
 
