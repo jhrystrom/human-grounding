@@ -637,7 +637,7 @@ def _plot_alpha_curve(
     ax.xaxis.set_major_formatter(formatter)
     ax.xaxis.set_minor_formatter(formatter)
 
-    ax.set_xlabel("Distance ratio threshold d (far / close)  [log scale]")
+    ax.set_xlabel("Separation-ratio threshold $\tau$ (far/close) [log scale]")
     ax.set_ylabel("Krippendorff's α")  # noqa: RUF001
     ax.set_ylim(-0.1, 1.0)
     ax.grid(True, alpha=0.3, which="major")
@@ -729,20 +729,7 @@ def create_alpha_distance_plots(
 
     # Report within rater agreement
     logger.debug(f"Within-rater agreement (overall): {alpha_within.mean():.3f} (mean)")
-    # --- NEW: create the attached-style AUC bar plot (between only, x=dataset)
-    auc_barplot_path = PLOT_DIR / "agreement_auc_between_by_dataset.pdf"
-    create_between_auc_barplot_by_dataset(
-        all_distances=all_distances,
-        between_pairs_by_dataset=between_pairs_by_dataset,
-        d_values=d_values,
-        between_bootstrap_by_dataset=between_alphas_by_dataset,
-        output_path=auc_barplot_path,
-        n_bootstrap=n_bootstrap,
-        seed=seed,
-        font_scale=font_scale,
-        verbose=verbose,
-    )
-
+    
     # Build and save CSV data (unchanged)
     alpha_df = build_alpha_dataframe(
         d_values,
