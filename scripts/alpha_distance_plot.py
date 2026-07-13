@@ -1013,7 +1013,7 @@ def create_empirical_de_plot(
     axes[0].set_ylabel(r"Krippendorff's $\alpha$")
     axes[0].legend(framealpha=0.9, loc="lower right")
 
-    fig.supxlabel(r"Distance ratio threshold $d$ (far / close)  [log scale]")
+    fig.supxlabel(r"Separation-ratio threshold $\tau$ (far/close) [log scale]")
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
