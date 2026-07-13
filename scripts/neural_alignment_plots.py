@@ -19,6 +19,8 @@ import human_grounding.threshold_auc
 from human_grounding.constants import DATASET_PRETTY_NAMES, PRETTY_NAMES
 from human_grounding.data import (
     get_rai_demographics,
+    get_responsible_ai,
+    get_welfare,
     get_welfare_demographics,
 )
 from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
@@ -164,8 +166,7 @@ def _write_dataset_summary(
             if model_iters is None:
                 model_iters = (
                     per_iter.filter(
-                        (pl.col("model") == best["model"])
-                        & (pl.col("dataset") == ds),
+                        (pl.col("model") == best["model"]) & (pl.col("dataset") == ds),
                     )
                     .get_column("auc")
                     .to_numpy()
@@ -192,6 +193,193 @@ def _write_dataset_summary(
 
     out_path.write_text("\n".join(lines))
     logger.info(f"Wrote dataset summary to {out_path}")
+
+
+def find_all_misalignment(
+    results: pl.DataFrame,
+    statements: pl.DataFrame,
+    threshold: float = 13,
+    output_dir: Path = OUTPUT_DIR,
+    model_name: str = "paraphrase-multilingual-mpnet",
+) -> Path:
+    """Write a LaTeX appendix of high-separation model-human comparisons.
+
+    A comparison is included when the human separation ratio r_i(t) exceeds
+    ``threshold``. Results are grouped by dataset and by whether the model
+    preserves or reverses the human ordering.
+
+    For presentation balance, the appendix includes all incorrect comparisons
+    and an equal-sized sample of the highest-separation correct comparisons.
+    """
+    dataset_name_map = {
+        "rai": "Responsible AI",
+        "welfare": "Welfare",
+    }
+
+    enriched = (
+        results.filter(
+            pl.col("model").str.starts_with(model_name)
+            & (pl.col("pct_distance") > threshold)
+        )
+        .select(
+            "dataset",
+            "model",
+            "embedding_correct",
+            "source_idx",
+            "closer_idx",
+            "farther_idx",
+            pl.col("pct_distance").alias("separation_ratio"),
+        )
+        .unique()
+        .join(
+            statements.rename({"cause": "source"}),
+            left_on="source_idx",
+            right_on="statement_id",
+        )
+        .join(
+            statements.rename({"cause": "closer"}),
+            left_on="closer_idx",
+            right_on="statement_id",
+            suffix="_closer",
+        )
+        .join(
+            statements.rename({"cause": "farther"}),
+            left_on="farther_idx",
+            right_on="statement_id",
+            suffix="_farther",
+        )
+        .select(
+            "dataset",
+            "model",
+            "embedding_correct",
+            "separation_ratio",
+            "source_idx",
+            "closer_idx",
+            "farther_idx",
+            "source",
+            "closer",
+            "farther",
+        )
+        .sort(
+            ["dataset", "embedding_correct", "separation_ratio"],
+            descending=[False, False, True],
+        )
+    )
+
+    grouped: dict[str, dict[str, list[dict[str, object]]]] = {}
+
+    for row in enriched.to_dicts():
+        dataset = str(row["dataset"])
+        section = "correct" if bool(row["embedding_correct"]) else "incorrect"
+
+        grouped.setdefault(
+            dataset,
+            {"correct": [], "incorrect": []},
+        )
+        grouped[dataset][section].append(row)
+
+    def _escape_latex(text: str) -> str:
+        """Escape LaTeX-special characters without re-escaping replacements."""
+        replacements = {
+            "\\": r"\textbackslash{}",
+            "&": r"\&",
+            "%": r"\%",
+            "$": r"\$",
+            "#": r"\#",
+            "_": r"\_",
+            "{": r"\{",
+            "}": r"\}",
+            "~": r"\textasciitilde{}",
+            "^": r"\textasciicircum{}",
+        }
+        return "".join(replacements.get(char, char) for char in text)
+
+    def _format_entry(entry: dict[str, object]) -> list[str]:
+        source = _escape_latex(str(entry["source"]))
+        closer = _escape_latex(str(entry["closer"]))
+        farther = _escape_latex(str(entry["farther"]))
+        ratio = float(entry["separation_ratio"])  # type: ignore[arg-type]
+
+        return [
+            rf"\paragraph{{$r_i(t) = {ratio:.1f}$}}",
+            (
+                r"\begin{description}"
+                r"[style=nextline,leftmargin=1em,font=\normalfont\bfseries]"
+            ),
+            rf"  \item[Anchor] {source}",
+            rf"  \item[Human-judged closer] {closer}",
+            rf"  \item[Human-judged farther] {farther}",
+            r"\end{description}",
+        ]
+
+    lines: list[str] = [
+        r"\section{Qualitative Triplet Analysis}",
+        r"\label{app:triplets}",
+        "",
+        (
+            r"We qualitatively analyse model--human triplet comparisons "
+            rf"with human separation ratio $r_i(t) > {threshold:.0f}$ "
+            rf"for the best-performing model (\texttt{{{model_name}}}). "
+            r"For each comparison, we show the anchor statement and the "
+            r"statements judged closer to and farther from the anchor by "
+            r"the human rater. The separation ratio $r_i(t)$ describes "
+            r"how unambiguously the human rater expressed this ordering. "
+            r"\textbf{Correct} means that the model preserves the human "
+            r"ordering; \textbf{Incorrect} means that the model reverses it."
+        ),
+        "",
+    ]
+
+    for dataset_key in sorted(grouped):
+        dataset_label = dataset_name_map.get(dataset_key, dataset_key)
+        incorrect_count = len(grouped[dataset_key]["incorrect"])
+
+        for section in ("correct", "incorrect"):
+            all_entries = grouped[dataset_key][section]
+            displayed_entries = all_entries
+
+            # Show all incorrect comparisons and an equally sized set of
+            # highest-separation correct comparisons.
+            if section == "correct":
+                displayed_entries = all_entries[:incorrect_count]
+
+            displayed_count = len(displayed_entries)
+            total_count = len(all_entries)
+
+            if section == "correct" and displayed_count < total_count:
+                heading = (
+                    f"{dataset_label} --- {section.capitalize()} "
+                    f"({displayed_count} of {total_count} shown)"
+                )
+            else:
+                heading = (
+                    f"{dataset_label} --- {section.capitalize()} ({displayed_count})"
+                )
+
+            lines.extend(
+                [
+                    rf"\subsection{{{heading}}}",
+                    rf"\label{{app:triplets-{dataset_key}-{section}}}",
+                    "",
+                ]
+            )
+
+            for entry in displayed_entries:
+                lines.extend(_format_entry(entry))
+
+            lines.append("")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    out_path = output_dir / "appendix_triplets.tex"
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+
+    logger.info(
+        "Triplet appendix written to %s (%d qualifying comparisons)",
+        out_path,
+        enriched.height,
+    )
+
+    return out_path
 
 
 def plot_mmteb_correlation(
@@ -332,6 +520,23 @@ def main(
         full_dataset = pl.read_csv(DATA_DIR / COORDINATES[exp])
         combined_results.append(full_dataset)
     full_dataset = pl.concat(combined_results, how="vertical_relaxed")
+
+    all_statements = pl.concat(
+        [
+            get_responsible_ai().select(
+                pl.col("cause"), pl.col("cause_id").alias("statement_id")
+            ),
+            get_welfare().select(
+                pl.col("cause"), pl.col("cause_id").alias("statement_id")
+            ),
+        ]
+    )
+
+    find_all_misalignment(
+        results=full_dataset,
+        statements=all_statements,
+        threshold=13,
+    )
 
     welfare_demographics = (
         get_welfare_demographics() if "policy" in experiments else None
