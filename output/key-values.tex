@@ -1,5 +1,5 @@
 % key-values.tex -- canonical numeric API for the manuscript.
-% Generated 2026-07-13 16:55 by scripts/report_canonical_values.py from artifacts in output/.
+% Generated 2026-07-13 17:09 by scripts/report_canonical_values.py from artifacts in output/.
 % \input this file in the preamble; use e.g. \ResponsibleAIModelGap in text.
 % Empty groups {} mark values not derivable from current artifacts (see comment).
 
@@ -14,7 +14,7 @@
 \newcommand{\WelfareTotalStatements}{377}
 
 % Number of unique source statements in the Government AI corpus
-\newcommand{\GovAITotalStatements}{338}
+\newcommand{\GovAITotalStatements}{342}
 
 % Unique statements included in the Responsible AI exercise
 \newcommand{\ResponsibleAIExerciseStatements}{294}
@@ -43,19 +43,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Threshold (tau) at which human inter-rater reliability reaches alpha ~ 0.8 (mean of RAI and Welfare between-rater curves)
-\newcommand{\HumanReliabilityThreshold}{3.1}
+\newcommand{\HumanReliabilityThreshold}{3.3}
 
 % Human inter-rater reliability (AUC) for Responsible AI
-\newcommand{\ResponsibleAIHumanAUC}{0.636}
+\newcommand{\ResponsibleAIHumanAUC}{0.645}
 
 % Human inter-rater reliability (AUC) for Welfare
-\newcommand{\WelfareHumanAUC}{0.673}
+\newcommand{\WelfareHumanAUC}{0.672}
 
 % Human inter-rater reliability (AUC) for Government AI
-\newcommand{\GovAIHumanAUC}{0.489}
+\newcommand{\GovAIHumanAUC}{0.488}
 
 % Human within-rater reliability summary (mean within-rater AUC, RAI & Welfare)
-\newcommand{\WithinRaterAUC}{0.764}
+\newcommand{\WithinRaterAUC}{0.774}
 
 % Minimum retained triplets for any protected group at tau = 4
 \newcommand{\MinimumProtectedGroupTriplets}{469}
@@ -68,26 +68,23 @@
 %% Human demographic reliability
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% NOTE: empty until the alpha data is regenerated with the gender fix
-% (RAI split by gender, Unknown dropped); values fill in automatically.
-
 % Human alignment AUC for male statement authors (Responsible AI)
-\newcommand{\ResponsibleAIMenAUC}{}
+\newcommand{\ResponsibleAIMenAUC}{0.640}
 
 % Human alignment AUC for female statement authors (Responsible AI)
-\newcommand{\ResponsibleAIWomenAUC}{}
+\newcommand{\ResponsibleAIWomenAUC}{0.650}
 
 % Lower confidence interval for male AUC
-\newcommand{\ResponsibleAIMenAUCLO}{}
+\newcommand{\ResponsibleAIMenAUCLO}{0.639}
 
 % Upper confidence interval for male AUC
-\newcommand{\ResponsibleAIMenAUCHI}{}
+\newcommand{\ResponsibleAIMenAUCHI}{0.642}
 
 % Lower confidence interval for female AUC
-\newcommand{\ResponsibleAIWomenAUCLO}{}
+\newcommand{\ResponsibleAIWomenAUCLO}{0.649}
 
 % Upper confidence interval for female AUC
-\newcommand{\ResponsibleAIWomenAUCHI}{}
+\newcommand{\ResponsibleAIWomenAUCHI}{0.652}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -104,31 +101,31 @@
 \newcommand{\BestEmbeddingModelAUC}{0.385}
 
 % Human-model performance gap in pp (Responsible AI)
-\newcommand{\ResponsibleAIModelGap}{26.2}
+\newcommand{\ResponsibleAIModelGap}{27.0}
 
 % Human-model performance gap in pp (Welfare)
-\newcommand{\WelfareModelGap}{19.7}
+\newcommand{\WelfareModelGap}{19.5}
 
 % Human-model performance gap in pp (Government AI)
-\newcommand{\GovAIModelGap}{15.3}
+\newcommand{\GovAIModelGap}{15.2}
 
 % Lower CI for Responsible AI gap (pp)
-\newcommand{\ResponsibleAIModelGapLO}{24.8}
+\newcommand{\ResponsibleAIModelGapLO}{26.2}
 
 % Upper CI for Responsible AI gap (pp)
-\newcommand{\ResponsibleAIModelGapHI}{27.3}
+\newcommand{\ResponsibleAIModelGapHI}{27.7}
 
 % Lower CI for Welfare gap (pp)
-\newcommand{\WelfareModelGapLO}{17.6}
+\newcommand{\WelfareModelGapLO}{17.7}
 
 % Upper CI for Welfare gap (pp)
-\newcommand{\WelfareModelGapHI}{23.5}
+\newcommand{\WelfareModelGapHI}{23.0}
 
 % Lower CI for Government AI gap (pp)
-\newcommand{\GovAIModelGapLO}{11.4}
+\newcommand{\GovAIModelGapLO}{11.0}
 
 % Upper CI for Government AI gap (pp)
-\newcommand{\GovAIModelGapHI}{18.2}
+\newcommand{\GovAIModelGapHI}{18.6}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -182,7 +179,7 @@
 \newcommand{\ResponsibleAIAdjustedGroupGap}{0.011}
 
 % Adjusted group alignment disparity for Welfare
-\newcommand{\WelfareAdjustedGroupGap}{0.032}
+\newcommand{\WelfareAdjustedGroupGap}{0.031}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -196,13 +193,13 @@
 \newcommand{\ResponsibleAIHumanARI}{0.307}
 
 % Best-model clustering ARI for Responsible AI
-\newcommand{\ResponsibleAIBestModelARI}{0.274}
+\newcommand{\ResponsibleAIBestModelARI}{0.313}
 
 % Human clustering ARI for Welfare
 \newcommand{\WelfareHumanARI}{0.394}
 
 % Best-model clustering ARI for Welfare
-\newcommand{\WelfareBestModelARI}{0.274}
+\newcommand{\WelfareBestModelARI}{0.313}
 
 % Human clustering ARI for Government AI
 \newcommand{\GovAIHumanARI}{0.159}
@@ -248,7 +245,7 @@
 \newcommand{\HeadlineGapMinimum}{15}
 
 % Maximum reported stakeholder-model gap in the paper (pp)
-\newcommand{\HeadlineGapMaximum}{26}
+\newcommand{\HeadlineGapMaximum}{27}
 
 % Headline downstream grounding-clustering correlation
 \newcommand{\HeadlineGroundingCorrelation}{0.9}

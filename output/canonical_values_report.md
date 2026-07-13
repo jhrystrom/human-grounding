@@ -1,6 +1,6 @@
 # Canonical Values — by Paper Section
 
-_Generated 2026-07-13 16:55 by `scripts/report_canonical_values.py`._
+_Generated 2026-07-13 17:09 by `scripts/report_canonical_values.py`._
 
 Values are read from precomputed artifacts under `output/` (and raw coordinates/corpus under `data/`); nothing is re-embedded or re-bootstrapped. Narrative design constants (participant counts, completion time, model counts) are from the paper spec and marked as such; methods constants (threshold grid, D_e, MDS dimensionality, clustering algorithm) are read from the pipeline code.
 
@@ -11,9 +11,9 @@ Datasets: **rai** (Responsible AI), **welfare** (Welfare), **gov-ai** (Governmen
 Headline values only (no CIs, no group disparities).
 
 **Best-model gap to human-human agreement:**
-- Responsible AI: 26.2pp
-- Welfare: 19.7pp
-- Government AI: 15.3pp
+- Responsible AI: 27.0pp
+- Welfare: 19.5pp
+- Government AI: 15.2pp
 
 **Best-model gap to full-panel oracle:** ranges 12.9-29.2pp across datasets (Responsible AI 12.9pp, Welfare 13.3pp, Government AI 29.2pp).
 
@@ -33,7 +33,7 @@ Headline values only (no CIs, no group disparities).
 
 _(design constants — paper spec)_
 
-- Headline human-model gap range: 15.3-26.2pp.
+- Headline human-model gap range: 15.2-27.0pp.
 - Headline oracle-model gap range: 12.9-29.2pp.
 - Headline grounding-to-clustering correlation: $\rho$ = 0.85 (policy).
 
@@ -65,7 +65,7 @@ _(design constants — paper spec)_
 | --- | --- | --- | --- | --- | --- |
 | Responsible AI | 873 | 294 | Danish | Gender | Kvinde=471; Mand=358 |
 | Welfare | 377 | 174 | Danish | Political party (pseudonymised) | 1=109; 11=23; 2=81; 3=40; 4=42 |
-| Government AI | 338 | 244 | Danish | None | n/a (no split) |
+| Government AI | 342 | 244 | Danish | None | n/a (no split) |
 
 - Responsible AI: 44 statements in missing/excluded groups (dropped from group analysis).
 - Welfare: 82 statements in missing/excluded groups (dropped from group analysis).
@@ -92,7 +92,7 @@ Separation ratio: $r_i(t) = \max\{\delta_i(a,b), \delta_i(a,c)\} / \min\{\delta_
 
 | Dataset | Rater pairs |
 | --- | --- |
-| Government AI | 1 |
+| Government AI | 9 |
 | Responsible AI | 8 |
 | Welfare | 8 |
 
@@ -102,9 +102,9 @@ Per-dataset human reliability (human-human AUC + 95% CI from the alignment summa
 
 | Dataset | Human-human AUC | 95% CI | Within-rater drift [95% CI] | $\tau$ @ $\alpha$ $\approx 0.8$ |
 | --- | --- | --- | --- | --- |
-| Responsible AI | 0.636 | [0.630, 0.643] | 0.020 [0.016, 0.024] | between $\tau \approx 3.28$; within $\tau \approx 8.00$ |
-| Welfare | 0.673 | [0.667, 0.679] | 0.026 [0.019, 0.035] | between $\tau \approx 3.01$; within $\tau \approx 4.81$ |
-| Government AI | 0.489 | [0.486, 0.491] | n/a | between $\tau \approx 7.04$; within $\tau \approx 2.77$ |
+| Responsible AI | 0.645 | [0.644, 0.647] | 0.020 [0.016, 0.024] | between $\tau \approx 3.57$; within $\tau \approx 4.06$ |
+| Welfare | 0.672 | [0.668, 0.676] | 0.026 [0.019, 0.035] | between $\tau \approx 3.01$; within $\tau \approx 5.46$ |
+| Government AI | 0.488 | [0.481, 0.495] | n/a | between $\tau \approx 6.20$; within $\tau \approx 3.01$ |
 
 **Retained triplets** (from `fairness_triplet_counts.tex`; $d=1 \approx$ all eligible, d=4 a mid/high threshold):
 
@@ -147,9 +147,9 @@ For normalized vectors, cosine distance is monotone in squared Euclidean distanc
 
 | Dataset | Human AUC | Oracle AUC | Best-model AUC | Best 95% CI | Best model | Human-model gap | Oracle-model gap | Oracle-human diff |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Responsible AI | 0.636 | 0.504 | 0.375 | [0.369, 0.382] | multilingual-e5-large-instruct | 26.2pp | 12.9pp | -13.2pp |
-| Welfare | 0.673 | 0.609 | 0.476 | [0.442, 0.492] | paraphrase-multilingual-mpnet | 19.7pp | 13.3pp | -6.4pp |
-| Government AI | 0.489 | 0.627 | 0.336 | [0.309, 0.373] | mmBERTscandi-base-embedding | 15.3pp | 29.2pp | +13.8pp |
+| Responsible AI | 0.645 | 0.504 | 0.375 | [0.369, 0.382] | multilingual-e5-large-instruct | 27.0pp | 12.9pp | -14.1pp |
+| Welfare | 0.672 | 0.609 | 0.476 | [0.442, 0.492] | paraphrase-multilingual-mpnet | 19.5pp | 13.3pp | -6.3pp |
+| Government AI | 0.488 | 0.627 | 0.336 | [0.309, 0.373] | mmBERTscandi-base-embedding | 15.2pp | 29.2pp | +13.9pp |
 
 - Best model overall: paraphrase-multilingual-mpnet (0.385 mean across datasets); second-best: multilingual-e5-large-instruct (0.377).
 - Responsible AI score range across models: -0.045 to 0.375.
@@ -170,9 +170,9 @@ For normalized vectors, cosine distance is monotone in squared Euclidean distanc
 
 | Dataset | Human-human AUC | Oracle-human AUC | Best-model AUC | Best group AUC | Worst group AUC |
 | --- | --- | --- | --- | --- | --- |
-| Responsible AI | 0.636 | 0.504 | 0.375 | 0.403 | 0.347 |
-| Welfare | 0.673 | 0.609 | 0.476 | n/a | n/a |
-| Government AI | 0.489 | 0.627 | 0.336 | 0.336 | 0.336 |
+| Responsible AI | 0.645 | 0.504 | 0.375 | 0.403 | 0.347 |
+| Welfare | 0.672 | 0.609 | 0.476 | n/a | n/a |
+| Government AI | 0.488 | 0.627 | 0.336 | 0.336 | 0.336 |
 
 Caption should state: human bars = human-human agreement; oracle bars = oracle-human agreement; model bars = model-human agreement.
 
@@ -188,7 +188,7 @@ Caption should state: human bars = human-human agreement; oracle bars = oracle-h
 
 - Raw group disparity $\Delta_{\mathrm{group}}$ = 0.056 (max 0.403 - min 0.347).
 - Unadjusted $\Delta_{\mathrm{group}}$ (fairness bootstrap) = 0.028 [0.026,0.029], p <0.001.
-- Adjusted $\Delta_{\mathrm{adj}}$ (length + lexical controls) = 0.011 [0.008,0.015], p <0.001.
+- Adjusted $\Delta_{\mathrm{adj}}$ (length + lexical controls) = 0.011 [0.007,0.015], p <0.001.
 
 **Welfare** (best model: paraphrase-multilingual-mpnet):
 
@@ -202,7 +202,7 @@ Caption should state: human bars = human-human agreement; oracle bars = oracle-h
 
 - Raw group disparity $\Delta_{\mathrm{group}}$ = 0.065 (max 0.511 - min 0.446).
 - Unadjusted $\Delta_{\mathrm{group}}$ (fairness bootstrap) = 0.068 [0.062,0.073], p <0.001.
-- Adjusted $\Delta_{\mathrm{adj}}$ (length + lexical controls) = 0.032 [0.022,0.045], p <0.001.
+- Adjusted $\Delta_{\mathrm{adj}}$ (length + lexical controls) = 0.031 [0.018,0.047], p <0.001.
 
 **Retained triplets per group** (d = 1, 2, 4; from `fairness_triplet_counts.tex`):
 
@@ -240,8 +240,8 @@ Per-dataset clustering ARI (human vs best model). Human CI = per-round 2.5/97.5 
 
 | Dataset | Human ARI | Human CI (rounds) | Best-model ARI | Best model | Human-model ARI gap |
 | --- | --- | --- | --- | --- | --- |
-| Responsible AI | 0.307 | [0.052, 0.782] | 0.274 | multilingual-e5-large-instruct | +0.033 |
-| Welfare | 0.394 | [0.056, 0.861] | 0.274 | multilingual-e5-large-instruct | +0.120 |
+| Responsible AI | 0.307 | [0.052, 0.782] | 0.313 | multilingual-e5-large-instruct__prompt-similarity__ctx-rai | -0.006 |
+| Welfare | 0.394 | [0.056, 0.861] | 0.313 | multilingual-e5-large-instruct__prompt-similarity__ctx-rai | +0.081 |
 | Government AI | 0.159 | [-0.013, 0.406] | 0.195 | text-embedding-3-small | -0.036 |
 
 > Statistical significance of the human-model ARI gap is not persisted; the 2000-resample bootstrap in `scripts/clustering.py` produces it on demand.
@@ -268,7 +268,7 @@ Scope: datasets Responsible AI, Welfare, Government AI; models = the shared neur
 
 ## Conclusion
 
-- Human-model gap range: 15.3-26.2pp.
+- Human-model gap range: 15.2-27.0pp.
 - Oracle-model gap range: 12.9-29.2pp.
 - MMTEB-to-grounded rank correlation: policy $\rho$=0.62, gov-ai $\rho$=0.56.
 - Grounding-to-clustering $\rho$ = 0.85 (policy), 0.85 (gov-ai).
@@ -297,8 +297,8 @@ Scope: datasets Responsible AI, Welfare, Government AI; models = the shared neur
 
 - Responsible AI protected-group statement counts: Kvinde=471; Mand=358 (missing/excluded: 44).
 - Welfare protected-group statement counts: 1=109; 11=23; 2=81; 3=40; 4=42 (missing/excluded: 82).
-- Responsible AI: raw $\Delta_{\mathrm{group}}$ = 0.028 [0.026,0.029] (p <0.001); adjusted $\Delta_{\mathrm{adj}}$ = 0.011 [0.008,0.015] (p <0.001).
-- Welfare: raw $\Delta_{\mathrm{group}}$ = 0.068 [0.062,0.073] (p <0.001); adjusted $\Delta_{\mathrm{adj}}$ = 0.032 [0.022,0.045] (p <0.001).
+- Responsible AI: raw $\Delta_{\mathrm{group}}$ = 0.028 [0.026,0.029] (p <0.001); adjusted $\Delta_{\mathrm{adj}}$ = 0.011 [0.007,0.015] (p <0.001).
+- Welfare: raw $\Delta_{\mathrm{group}}$ = 0.068 [0.062,0.073] (p <0.001); adjusted $\Delta_{\mathrm{adj}}$ = 0.031 [0.018,0.047] (p <0.001).
 
 Participant demographics (gender, education, sector, location, experience) were collected for the RAI panel; welfare uses pseudonymised party.
 
@@ -316,7 +316,7 @@ Study logistics from coordinate files (**subset** of the full raw-triplet parque
 
 | Dataset | Placements | Unique stmts | Participants | Rounds | Occ. mean/min/max |
 | --- | --- | --- | --- | --- | --- |
-| Government AI | 280 | 118 | 2 | 14 | 2.37 / 2 / 6 |
+| Government AI | 840 | 244 | 6 | 42 | 3.44 / 2 / 12 |
 | Responsible AI | 1,180 | 301 | 6 | 59 | 3.92 / 1 / 22 |
 | Welfare | 620 | 178 | 6 | 31 | 3.48 / 1 / 12 |
 
@@ -335,9 +335,9 @@ Eligible / retained triplets (sum of demographic-group rows):
 
 | Dataset | Oracle AUC | Human AUC | Best-model AUC | Oracle-model gap | Oracle-human diff |
 | --- | --- | --- | --- | --- | --- |
-| Responsible AI | 0.504 | 0.636 | 0.375 | 12.9pp | -13.2pp |
-| Welfare | 0.609 | 0.673 | 0.476 | 13.3pp | -6.4pp |
-| Government AI | 0.627 | 0.489 | 0.336 | 29.2pp | +13.8pp |
+| Responsible AI | 0.504 | 0.645 | 0.375 | 12.9pp | -14.1pp |
+| Welfare | 0.609 | 0.672 | 0.476 | 13.3pp | -6.3pp |
+| Government AI | 0.627 | 0.488 | 0.336 | 29.2pp | +13.9pp |
 
 ## Appendix: Instruction Robustness
 
@@ -513,17 +513,17 @@ Minimal set from which the abstract, main results, conclusion, and captions are 
 
 | Dataset | Human AUC | Oracle AUC | Best-model AUC | Human-model gap | Oracle-model gap |
 | --- | --- | --- | --- | --- | --- |
-| Responsible AI | 0.636 | 0.504 | 0.375 | 26.2pp | 12.9pp |
-| Welfare | 0.673 | 0.609 | 0.476 | 19.7pp | 13.3pp |
-| Government AI | 0.489 | 0.627 | 0.336 | 15.3pp | 29.2pp |
+| Responsible AI | 0.645 | 0.504 | 0.375 | 27.0pp | 12.9pp |
+| Welfare | 0.672 | 0.609 | 0.476 | 19.5pp | 13.3pp |
+| Government AI | 0.488 | 0.627 | 0.336 | 15.2pp | 29.2pp |
 
 - MMTEB-to-grounded $\rho$: policy=0.62, gov-ai=0.56
 - Grounding-to-ARI $\rho$: policy=0.85, gov-ai=0.85.
 - MMTEB-to-ARI $\rho$: policy=0.56, gov-ai=0.58.
 - Best instruction gain ($\Delta$ vs default): +0.075.
 - Best instructed model's remaining oracle gap: multilingual-e5-large-instruct on Welfare = 11.5pp.
-- Responsible AI group disparity: raw 0.028 [0.026,0.029], adjusted 0.011 [0.008,0.015].
-- Welfare group disparity: raw 0.068 [0.062,0.073], adjusted 0.032 [0.022,0.045].
-- Responsible AI clustering ARI: human 0.307, best model multilingual-e5-large-instruct 0.274.
-- Welfare clustering ARI: human 0.394, best model multilingual-e5-large-instruct 0.274.
+- Responsible AI group disparity: raw 0.028 [0.026,0.029], adjusted 0.011 [0.007,0.015].
+- Welfare group disparity: raw 0.068 [0.062,0.073], adjusted 0.031 [0.018,0.047].
+- Responsible AI clustering ARI: human 0.307, best model multilingual-e5-large-instruct__prompt-similarity__ctx-rai 0.313.
+- Welfare clustering ARI: human 0.394, best model multilingual-e5-large-instruct__prompt-similarity__ctx-rai 0.313.
 - Government AI clustering ARI: human 0.159, best model text-embedding-3-small 0.195.
