@@ -532,12 +532,6 @@ def main(
         ]
     )
 
-    find_all_misalignment(
-        results=full_dataset,
-        statements=all_statements,
-        threshold=13,
-    )
-
     welfare_demographics = (
         get_welfare_demographics() if "policy" in experiments else None
     )
@@ -577,6 +571,12 @@ def main(
     # (scripts/fairness_tables.py) read it to add lexical/length controls.
     if not triplets_path.exists():
         _get_combined()
+
+    find_all_misalignment(
+        results=pl.read_parquet(triplets_path),
+        statements=all_statements,
+        threshold=13,
+    )
 
     def _load_human_aucs() -> pl.DataFrame | None:
         """Load human AUC from alpha files for all experiments that have one."""
