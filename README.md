@@ -178,7 +178,9 @@ Also logs:
 - Spearman ρ between MMTEB score and clustering ARI
 
 ## Pipeline order
-To reproduce the pipeline, simply run `make reproduce` which will run the pipeline in the correct order with the correct arguments.
+To reproduce the pipeline, simply run `just reproduce-full` which will run the pipeline in the correct order with the correct arguments. Individual research questions can be run using, e.g., `just rq1` etc. See [`justfile`](./justfile) for possible commands. 
+
+To install just, call `uv tool install rust-just` or check the [documentation](https://github.com/casey/just#installation) for your preferred package manager.
 
 ## Citation
 

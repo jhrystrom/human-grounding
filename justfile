@@ -20,15 +20,19 @@ rq2:
     uv run scripts/fairness_tables.py
     uv run scripts/lexical_baselines_table.py
 
+rq3:
+    @echo "Reproducing RQ3:"
+    uv run scripts/clustering.py
+    uv run scripts/k_sensitivity_table.py
+
 main-values:
     @echo "Reproducing full values"
     uv run scripts/report_canonical_values.py
+
 reproduce-full:
     @echo "--- 🔬 Reproducing all results ---"
     just rq1
     just rq2
-    @echo "Reproducing RQ3:"
-    uv run scripts/clustering.py
-    uv run scripts/k_sensitivity_table.py
+	just rq3
     just main-values
     @echo "--- Done! ---"
