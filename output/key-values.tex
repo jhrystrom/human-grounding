@@ -1,5 +1,5 @@
 % key-values.tex -- canonical numeric API for the manuscript.
-% Generated 2026-07-14 12:05 by scripts/report_canonical_values.py from artifacts in output/.
+% Generated 2026-07-14 12:51 by scripts/report_canonical_values.py from artifacts in output/.
 % \input this file in the preamble; use e.g. \ResponsibleAIModelGap in text.
 % Empty groups {} mark values not derivable from current artifacts (see comment).
 
@@ -189,6 +189,15 @@
 % Human clustering ARI (mean across datasets)
 \newcommand{\HumanARI}{0.286}
 
+% Human clustering ARI pooled across policy (responsible AI + welfare)
+\newcommand{\PolicyHumanARI}{0.329}
+
+% Lower CI for policy human clustering ARI
+\newcommand{\PolicyHumanARILO}{0.256}
+
+% Upper CI for policy human clustering ARI
+\newcommand{\PolicyHumanARIHI}{0.408}
+
 % Human clustering ARI for Responsible AI
 \newcommand{\ResponsibleAIHumanARI}{0.307}
 
@@ -218,6 +227,12 @@
 
 % MMTEB-clustering correlation (policy)
 \newcommand{\MMTEBClusteringCorrelation}{0.56}
+
+% Lower CI for MMTEB-clustering correlation
+\newcommand{\MMTEBClusteringCorrelationLO}{0.22}
+
+% Upper CI for MMTEB-clustering correlation
+\newcommand{\MMTEBClusteringCorrelationHI}{0.80}
 
 % Ward vs k-means rank correlation (not persisted; run scripts/clustering.py)
 \newcommand{\WardKMeansCorrelation}{}

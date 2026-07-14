@@ -1158,6 +1158,30 @@ def _human_ari() -> dict[str, dict]:
     return out
 
 
+def _policy_human_ari() -> dict | None:
+    """Human clustering ARI pooled across the policy experiment (rai + welfare).
+
+    ``lo``/``hi`` are a percentile-bootstrap 95% CI of the *mean* (resampling
+    rounds with replacement, 2000 resamples), not the raw spread of per-round
+    ARI values — the latter is far wider and reflects round-to-round
+    variability rather than uncertainty in the pooled estimate.
+    """
+    import numpy as np
+
+    hc = read_csv("human_cluster_consistency_policy.csv")
+    if hc is None:
+        return None
+    values = hc["adjusted_rand_index"].to_numpy()
+    rng = np.random.default_rng(0)
+    idx = rng.integers(0, len(values), size=(2000, len(values)))
+    boot_means = values[idx].mean(axis=1)
+    return {
+        "ari": float(values.mean()),
+        "lo": float(np.percentile(boot_means, 2.5)),
+        "hi": float(np.percentile(boot_means, 97.5)),
+    }
+
+
 def section_4_3_2(spearman: pl.DataFrame | None, k_rows: list[list[str]]) -> str:
     s = Section("Section 4.3.2 — Clustering Results")
 
@@ -2118,12 +2142,18 @@ def build_key_values_tex() -> str:
     ]
     gap_vals = [g for g in gap_vals if g is not None]
     grounding_policy = None
+    mmteb_policy = None
     if spearman is not None:
         row = spearman.filter(
             (pl.col("source") == "OurExercise") & (pl.col("experiment") == "policy")
         )
         if not row.is_empty():
             grounding_policy = row.row(0, named=True)
+        row = spearman.filter(
+            (pl.col("source") == "MMTEB") & (pl.col("experiment") == "policy")
+        )
+        if not row.is_empty():
+            mmteb_policy = row.row(0, named=True)
 
     def f3(x: object) -> str:
         return "" if x is None else f"{float(x):.3f}"
@@ -2400,6 +2430,28 @@ def build_key_values_tex() -> str:
             "Human clustering ARI (mean across datasets)",
         )
     )
+    policy_human_ari = _policy_human_ari()
+    lines.append(
+        _tex_cmd(
+            "PolicyHumanARI",
+            f3(policy_human_ari["ari"]) if policy_human_ari else "",
+            "Human clustering ARI pooled across policy (responsible AI + welfare)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "PolicyHumanARILO",
+            f3(policy_human_ari["lo"]) if policy_human_ari else "",
+            "Lower CI for policy human clustering ARI",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "PolicyHumanARIHI",
+            f3(policy_human_ari["hi"]) if policy_human_ari else "",
+            "Upper CI for policy human clustering ARI",
+        )
+    )
     for ds in DATASETS:
         p = CMD_PREFIX[ds]
         h = human_ari.get(ds)
@@ -2442,8 +2494,22 @@ def build_key_values_tex() -> str:
     lines.append(
         _tex_cmd(
             "MMTEBClusteringCorrelation",
-            _spear_val(spearman, "MMTEB", "policy") if spearman is not None else "",
+            f2(mmteb_policy["spearman"]) if mmteb_policy else "",
             "MMTEB-clustering correlation (policy)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MMTEBClusteringCorrelationLO",
+            f2(mmteb_policy["ci_lo"]) if mmteb_policy else "",
+            "Lower CI for MMTEB-clustering correlation",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MMTEBClusteringCorrelationHI",
+            f2(mmteb_policy["ci_hi"]) if mmteb_policy else "",
+            "Upper CI for MMTEB-clustering correlation",
         )
     )
     lines.append(
