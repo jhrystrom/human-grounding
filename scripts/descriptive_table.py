@@ -2,6 +2,7 @@ from pathlib import Path
 
 import polars as pl
 
+from human_grounding.data import get_govai, get_responsible_ai, get_welfare
 from human_grounding.directories import DATA_DIR, OUTPUT_DIR
 
 ROUND_COLS = ["user_id", "dataset", "seed"]
@@ -94,9 +95,22 @@ def make_statement_coverage_table(
         .alias("n_possible_pairs")
     )
 
+    total_statement_counts = {
+        "rai": get_responsible_ai().select("cause_id").n_unique(),
+        "welfare": get_welfare().select("cause_id").n_unique(),
+        "gov-ai": get_govai().select("cause_id").n_unique(),
+    }
+    total_statements = pl.DataFrame(
+        {
+            "dataset": list(total_statement_counts.keys()),
+            "n_statements_total": list(total_statement_counts.values()),
+        }
+    )
+
     final = (
         occurrence_stats.join(cooccurring_pairs, on="dataset", how="left")
         .join(pair_denominators, on=["dataset", "n_statements"], how="left")
+        .join(total_statements, on="dataset", how="left")
         .with_columns(
             pl.col("n_pairs_cooccurring").fill_null(0),
             (100 * pl.col("n_pairs_cooccurring") / pl.col("n_possible_pairs")).alias(
@@ -105,6 +119,7 @@ def make_statement_coverage_table(
         )
         .select(
             "dataset",
+            "n_statements_total",
             "n_statements",
             "mean_occurrences",
             "median_occurrences",
@@ -129,6 +144,7 @@ def make_statement_coverage_table(
             " & ".join(
                 [
                     record["dataset_display"],
+                    f"{record['n_statements_total']}",
                     f"{record['n_statements']}",
                     fmt % record["mean_occurrences"],
                     fmt % record["median_occurrences"],
@@ -149,11 +165,11 @@ def make_statement_coverage_table(
         r"appears in any role; co-occurrence is the share of all unordered "
         r"statement pairs that share at least one round.}",
         r"\label{tab:coverage}",
-        r"\begin{tabular}{lrrrr}",
+        r"\begin{tabular}{lrrrrr}",
         r"\toprule",
-        r" & & \multicolumn{2}{c}{Occurrences per statement} & Co-occurring \\",
-        r"\cmidrule(lr){3-4}",
-        r"Dataset & Statements & Mean & Median & \% of pairs \\",
+        r" & & & \multicolumn{2}{c}{Occurrences per statement} & Co-occurring \\",
+        r"\cmidrule(lr){4-5}",
+        r"Dataset & $N_\text{total}$ & $N_\text{sampled}$ & Mean & Median & \% of pairs \\",
         r"\midrule",
         *body_rows,
         r"\bottomrule",

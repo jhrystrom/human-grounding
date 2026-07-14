@@ -40,7 +40,7 @@ DATASETS = ["rai", "welfare", "gov-ai"]
 NON_MODEL_ROWS = {HUMAN_MODEL_NAME, ORACLE_MODEL_NAME}
 
 # Paper-spec design constant (not derivable from any data artifact).
-TOTAL_PLACEMENTS_APPROX = 2640
+TOTAL_PLACEMENTS_APPROX = (6 * 14 * 20) + (6 * 7 * 20)
 
 # --------------------------------------------------------------------------- #
 # Formatting / loading helpers
