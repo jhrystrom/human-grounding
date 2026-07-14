@@ -169,7 +169,7 @@ def _build_counts_tex(counts: pl.DataFrame, d_values: tuple[float, ...]) -> str:
         by=["dataset_pretty", "demographic"], descending=[False, False]
     )
 
-    header_cells = " & ".join(rf"$\mathbf{{d={d:g}}}$" for d in d_values)
+    header_cells = " & ".join(rf"$\mathbf{{\tau={d:g}}}$" for d in d_values)
     lines = [
         r"\begin{table}[t]",
         r"\centering",
@@ -238,7 +238,7 @@ def _build_gap_tex(rows: list[tuple[str, str, float, float, float, float]]) -> s
         r"model-grounding AUC. Each replicate resamples raters with "
         r"replacement (per dataset), then resamples triplets within each "
         r"sampled rater; the same rater resampling is held fixed across "
-        r"all $d$-thresholds within a replicate.}",
+        r"all $\tau$-thresholds within a replicate.}",
         r"\label{tab:group-gap-tests}",
         r"\begin{tabular}{llccc}",
         r"\toprule",
