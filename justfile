@@ -9,10 +9,11 @@ lint:
     # --exit-non-zero-on-fix is used for the pre-commit hook to work
     uv run ty check . --error=all
 
+samples := "20"
 rq1:
-	@echo "--- 🔬 Reproducing RQ1 results ---"
-	uv run scripts/alpha_distance_plot.py --experiment gov-ai
-	uv run scripts/alpha_distance_plot.py --experiment policy
+    @echo "--- 🔬 Reproducing RQ1 results ---"
+    uv run scripts/alpha_distance_plot.py --experiment gov-ai --samples={{samples}}
+    uv run scripts/alpha_distance_plot.py --experiment policy --samples={{samples}}
 
 rq2:
     @echo "Reproducing RQ2:"
