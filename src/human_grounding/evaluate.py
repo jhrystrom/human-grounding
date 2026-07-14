@@ -294,10 +294,24 @@ def evaluate_human_embedding_match(
     # embedding inside human_embedding_match_new.
     oracle_by_dataset: dict[str, pl.DataFrame] = {}
     if human_grounding.oracle.is_oracle_model(model):
+        stress_rows = []
+        curve_frames = []
         for (dataset,), ds_group in all_coordinates.group_by("dataset"):
-            oracle_by_dataset[str(dataset)] = (
-                human_grounding.oracle.fit_oracle_embeddings(ds_group)
+            embeddings, stress, q, curve = human_grounding.oracle.fit_oracle_embeddings(
+                ds_group
             )
+            oracle_by_dataset[str(dataset)] = embeddings
+            stress_rows.append(
+                {
+                    "dataset": str(dataset),
+                    "n_statements": embeddings.height,
+                    "n_components": q,
+                    "stress": stress,
+                }
+            )
+            curve_frames.append(curve.with_columns(pl.lit(str(dataset)).alias("dataset")))
+        pl.DataFrame(stress_rows).write_csv(OUTPUT_DIR / "oracle_stress.csv")
+        pl.concat(curve_frames).write_csv(OUTPUT_DIR / "oracle_q_search.csv")
 
     results = []
     for (dataset, seed), group in all_coordinates.group_by(["dataset", "seed"]):

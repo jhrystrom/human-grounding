@@ -442,6 +442,27 @@ def build_key_values_tex() -> str:
     alpha = _alpha_frames()
     tau08 = _tau_at_alpha(alpha) if alpha is not None else {}
     oracle_auc = {ds: float(f["oracle"]) for ds, f in facts.items() if "oracle" in f}
+    oracle_stress_df = read_csv("oracle_stress.csv")
+    oracle_stress = (
+        dict(
+            zip(
+                oracle_stress_df["dataset"].to_list(),
+                oracle_stress_df["stress"].to_list(),
+            )
+        )
+        if oracle_stress_df is not None
+        else {}
+    )
+    oracle_q = (
+        dict(
+            zip(
+                oracle_stress_df["dataset"].to_list(),
+                oracle_stress_df["n_components"].to_list(),
+            )
+        )
+        if oracle_stress_df is not None
+        else {}
+    )
 
     cov = read_text("statement_coverage_table.tex")
     coverage_rows = parse_latex_rows(cov) if cov else []
@@ -772,6 +793,25 @@ def build_key_values_tex() -> str:
                 f"{p}OracleGap",
                 f1(_pp_num(facts.get(ds, {}).get("oracle_gap"))),
                 f"Oracle-model gap in pp for {pretty_dataset(ds)}",
+            )
+        )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}OracleStress",
+                f3(oracle_stress.get(ds)),
+                f"Oracle SMACOF normalized fit stress (Stress-1) for {pretty_dataset(ds)}",
+            )
+        )
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        q = oracle_q.get(ds)
+        lines.append(
+            _tex_cmd(
+                f"{p}OracleQ",
+                "" if q is None else str(int(q)),
+                f"Oracle embedding dimensionality q selected via diminishing-returns search for {pretty_dataset(ds)}",
             )
         )
     blocks.append("\n\n".join(lines))
