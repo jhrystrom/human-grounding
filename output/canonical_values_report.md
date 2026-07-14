@@ -1,6 +1,6 @@
 # Canonical Values — by Paper Section
 
-_Generated 2026-07-14 11:49 by `scripts/report_canonical_values.py`._
+_Generated 2026-07-14 11:54 by `scripts/report_canonical_values.py`._
 
 Values are read from precomputed artifacts under `output/` (and raw coordinates/corpus under `data/`); nothing is re-embedded or re-bootstrapped. Narrative design constants (participant counts, completion time, model counts) are from the paper spec and marked as such; methods constants (threshold grid, D_e, MDS dimensionality, clustering algorithm) are read from the pipeline code.
 
@@ -65,7 +65,7 @@ _(design constants — paper spec)_
 | --- | --- | --- | --- | --- | --- |
 | Responsible AI | 873 | 294 | Danish | Gender | Kvinde=471; Mand=358 |
 | Welfare | 377 | 174 | Danish | Political party (pseudonymised) | 1=109; 11=23; 2=81; 3=40; 4=42 |
-| Government AI | 338 | 244 | Danish | None | n/a (no split) |
+| Government AI | 342 | 244 | Danish | None | n/a (no split) |
 
 - Responsible AI: 44 statements in missing/excluded groups (dropped from group analysis).
 - Welfare: 82 statements in missing/excluded groups (dropped from group analysis).
@@ -92,7 +92,7 @@ Separation ratio: $r_i(t) = \max\{\delta_i(a,b), \delta_i(a,c)\} / \min\{\delta_
 
 | Dataset | Rater pairs |
 | --- | --- |
-| Government AI | 1 |
+| Government AI | 9 |
 | Responsible AI | 8 |
 | Welfare | 8 |
 
@@ -102,9 +102,9 @@ Per-dataset human reliability (human-human AUC + 95% CI from the alignment summa
 
 | Dataset | Human-human AUC | 95% CI | Within-rater drift [95% CI] | $\tau$ @ $\alpha$ $\approx 0.8$ |
 | --- | --- | --- | --- | --- |
-| Responsible AI | 0.645 | [0.644, 0.647] | 0.020 [0.016, 0.024] | between $\tau \approx 3.42$; within $\tau \approx 1.47$ |
-| Welfare | 0.672 | [0.668, 0.676] | 0.026 [0.019, 0.035] | between $\tau \approx 3.15$; within $\tau \approx 5.02$ |
-| Government AI | 0.488 | [0.481, 0.495] | n/a | between $\tau \approx 1.04$; within $\tau \approx 1.53$ |
+| Responsible AI | 0.645 | [0.644, 0.647] | 0.020 [0.016, 0.024] | between $\tau \approx 3.42$; within $\tau \approx 1.09$ |
+| Welfare | 0.672 | [0.668, 0.676] | 0.026 [0.019, 0.035] | between $\tau \approx 3.15$; within $\tau \approx 2.44$ |
+| Government AI | 0.488 | [0.481, 0.495] | n/a | between $\tau \approx 7.35$; within $\tau \approx 3.15$ |
 
 **Retained triplets** (from `fairness_triplet_counts.tex`; $d=1 \approx$ all eligible, d=4 a mid/high threshold):
 
@@ -316,7 +316,7 @@ Study logistics from coordinate files (**subset** of the full raw-triplet parque
 
 | Dataset | Placements | Unique stmts | Participants | Rounds | Occ. mean/min/max |
 | --- | --- | --- | --- | --- | --- |
-| Government AI | 280 | 118 | 2 | 14 | 2.37 / 2 / 6 |
+| Government AI | 840 | 244 | 6 | 42 | 3.44 / 2 / 12 |
 | Responsible AI | 1,180 | 301 | 6 | 59 | 3.92 / 1 / 22 |
 | Welfare | 620 | 178 | 6 | 31 | 3.48 / 1 / 12 |
 
