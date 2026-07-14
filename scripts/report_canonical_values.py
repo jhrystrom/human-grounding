@@ -515,14 +515,29 @@ def build_key_values_tex() -> str:
         if len(rows) > 1:
             second_name = pretty_model(rows[1]["model"])
 
-    # Fairness raw / adjusted disparity (first number in each CI cell).
+    # Fairness raw / adjusted disparity, each with its [lo,hi] 95% CI.
+    def _val_ci(cell: str) -> tuple[str, str | None, str | None]:
+        m = re.match(r"([\d.]+)\s*\[([\d.]+),\s*([\d.]+)\]", cell)
+        if not m:
+            return cell.split()[0] if cell.split() else "", None, None
+        return m.group(1), m.group(2), m.group(3)
+
     controlled = read_text("fairness_group_gap_controlled.tex")
     fair = {}
     for r in parse_latex_rows(controlled) if controlled else []:
         if len(r) >= 6:
             ds = next((d for d in DATASETS if pretty_dataset(d) == r[0]), None)
             if ds:
-                fair[ds] = {"raw": r[2].split()[0], "adj": r[4].split()[0]}
+                raw, raw_lo, raw_hi = _val_ci(r[2])
+                adj, adj_lo, adj_hi = _val_ci(r[4])
+                fair[ds] = {
+                    "raw": raw,
+                    "raw_lo": raw_lo,
+                    "raw_hi": raw_hi,
+                    "adj": adj,
+                    "adj_lo": adj_lo,
+                    "adj_hi": adj_hi,
+                }
 
     # Best-model clustering ARI per dataset.
     best_model_ari = {}
@@ -861,6 +876,22 @@ def build_key_values_tex() -> str:
                 f"{p}GroupGap",
                 r2(fair.get(ds, {}).get("raw", "")),
                 f"Group alignment disparity for {pretty_dataset(ds)}",
+            )
+        )
+    for ds in ("rai", "welfare"):
+        p = CMD_PREFIX[ds]
+        lines.append(
+            _tex_cmd(
+                f"{p}GroupGapLO",
+                r2(fair.get(ds, {}).get("raw_lo", "")),
+                f"Lower CI for {pretty_dataset(ds)} group alignment disparity",
+            )
+        )
+        lines.append(
+            _tex_cmd(
+                f"{p}GroupGapHI",
+                r2(fair.get(ds, {}).get("raw_hi", "")),
+                f"Upper CI for {pretty_dataset(ds)} group alignment disparity",
             )
         )
     for ds in ("rai", "welfare"):
