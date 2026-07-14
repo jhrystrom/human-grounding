@@ -174,7 +174,7 @@ def _build_counts_tex(counts: pl.DataFrame, d_values: tuple[float, ...]) -> str:
         r"\begin{table}[t]",
         r"\centering",
         r"\small",
-        r"\caption{Retained triplet counts by dataset, group, and distance-ratio threshold.}",
+        r"\caption{Retained triplet counts by dataset, group, and separation-ratio threshold.}",
         r"\label{tab:group-triplet-counts}",
         r"\begin{tabular}{ll" + "r" * len(d_values) + r"}",
         r"\toprule",

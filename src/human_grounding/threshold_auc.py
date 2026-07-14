@@ -829,8 +829,8 @@ def plot_auc_bar(
 
 
 DIFFICULTY_LABELS = {
-    "hard": "Hard ($d$: bottom 20%)",
-    "easy": "Easy ($d$: top 20%)",
+    "hard": "Hard ($r_i(t)$: bottom 20%)",
+    "easy": "Easy ($r_i(t)$: top 20%)",
 }
 
 
