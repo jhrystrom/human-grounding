@@ -13,7 +13,7 @@ import human_grounding.clustering
 import human_grounding.evaluate
 from human_grounding.constants import PRETTY_NAMES
 from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
-from human_grounding.embed import get_all_models
+from human_grounding.embed import get_standard_models
 from human_grounding.names import append_english
 
 metrics = {
@@ -297,9 +297,7 @@ def analyse_single(
     human_score_df.write_csv(path)
 
     # ---- Model-vs-human consistency ----
-    models = sorted(
-        [model for model in get_all_models() if not model.startswith("wicked")]
-    )
+    models = sorted(get_standard_models())
 
     model_scores = []
     for (dataset, seed), round_df in all_clusters.group_by("dataset", "seed"):

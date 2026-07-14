@@ -24,7 +24,7 @@ from human_grounding.data import (
     get_welfare_demographics,
 )
 from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
-from human_grounding.embed import get_all_models
+from human_grounding.embed import get_standard_models
 from human_grounding.names import append_english
 
 TOP_N_TO_PLOT = 10
@@ -537,7 +537,7 @@ def main(
     )
     # Append the Human-MDS oracle as an extra "model": it is fitted from the
     # human layouts (see human_grounding.oracle) and evaluated identically.
-    models = [*sorted(get_all_models()), human_grounding.oracle.ORACLE_MODEL_NAME]
+    models = [*sorted(get_standard_models()), human_grounding.oracle.ORACLE_MODEL_NAME]
     rai_demographics = get_rai_demographics() if "policy" in experiments else None
 
     experiment_name = _get_experiment_name(experiments)

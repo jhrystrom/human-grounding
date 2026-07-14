@@ -1,6 +1,6 @@
 # Canonical Values — by Paper Section
 
-_Generated 2026-07-14 11:54 by `scripts/report_canonical_values.py`._
+_Generated 2026-07-14 12:05 by `scripts/report_canonical_values.py`._
 
 Values are read from precomputed artifacts under `output/` (and raw coordinates/corpus under `data/`); nothing is re-embedded or re-bootstrapped. Narrative design constants (participant counts, completion time, model counts) are from the paper spec and marked as such; methods constants (threshold grid, D_e, MDS dimensionality, clustering algorithm) are read from the pipeline code.
 
@@ -17,7 +17,7 @@ Headline values only (no CIs, no group disparities).
 
 **Best-model gap to full-panel oracle:** ranges 12.9-29.2pp across datasets (Responsible AI 12.9pp, Welfare 13.3pp, Government AI 29.2pp).
 
-- **Grounding-to-clustering rank correlation:** Spearman $\rho$ = 0.85 (policy; gov-ai $\rho$ = 0.85).
+- **Grounding-to-clustering rank correlation:** Spearman $\rho$ = 0.84 (policy; gov-ai $\rho$ = 0.85).
 - **MMTEB-to-clustering rank correlation (if space permits):** Spearman $\rho$ = 0.56 (policy; gov-ai $\rho$ = 0.58).
 
 ## Introduction / Contributions
@@ -35,7 +35,7 @@ _(design constants — paper spec)_
 
 - Headline human-model gap range: 15.2-27.0pp.
 - Headline oracle-model gap range: 12.9-29.2pp.
-- Headline grounding-to-clustering correlation: $\rho$ = 0.85 (policy).
+- Headline grounding-to-clustering correlation: $\rho$ = 0.84 (policy).
 
 ## Section 3.1 — Exercise Description
 
@@ -240,8 +240,8 @@ Per-dataset clustering ARI (human vs best model). Human CI = per-round 2.5/97.5 
 
 | Dataset | Human ARI | Human CI (rounds) | Best-model ARI | Best model | Human-model ARI gap |
 | --- | --- | --- | --- | --- | --- |
-| Responsible AI | 0.307 | [0.052, 0.782] | 0.313 | multilingual-e5-large-instruct__prompt-similarity__ctx-rai | -0.006 |
-| Welfare | 0.394 | [0.056, 0.861] | 0.313 | multilingual-e5-large-instruct__prompt-similarity__ctx-rai | +0.081 |
+| Responsible AI | 0.307 | [0.052, 0.782] | 0.274 | multilingual-e5-large-instruct | +0.033 |
+| Welfare | 0.394 | [0.056, 0.861] | 0.274 | multilingual-e5-large-instruct | +0.120 |
 | Government AI | 0.159 | [-0.013, 0.406] | 0.195 | text-embedding-3-small | -0.036 |
 
 > Statistical significance of the human-model ARI gap is not persisted; the 2000-resample bootstrap in `scripts/clustering.py` produces it on demand.
@@ -250,10 +250,10 @@ Per-dataset clustering ARI (human vs best model). Human CI = per-round 2.5/97.5 
 
 | Source | Experiment | n_models | Spearman $\rho$ | 95% CI |
 | --- | --- | --- | --- | --- |
-| OurExercise | policy | 34 | 0.854 | [0.629, 0.936] |
-| MMTEB | policy | 32 | 0.563 | [0.202, 0.787] |
-| OurExercise | gov-ai | 34 | 0.851 | [0.763, 0.918] |
-| MMTEB | gov-ai | 32 | 0.577 | [0.114, 0.781] |
+| OurExercise | policy | 34 | 0.843 | [0.611, 0.935] |
+| MMTEB | policy | 32 | 0.563 | [0.225, 0.797] |
+| OurExercise | gov-ai | 34 | 0.846 | [0.735, 0.918] |
+| MMTEB | gov-ai | 32 | 0.577 | [0.126, 0.782] |
 
 Scope: datasets Responsible AI, Welfare, Government AI; models = the shared neural+lexical set per experiment (see n_models).
 
@@ -261,8 +261,8 @@ Scope: datasets Responsible AI, Welfare, Government AI; models = the shared neur
 
 | Clustering setup | ARI rank $\rho$ | Grounding-ARI $\rho$ | MMTEB-ARI $\rho$ |
 | --- | --- | --- | --- |
-| Human-derived K | 1.00 | 0.85 | 0.57 |
-| Silhouette-selected K | 0.91 | 0.79 | 0.57 |
+| Human-derived K | 1.00 | 0.84 | 0.57 |
+| Silhouette-selected K | 0.91 | 0.77 | 0.57 |
 
 > Ward-vs-k-means rank correlation and the human-model ARI-gap difference are computed inside `scripts/clustering.py` but not persisted to `output/`; re-run that script to tabulate them.
 
@@ -271,7 +271,7 @@ Scope: datasets Responsible AI, Welfare, Government AI; models = the shared neur
 - Human-model gap range: 15.2-27.0pp.
 - Oracle-model gap range: 12.9-29.2pp.
 - MMTEB-to-grounded rank correlation: policy $\rho$=0.62, gov-ai $\rho$=0.56.
-- Grounding-to-clustering $\rho$ = 0.85 (policy), 0.85 (gov-ai).
+- Grounding-to-clustering $\rho$ = 0.84 (policy), 0.85 (gov-ai).
 - MMTEB-to-clustering $\rho$ = 0.56 (policy), 0.58 (gov-ai).
 
 ## Limitations
@@ -518,12 +518,12 @@ Minimal set from which the abstract, main results, conclusion, and captions are 
 | Government AI | 0.488 | 0.627 | 0.336 | 15.2pp | 29.2pp |
 
 - MMTEB-to-grounded $\rho$: policy=0.62, gov-ai=0.56
-- Grounding-to-ARI $\rho$: policy=0.85, gov-ai=0.85.
+- Grounding-to-ARI $\rho$: policy=0.84, gov-ai=0.85.
 - MMTEB-to-ARI $\rho$: policy=0.56, gov-ai=0.58.
 - Best instruction gain ($\Delta$ vs default): +0.075.
 - Best instructed model's remaining oracle gap: multilingual-e5-large-instruct on Welfare = 11.5pp.
 - Responsible AI group disparity: raw 0.028 [0.026,0.029], adjusted 0.011 [0.007,0.015].
 - Welfare group disparity: raw 0.068 [0.062,0.073], adjusted 0.031 [0.018,0.047].
-- Responsible AI clustering ARI: human 0.307, best model multilingual-e5-large-instruct__prompt-similarity__ctx-rai 0.313.
-- Welfare clustering ARI: human 0.394, best model multilingual-e5-large-instruct__prompt-similarity__ctx-rai 0.313.
+- Responsible AI clustering ARI: human 0.307, best model multilingual-e5-large-instruct 0.274.
+- Welfare clustering ARI: human 0.394, best model multilingual-e5-large-instruct 0.274.
 - Government AI clustering ARI: human 0.159, best model text-embedding-3-small 0.195.

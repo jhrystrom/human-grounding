@@ -155,6 +155,22 @@ def get_all_models() -> dict[str, Embedder]:
     }  # ty:ignore[invalid-return-type]
 
 
+def get_standard_models() -> dict[str, Embedder]:
+    """Base embedding models, excluding prompt/context variants (see instruct_embed).
+
+    Analyses that compare across all embedding models (clustering consistency,
+    neural alignment) should use this instead of `get_all_models`, which also
+    includes the instruct-model prompt-variation variants generated for
+    `scripts/instruct_context_plots.py`.
+    """
+    return {
+        model: embedder
+        for model, embedder in get_all_models().items()
+        if not model.startswith("wicked")
+        and human_grounding.instruct_embed.parse_variant_name(model).variant is None
+    }
+
+
 if __name__ == "__main__":
     text = ["Hello, world!"]
     embeddings = embed_text(text, openai_embedder)

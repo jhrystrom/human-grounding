@@ -38,7 +38,7 @@ from scipy.stats import spearmanr
 import human_grounding.threshold_auc as ta
 from human_grounding.data import get_rai_demographics, get_welfare_demographics
 from human_grounding.directories import CACHE_DIR, DATA_DIR, OUTPUT_DIR
-from human_grounding.embed import get_all_models
+from human_grounding.embed import get_standard_models
 
 # Sibling-script import (scripts/ is not a package)
 sys.path.append(str(Path(__file__).parent))
@@ -89,7 +89,7 @@ def _compute_curve(
         get_welfare_demographics() if experiment == "policy" else None
     )
     rai_demographics = get_rai_demographics() if experiment == "policy" else None
-    models = sorted(get_all_models())
+    models = sorted(get_standard_models())
 
     combined = get_embedding_alignments(models, full_dataset, use_english=False)
     _, curve = ta.compute_threshold_auc(
