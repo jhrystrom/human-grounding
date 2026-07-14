@@ -2109,9 +2109,12 @@ def build_key_values_tex() -> str:
             if gaps:
                 instr_oracle_gap = min(gaps) * 100  # pp, best-instructed model
 
-    # Headline gap range.
+    # Headline gap range (excludes gov-ai; only rai/welfare are used for the
+    # min/max headline figures).
     gap_vals = [
-        _pp_num(facts[d].get("gap")) for d in DATASETS if facts.get(d, {}).get("gap")
+        _pp_num(facts[d].get("gap"))
+        for d in DATASETS
+        if d != "gov-ai" and facts.get(d, {}).get("gap")
     ]
     gap_vals = [g for g in gap_vals if g is not None]
     grounding_policy = None
@@ -2482,7 +2485,7 @@ def build_key_values_tex() -> str:
     lines.append(
         _tex_cmd(
             "HeadlineGapMinimum",
-            f"{int(min(gap_vals))}" if gap_vals else "",
+            f"{round(min(gap_vals))}" if gap_vals else "",
             "Minimum reported stakeholder-model gap in the paper (pp)",
         )
     )

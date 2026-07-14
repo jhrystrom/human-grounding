@@ -1,6 +1,6 @@
 # Canonical Values — by Paper Section
 
-_Generated 2026-07-13 17:09 by `scripts/report_canonical_values.py`._
+_Generated 2026-07-14 11:32 by `scripts/report_canonical_values.py`._
 
 Values are read from precomputed artifacts under `output/` (and raw coordinates/corpus under `data/`); nothing is re-embedded or re-bootstrapped. Narrative design constants (participant counts, completion time, model counts) are from the paper spec and marked as such; methods constants (threshold grid, D_e, MDS dimensionality, clustering algorithm) are read from the pipeline code.
 
@@ -103,7 +103,7 @@ Per-dataset human reliability (human-human AUC + 95% CI from the alignment summa
 | Dataset | Human-human AUC | 95% CI | Within-rater drift [95% CI] | $\tau$ @ $\alpha$ $\approx 0.8$ |
 | --- | --- | --- | --- | --- |
 | Responsible AI | 0.645 | [0.644, 0.647] | 0.020 [0.016, 0.024] | between $\tau \approx 3.57$; within $\tau \approx 4.06$ |
-| Welfare | 0.672 | [0.668, 0.676] | 0.026 [0.019, 0.035] | between $\tau \approx 3.01$; within $\tau \approx 5.46$ |
+| Welfare | 0.672 | [0.668, 0.676] | 0.026 [0.019, 0.035] | between $\tau \approx 3.01$; within $\tau \approx 5.70$ |
 | Government AI | 0.488 | [0.481, 0.495] | n/a | between $\tau \approx 6.20$; within $\tau \approx 3.01$ |
 
 **Retained triplets** (from `fairness_triplet_counts.tex`; $d=1 \approx$ all eligible, d=4 a mid/high threshold):
