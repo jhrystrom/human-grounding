@@ -19,6 +19,7 @@ Usage::
 from __future__ import annotations
 
 import datetime as _dt
+import math
 import re
 from pathlib import Path
 
@@ -581,14 +582,22 @@ def build_key_values_tex() -> str:
         if not row.is_empty():
             mmteb_policy = row.row(0, named=True)
 
-    def f3(x: object) -> str:
-        return "" if x is None else f"{float(x):.3f}"
-
     def f2(x: object) -> str:
-        return "" if x is None else f"{float(x):.2f}"
+        """2 significant digits (after any leading zeros), not a fixed decimal count."""
+        if x is None:
+            return ""
+        x = float(x)
+        if x == 0:
+            return "0.0"
+        decimals = max(0, 1 - math.floor(math.log10(abs(x))))
+        return f"{round(x, decimals):.{decimals}f}"
 
     def f1(x: object) -> str:
         return "" if x is None else f"{float(x):.1f}"
+
+    def r2(text: str) -> str:
+        """Reformat a raw numeric string (e.g. from a parsed artifact) to 2 sig figs."""
+        return f2(float(text)) if text else ""
 
     blocks: list[str] = []
 
@@ -650,7 +659,7 @@ def build_key_values_tex() -> str:
         lines.append(
             _tex_cmd(
                 f"{p}HumanAUC",
-                facts.get(ds, {}).get("human", ""),
+                r2(facts.get(ds, {}).get("human", "")),
                 f"Human inter-rater reliability (AUC) for {pretty_dataset(ds)}",
             )
         )
@@ -659,7 +668,7 @@ def build_key_values_tex() -> str:
     lines.append(
         _tex_cmd(
             "WithinRaterAUC",
-            f3(wr_summary),
+            f2(wr_summary),
             "Human within-rater reliability summary (mean within-rater AUC, RAI & Welfare)",
         )
     )
@@ -693,32 +702,32 @@ def build_key_values_tex() -> str:
     lines += [
         _tex_cmd(
             "ResponsibleAIMenAUC",
-            f3(men[0]) if men else "",
+            f2(men[0]) if men else "",
             "Human alignment AUC for male statement authors (Responsible AI)",
         ),
         _tex_cmd(
             "ResponsibleAIWomenAUC",
-            f3(women[0]) if women else "",
+            f2(women[0]) if women else "",
             "Human alignment AUC for female statement authors (Responsible AI)",
         ),
         _tex_cmd(
             "ResponsibleAIMenAUCLO",
-            f3(men[1]) if men else "",
+            f2(men[1]) if men else "",
             "Lower confidence interval for male AUC",
         ),
         _tex_cmd(
             "ResponsibleAIMenAUCHI",
-            f3(men[2]) if men else "",
+            f2(men[2]) if men else "",
             "Upper confidence interval for male AUC",
         ),
         _tex_cmd(
             "ResponsibleAIWomenAUCLO",
-            f3(women[1]) if women else "",
+            f2(women[1]) if women else "",
             "Lower confidence interval for female AUC",
         ),
         _tex_cmd(
             "ResponsibleAIWomenAUCHI",
-            f3(women[2]) if women else "",
+            f2(women[2]) if women else "",
             "Upper confidence interval for female AUC",
         ),
     ]
@@ -743,7 +752,7 @@ def build_key_values_tex() -> str:
     lines.append(
         _tex_cmd(
             "BestEmbeddingModelAUC",
-            f3(best_overall_auc),
+            f2(best_overall_auc),
             "Mean alignment AUC of the best embedding model across datasets",
         )
     )
@@ -782,7 +791,7 @@ def build_key_values_tex() -> str:
         lines.append(
             _tex_cmd(
                 f"{p}OracleAUC",
-                facts.get(ds, {}).get("oracle", ""),
+                r2(facts.get(ds, {}).get("oracle", "")),
                 f"Oracle alignment AUC for {pretty_dataset(ds)}",
             )
         )
@@ -800,7 +809,7 @@ def build_key_values_tex() -> str:
         lines.append(
             _tex_cmd(
                 f"{p}OracleStress",
-                f3(oracle_stress.get(ds)),
+                f2(oracle_stress.get(ds)),
                 f"Oracle SMACOF normalized fit stress (Stress-1) for {pretty_dataset(ds)}",
             )
         )
@@ -850,7 +859,7 @@ def build_key_values_tex() -> str:
         lines.append(
             _tex_cmd(
                 f"{p}GroupGap",
-                fair.get(ds, {}).get("raw", ""),
+                r2(fair.get(ds, {}).get("raw", "")),
                 f"Group alignment disparity for {pretty_dataset(ds)}",
             )
         )
@@ -859,7 +868,7 @@ def build_key_values_tex() -> str:
         lines.append(
             _tex_cmd(
                 f"{p}AdjustedGroupGap",
-                fair.get(ds, {}).get("adj", ""),
+                r2(fair.get(ds, {}).get("adj", "")),
                 f"Adjusted group alignment disparity for {pretty_dataset(ds)}",
             )
         )
@@ -871,7 +880,7 @@ def build_key_values_tex() -> str:
     lines.append(
         _tex_cmd(
             "HumanARI",
-            f3(sum(aris) / len(aris) if aris else None),
+            f2(sum(aris) / len(aris) if aris else None),
             "Human clustering ARI (mean across datasets)",
         )
     )
@@ -879,21 +888,21 @@ def build_key_values_tex() -> str:
     lines.append(
         _tex_cmd(
             "PolicyHumanARI",
-            f3(policy_human_ari["ari"]) if policy_human_ari else "",
+            f2(policy_human_ari["ari"]) if policy_human_ari else "",
             "Human clustering ARI pooled across policy (responsible AI + welfare)",
         )
     )
     lines.append(
         _tex_cmd(
             "PolicyHumanARILO",
-            f3(policy_human_ari["lo"]) if policy_human_ari else "",
+            f2(policy_human_ari["lo"]) if policy_human_ari else "",
             "Lower CI for policy human clustering ARI",
         )
     )
     lines.append(
         _tex_cmd(
             "PolicyHumanARIHI",
-            f3(policy_human_ari["hi"]) if policy_human_ari else "",
+            f2(policy_human_ari["hi"]) if policy_human_ari else "",
             "Upper CI for policy human clustering ARI",
         )
     )
@@ -903,7 +912,7 @@ def build_key_values_tex() -> str:
         lines.append(
             _tex_cmd(
                 f"{p}HumanARI",
-                f3(h["ari"]) if h else "",
+                f2(h["ari"]) if h else "",
                 f"Human clustering ARI for {pretty_dataset(ds)}",
             )
         )
@@ -911,7 +920,7 @@ def build_key_values_tex() -> str:
         lines.append(
             _tex_cmd(
                 f"{p}BestModelARI",
-                f3(bm[1]) if bm else "",
+                f2(bm[1]) if bm else "",
                 f"Best-model clustering ARI for {pretty_dataset(ds)}",
             )
         )
@@ -978,7 +987,7 @@ def build_key_values_tex() -> str:
     lines.append(
         _tex_cmd(
             "MaximumInstructionGain",
-            f3(max_gain),
+            f2(max_gain),
             "Maximum improvement over the default (plain-model) instruction",
         )
     )

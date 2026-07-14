@@ -2,22 +2,22 @@ Dataset summary (binary α-AUC, mean across demographics)
 ======================================================================
 
 ## gov-ai
-  Human:       0.488  [0.481, 0.495]
-  Best model:  mmBERTscandi-base-embedding  0.336  [0.309, 0.373]
-  Gap:         15.2pp  [11.0pp, 18.6pp]
-  Oracle:      0.627  [0.602, 0.648]
-  Gap (oracle): 29.2pp  [24.1pp, 33.4pp]
+  Human:       0.487  [0.470, 0.502]
+  Best model:  mmBERTscandi-base-embedding  0.326  [0.291, 0.370]
+  Gap:         16.1pp  [11.0pp, 21.0pp]
+  Oracle:      0.624  [0.602, 0.646]
+  Gap (oracle): 29.9pp  [24.3pp, 34.9pp]
 
 ## rai
-  Human:       0.645  [0.644, 0.647]
-  Best model:  multilingual-e5-large-instruct  0.375  [0.369, 0.382]
-  Gap:         27.0pp  [26.2pp, 27.7pp]
-  Oracle:      0.504  [0.483, 0.521]
-  Gap (oracle): 12.9pp  [10.3pp, 14.9pp]
+  Human:       0.645  [0.639, 0.652]
+  Best model:  multilingual-e5-large-instruct  0.376  [0.360, 0.384]
+  Gap:         26.9pp  [25.7pp, 28.7pp]
+  Oracle:      0.523  [0.510, 0.533]
+  Gap (oracle): 14.7pp  [12.8pp, 16.9pp]
 
 ## welfare
-  Human:       0.672  [0.668, 0.676]
-  Best model:  paraphrase-multilingual-mpnet  0.476  [0.442, 0.492]
-  Gap:         19.5pp  [17.7pp, 23.0pp]
-  Oracle:      0.609  [0.568, 0.629]
-  Gap (oracle): 13.3pp  [7.8pp, 18.0pp]
+  Human:       0.671  [0.664, 0.679]
+  Best model:  paraphrase-multilingual-mpnet  0.489  [0.472, 0.506]
+  Gap:         18.2pp  [16.2pp, 20.3pp]
+  Oracle:      0.624  [0.605, 0.638]
+  Gap (oracle): 13.5pp  [10.9pp, 15.8pp]
