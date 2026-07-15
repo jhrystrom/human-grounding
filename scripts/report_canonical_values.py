@@ -467,8 +467,8 @@ def build_key_values_tex() -> str:
 
     cov = read_text("statement_coverage_table.tex")
     coverage_rows = parse_latex_rows(cov) if cov else []
-    used = {COVERAGE_NAME_TO_DS.get(r[0], r[0]): r[1] for r in coverage_rows}
-    occ = {COVERAGE_NAME_TO_DS.get(r[0], r[0]): r[2] for r in coverage_rows}
+    used = {COVERAGE_NAME_TO_DS.get(r[0], r[0]): r[2] for r in coverage_rows}
+    occ = {COVERAGE_NAME_TO_DS.get(r[0], r[0]): r[3] for r in coverage_rows}
 
     _, triplet_group_rows = _build_triplet_data()
 
