@@ -154,10 +154,10 @@ MAIN_CONFIG: dict = {"d_max": 6.5, "n_points": 30, "scheme": "log"}
 
 # (label, config) in display order. Label is rendered verbatim in LaTeX.
 SENSITIVITY_CONFIGS: list[tuple[str, dict]] = [
-    (r"$r_i(t)_{\max}=4$", {"d_max": 4.0, "n_points": 30, "scheme": "log"}),
-    (r"$r_i(t)_{\max}=6.5$", {"d_max": 6.5, "n_points": 30, "scheme": "log"}),
-    (r"$r_i(t)_{\max}=8$", {"d_max": 8.0, "n_points": 30, "scheme": "log"}),
-    (r"$r_i(t)_{\max}=10$", {"d_max": 10.0, "n_points": 30, "scheme": "log"}),
+    (r"$\max r_i(t)=4$", {"d_max": 4.0, "n_points": 30, "scheme": "log"}),
+    (r"$\max r_i(t)=6.5$", {"d_max": 6.5, "n_points": 30, "scheme": "log"}),
+    (r"$\max r_i(t)=8$", {"d_max": 8.0, "n_points": 30, "scheme": "log"}),
+    (r"$\max r_i(t)=10$", {"d_max": 10.0, "n_points": 30, "scheme": "log"}),
     (r"$n_{\mathrm{points}}=15$", {"d_max": 6.5, "n_points": 15, "scheme": "log"}),
     (r"$n_{\mathrm{points}}=50$", {"d_max": 6.5, "n_points": 50, "scheme": "log"}),
     (
