@@ -252,6 +252,7 @@ def _build_sensitivity_tex(
         r"\caption{Sensitivity of model-grounding rankings to AUC parameterisation. "
         r"Rank correlations are computed against the main configuration.}",
         r"\label{tab:auc-sensitivity}",
+        r"\setlength{\tabcolsep}{2pt}",
         r"\begin{tabular}{lccc}",
         r"\toprule",
         header,
