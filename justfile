@@ -20,6 +20,7 @@ rq2:
     uv run scripts/neural_alignment_plots.py --experiments policy gov-ai --cache
     uv run scripts/fairness_tables.py
     uv run scripts/lexical_baselines_table.py
+    uv run scripts/auc_axis_comparison.py
 
 rq3:
     @echo "Reproducing RQ3:"

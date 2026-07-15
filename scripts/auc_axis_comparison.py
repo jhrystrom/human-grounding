@@ -1,11 +1,11 @@
 """AUC-parameterisation sensitivity check (reviewer Q1).
 
-Computes one master alpha(d) curve at a dense log-spaced grid and
+Computes one master alpha(r_i(t)) curve at a dense log-spaced grid and
 re-integrates it under several configurations:
 
 - ``d_max`` in {4, 6.5, 8, 10} (n_points=30, log-x),
 - ``n_points`` in {15, 50} (d_max=6.5, log-x),
-- linear-d integration (d_max=6.5, n_points=30).
+- linear-r_i(t) integration (d_max=6.5, n_points=30).
 
 Each variant is compared against the main configuration
 (d_max=6.5, n_points=30, log-x) on per-model AUC averaged across
@@ -154,13 +154,16 @@ MAIN_CONFIG: dict = {"d_max": 6.5, "n_points": 30, "scheme": "log"}
 
 # (label, config) in display order. Label is rendered verbatim in LaTeX.
 SENSITIVITY_CONFIGS: list[tuple[str, dict]] = [
-    (r"$d_{\max}=4$", {"d_max": 4.0, "n_points": 30, "scheme": "log"}),
-    (r"$d_{\max}=6.5$", {"d_max": 6.5, "n_points": 30, "scheme": "log"}),
-    (r"$d_{\max}=8$", {"d_max": 8.0, "n_points": 30, "scheme": "log"}),
-    (r"$d_{\max}=10$", {"d_max": 10.0, "n_points": 30, "scheme": "log"}),
+    (r"$r_i(t)_{\max}=4$", {"d_max": 4.0, "n_points": 30, "scheme": "log"}),
+    (r"$r_i(t)_{\max}=6.5$", {"d_max": 6.5, "n_points": 30, "scheme": "log"}),
+    (r"$r_i(t)_{\max}=8$", {"d_max": 8.0, "n_points": 30, "scheme": "log"}),
+    (r"$r_i(t)_{\max}=10$", {"d_max": 10.0, "n_points": 30, "scheme": "log"}),
     (r"$n_{\mathrm{points}}=15$", {"d_max": 6.5, "n_points": 15, "scheme": "log"}),
     (r"$n_{\mathrm{points}}=50$", {"d_max": 6.5, "n_points": 50, "scheme": "log"}),
-    (r"Linear-$d$ integration", {"d_max": 6.5, "n_points": 30, "scheme": "linear"}),
+    (
+        r"Linear-$r_i(t)$ integration",
+        {"d_max": 6.5, "n_points": 30, "scheme": "linear"},
+    ),
 ]
 
 

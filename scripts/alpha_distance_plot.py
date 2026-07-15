@@ -637,7 +637,7 @@ def _plot_alpha_curve(
     ax.xaxis.set_major_formatter(formatter)
     ax.xaxis.set_minor_formatter(formatter)
 
-    ax.set_xlabel("Separation-ratio threshold $\tau$ (far/close) [log scale]")
+    ax.set_xlabel(r"Separation-ratio threshold $\tau$ (far/close) [log scale]")
     ax.set_ylabel("Krippendorff's α")  # noqa: RUF001
     ax.set_ylim(-0.1, 1.0)
     ax.grid(True, alpha=0.3, which="major")
