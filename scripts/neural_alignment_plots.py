@@ -28,6 +28,7 @@ from human_grounding.embed import get_standard_models
 from human_grounding.names import append_english
 
 TOP_N_TO_PLOT = 10
+MAX_ENTRIES_PER_SECTION = 50
 COORDINATES = {
     "policy": "valid_coordinates.csv",
     "gov-ai": "govai_coordinates.csv",
@@ -220,6 +221,7 @@ def find_all_misalignment(
         results.filter(
             pl.col("model").str.starts_with(model_name)
             & (pl.col("pct_distance") > threshold)
+            & pl.col("dataset").is_in(list(dataset_name_map))
         )
         .select(
             "dataset",
@@ -343,10 +345,13 @@ def find_all_misalignment(
             if section == "correct":
                 displayed_entries = all_entries[:incorrect_count]
 
+            # Cap the number of statements shown per section.
+            displayed_entries = displayed_entries[:MAX_ENTRIES_PER_SECTION]
+
             displayed_count = len(displayed_entries)
             total_count = len(all_entries)
 
-            if section == "correct" and displayed_count < total_count:
+            if displayed_count < total_count:
                 heading = (
                     f"{dataset_label} --- {section.capitalize()} "
                     f"({displayed_count} of {total_count} shown)"
