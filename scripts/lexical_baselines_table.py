@@ -20,7 +20,10 @@ from loguru import logger
 from human_grounding.directories import OUTPUT_DIR
 
 LEXICAL_MODELS = ("tfidf-char35", "jaccard-binary")
-HUMAN_MODEL_NAME = "Human"
+
+# Humans and human-derived oracles are excluded from the ranked set: ranks are
+# reported within the neural + lexical models only.
+EXCLUDED_MODELS = ("Human", "human-mds-oracle")
 
 # (dataset_key, display_name, clustering_csv_filename)
 DATASETS: list[tuple[str, str, str]] = [
@@ -39,7 +42,7 @@ def _per_dataset_alignment_auc(path: Path, dataset: str) -> pl.DataFrame:
         .filter(
             (pl.col("metric") == "binary_auc")
             & (pl.col("dataset") == dataset)
-            & (pl.col("model") != HUMAN_MODEL_NAME)
+            & (~pl.col("model").is_in(EXCLUDED_MODELS))
         )
         .group_by("model")
         .agg(pl.col("auc").mean().alias("alignment_auc"))
@@ -50,7 +53,9 @@ def _per_dataset_clustering_ari(path: Path, dataset: str) -> pl.DataFrame:
     """Mean adjusted Rand index per model on one dataset."""
     return (
         pl.read_csv(path)
-        .filter(pl.col("dataset") == dataset)
+        .filter(
+            (pl.col("dataset") == dataset) & (~pl.col("model").is_in(EXCLUDED_MODELS))
+        )
         .group_by("model")
         .agg(pl.col("adjusted_rand_index").mean().alias("ari"))
     )
@@ -105,7 +110,8 @@ def _baseline_rows(
 
 def _build_tex(
     rows: list[tuple[str, str, float, int, float, int]],
-    n_models: int,
+    n_auc: int,
+    n_ari: int,
 ) -> str:
     lines = [
         r"\begin{table*}[t]",
@@ -123,8 +129,8 @@ def _build_tex(
     for display, baseline, auc, auc_rank, ari, ari_rank in rows:
         lines.append(
             f"{display} & \\texttt{{{baseline}}} & "
-            f"{auc:.3f} & {auc_rank}/{n_models} & "
-            f"{ari:.3f} & {ari_rank}/{n_models} \\\\"
+            f"{auc:.3f} & {auc_rank}/{n_auc} & "
+            f"{ari:.3f} & {ari_rank}/{n_ari} \\\\"
         )
     lines.extend([r"\bottomrule", r"\end{tabular}", r"\end{table*}", ""])
     return "\n".join(lines)
@@ -143,7 +149,8 @@ def main(output_path: Path | None = None) -> None:
         raise FileNotFoundError(msg)
 
     rows: list[tuple[str, str, float, int, float, int]] = []
-    n_models_per_dataset: list[int] = []
+    n_auc_per_dataset: list[int] = []
+    n_ari_per_dataset: list[int] = []
     for dataset_key, display_name, cluster_filename in DATASETS:
         cluster_path = OUTPUT_DIR / cluster_filename
         if not cluster_path.exists():
@@ -153,17 +160,22 @@ def main(output_path: Path | None = None) -> None:
         alignment = _per_dataset_alignment_auc(alignment_path, dataset_key)
         clustering = _per_dataset_clustering_ari(cluster_path, dataset_key)
         rows.extend(_baseline_rows(display_name, alignment, clustering))
-        n_models_per_dataset.append(max(alignment.height, clustering.height))
+        n_auc_per_dataset.append(alignment.height)
+        n_ari_per_dataset.append(clustering.height)
 
-    # Models present per dataset should match across datasets; warn otherwise.
-    n_models = max(n_models_per_dataset)
-    if len(set(n_models_per_dataset)) > 1:
-        logger.warning(
-            f"Model count varies across datasets: {n_models_per_dataset}; "
-            f"using {n_models} in the rank denominator."
-        )
+    # Ranks come from two different sets (alignment vs. clustering), so each
+    # column carries its own denominator. Models present per dataset should match
+    # across datasets; warn otherwise.
+    n_auc = max(n_auc_per_dataset)
+    n_ari = max(n_ari_per_dataset)
+    for label, counts in (("AUC", n_auc_per_dataset), ("ARI", n_ari_per_dataset)):
+        if len(set(counts)) > 1:
+            logger.warning(
+                f"{label} model count varies across datasets: {counts}; "
+                f"using {max(counts)} in the rank denominator."
+            )
 
-    output_path.write_text(_build_tex(rows, n_models=n_models))
+    output_path.write_text(_build_tex(rows, n_auc=n_auc, n_ari=n_ari))
     logger.info(f"LaTeX table written to {output_path}")
 
 

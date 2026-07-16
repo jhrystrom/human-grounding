@@ -44,6 +44,7 @@ from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
 from human_grounding.instruct_embed import (
     AVAILABLE_MODELS,
     DATASET_INSTRUCTION_PREFIX,
+    DEFAULT_VARIANT,
     PROMPT_VARIATIONS,
     make_variant_name,
     parse_variant_name,
@@ -154,7 +155,10 @@ def plot_prompt_context_auc_bar(
     if dataset_name_map is None:
         dataset_name_map = DATASET_PRETTY_NAMES
     if variant_name_map is None:
-        variant_name_map = {v: v.capitalize() for v in PROMPT_VARIATIONS}
+        variant_name_map = {
+            v: v.capitalize() + (" (default)" if v == DEFAULT_VARIANT else "")
+            for v in PROMPT_VARIATIONS
+        }
 
     # Tag each row with base model, prompt variant and context type.
     tagged_rows = []
