@@ -20,7 +20,6 @@ rq2:
     uv run scripts/neural_alignment_plots.py --experiments policy gov-ai --cache
     uv run scripts/fairness_tables.py
     uv run scripts/lexical_baselines_table.py
-    uv run scripts/auc_axis_comparison.py
 
 rq3:
     @echo "Reproducing RQ3:"
@@ -31,10 +30,16 @@ main-values:
     @echo "Reproducing full values"
     uv run scripts/report_canonical_values.py
 
+ablations:
+    uv run scripts/auc_axis_comparison.py
+    uv run scripts/instruct_context_plots.py --cache
+
+
 reproduce-full:
     @echo "--- 🔬 Reproducing all results ---"
     just rq1
     just rq2
     just rq3
+    just ablations
     just main-values
     @echo "--- Done! ---"
