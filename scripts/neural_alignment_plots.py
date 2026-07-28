@@ -29,6 +29,17 @@ from human_grounding.names import append_english
 
 TOP_N_TO_PLOT = 10
 MAX_ENTRIES_PER_SECTION = 50
+
+# Statement cause_ids that must always appear in the qualitative appendix,
+# regardless of separation-ratio threshold or per-section display caps.
+# RAI: bare "Psykiatrien" (188) and bare "Uddannelse" (615, 860 — two
+# respondents used the identical short text; either satisfies the pin).
+PINNED_RAI_STATEMENT_IDS = {188, 615, 860}
+# Welfare: the specific (anchor, closer, farther) triplet discussed in the
+# main text — "Kompliceret og omfattende central regulering [...]" judged
+# closer to "Det tager for lang tid at revidere budgetloven" than to
+# "Social ulighed og polarisering".
+PINNED_WELFARE_TRIPLET = (1124, 1174, 1231)
 COORDINATES = {
     "policy": "valid_coordinates.csv",
     "gov-ai": "govai_coordinates.csv",
@@ -217,10 +228,23 @@ def find_all_misalignment(
         "welfare": "Welfare",
     }
 
+    pinned_expr = (
+        (pl.col("dataset") == "rai")
+        & (
+            pl.col("source_idx").is_in(PINNED_RAI_STATEMENT_IDS)
+            | pl.col("closer_idx").is_in(PINNED_RAI_STATEMENT_IDS)
+            | pl.col("farther_idx").is_in(PINNED_RAI_STATEMENT_IDS)
+        )
+    ) | (
+        (pl.col("dataset") == "welfare")
+        & (pl.col("source_idx") == PINNED_WELFARE_TRIPLET[0])
+        & (pl.col("closer_idx") == PINNED_WELFARE_TRIPLET[1])
+        & (pl.col("farther_idx") == PINNED_WELFARE_TRIPLET[2])
+    )
+
     enriched = (
         results.filter(
             pl.col("model").str.starts_with(model_name)
-            & (pl.col("pct_distance") > threshold)
             & pl.col("dataset").is_in(list(dataset_name_map))
         )
         .select(
@@ -233,6 +257,8 @@ def find_all_misalignment(
             pl.col("pct_distance").alias("separation_ratio"),
         )
         .unique()
+        .with_columns(pinned_expr.alias("pinned"))
+        .filter((pl.col("separation_ratio") > threshold) | pl.col("pinned"))
         .join(
             statements.rename({"cause": "source"}),
             left_on="source_idx",
@@ -261,12 +287,24 @@ def find_all_misalignment(
             "source",
             "closer",
             "farther",
+            "pinned",
         )
         .sort(
             ["dataset", "embedding_correct", "separation_ratio"],
             descending=[False, False, True],
         )
     )
+
+    for row in enriched.filter(pl.col("pinned")).to_dicts():
+        logger.info(
+            "Pinned triplet included (dataset={}, r_i(t)={:.1f}): "
+            "source_idx={}, closer_idx={}, farther_idx={}",
+            row["dataset"],
+            row["separation_ratio"],
+            row["source_idx"],
+            row["closer_idx"],
+            row["farther_idx"],
+        )
 
     grouped: dict[str, dict[str, list[dict[str, object]]]] = {}
 
@@ -332,21 +370,36 @@ def find_all_misalignment(
         "",
     ]
 
+    def _select_entries(
+        entries: list[dict[str, object]], cap: int
+    ) -> list[dict[str, object]]:
+        """Take the top-`cap` entries by separation ratio, but always keep
+        pinned entries even if that pushes the total past `cap`.
+        """
+        pinned = [e for e in entries if e["pinned"]]
+        non_pinned = [e for e in entries if not e["pinned"]]
+        remaining_slots = max(cap - len(pinned), 0)
+        selected = pinned + non_pinned[:remaining_slots]
+        selected.sort(key=lambda e: float(e["separation_ratio"]), reverse=True)  # type: ignore[arg-type]
+        return selected
+
     for dataset_key in sorted(grouped):
         dataset_label = dataset_name_map.get(dataset_key, dataset_key)
         incorrect_count = len(grouped[dataset_key]["incorrect"])
 
         for section in ("correct", "incorrect"):
             all_entries = grouped[dataset_key][section]
-            displayed_entries = all_entries
 
             # Show all incorrect comparisons and an equally sized set of
-            # highest-separation correct comparisons.
-            if section == "correct":
-                displayed_entries = all_entries[:incorrect_count]
-
-            # Cap the number of statements shown per section.
-            displayed_entries = displayed_entries[:MAX_ENTRIES_PER_SECTION]
+            # highest-separation correct comparisons, capped per section.
+            # Pinned entries (see PINNED_RAI_STATEMENT_IDS /
+            # PINNED_WELFARE_TRIPLET) are always kept regardless of cap.
+            cap = (
+                min(incorrect_count, MAX_ENTRIES_PER_SECTION)
+                if section == "correct"
+                else MAX_ENTRIES_PER_SECTION
+            )
+            displayed_entries = _select_entries(all_entries, cap)
 
             displayed_count = len(displayed_entries)
             total_count = len(all_entries)
