@@ -30,17 +30,19 @@ from human_grounding.names import append_english
 TOP_N_TO_PLOT = 10
 MAX_ENTRIES_PER_SECTION = 50
 
-# Statement cause_ids that must always appear in the qualitative appendix
-# (when they clear the separation-ratio threshold), exempted only from the
-# per-section display caps (MAX_ENTRIES_PER_SECTION / incorrect-count
-# balancing), not from the threshold itself.
+# Statement cause_ids that must always appear in the qualitative appendix.
 # RAI: bare "Psykiatrien" (188) and bare "Uddannelse" (615, 860 — two
 # respondents used the identical short text; either satisfies the pin).
+# These are exempted only from the per-section display caps
+# (MAX_ENTRIES_PER_SECTION / incorrect-count balancing), not from the
+# separation-ratio threshold — they must still clear `threshold` to appear.
 PINNED_RAI_STATEMENT_IDS = {188, 615, 860}
-# Welfare: the specific (anchor, closer, farther) triplet discussed in the
-# main text — "Kompliceret og omfattende central regulering [...]" judged
-# closer to "Det tager for lang tid at revidere budgetloven" than to
-# "Social ulighed og polarisering".
+# Welfare: the specific (anchor, closer, farther) triplet quoted verbatim in
+# the main text — "Kompliceret og omfattende central regulering [...]"
+# judged closer to "Det tager for lang tid at revidere budgetloven" than to
+# "Social ulighed og polarisering". Exempted from BOTH the display caps and
+# the separation-ratio threshold, since the main text depends on it being
+# traceable in the appendix regardless of its actual ratio.
 PINNED_WELFARE_TRIPLET = (1124, 1174, 1231)
 COORDINATES = {
     "policy": "valid_coordinates.csv",
@@ -230,24 +232,26 @@ def find_all_misalignment(
         "welfare": "Welfare",
     }
 
-    pinned_expr = (
-        (pl.col("dataset") == "rai")
-        & (
-            pl.col("source_idx").is_in(PINNED_RAI_STATEMENT_IDS)
-            | pl.col("closer_idx").is_in(PINNED_RAI_STATEMENT_IDS)
-            | pl.col("farther_idx").is_in(PINNED_RAI_STATEMENT_IDS)
-        )
-    ) | (
+    pinned_rai_expr = (pl.col("dataset") == "rai") & (
+        pl.col("source_idx").is_in(PINNED_RAI_STATEMENT_IDS)
+        | pl.col("closer_idx").is_in(PINNED_RAI_STATEMENT_IDS)
+        | pl.col("farther_idx").is_in(PINNED_RAI_STATEMENT_IDS)
+    )
+    # The Welfare triplet is quoted verbatim in the main text, so it must
+    # appear in the appendix even if its separation ratio falls below
+    # `threshold` — unlike the RAI pins, which only bypass the display cap.
+    pinned_welfare_expr = (
         (pl.col("dataset") == "welfare")
         & (pl.col("source_idx") == PINNED_WELFARE_TRIPLET[0])
         & (pl.col("closer_idx") == PINNED_WELFARE_TRIPLET[1])
         & (pl.col("farther_idx") == PINNED_WELFARE_TRIPLET[2])
     )
+    pinned_expr = pinned_rai_expr | pinned_welfare_expr
 
     enriched = (
         results.filter(
             pl.col("model").str.starts_with(model_name)
-            & (pl.col("pct_distance") > threshold)
+            & ((pl.col("pct_distance") > threshold) | pinned_welfare_expr)
             & pl.col("dataset").is_in(list(dataset_name_map))
         )
         .select(
