@@ -30,8 +30,10 @@ from human_grounding.names import append_english
 TOP_N_TO_PLOT = 10
 MAX_ENTRIES_PER_SECTION = 50
 
-# Statement cause_ids that must always appear in the qualitative appendix,
-# regardless of separation-ratio threshold or per-section display caps.
+# Statement cause_ids that must always appear in the qualitative appendix
+# (when they clear the separation-ratio threshold), exempted only from the
+# per-section display caps (MAX_ENTRIES_PER_SECTION / incorrect-count
+# balancing), not from the threshold itself.
 # RAI: bare "Psykiatrien" (188) and bare "Uddannelse" (615, 860 — two
 # respondents used the identical short text; either satisfies the pin).
 PINNED_RAI_STATEMENT_IDS = {188, 615, 860}
@@ -245,6 +247,7 @@ def find_all_misalignment(
     enriched = (
         results.filter(
             pl.col("model").str.starts_with(model_name)
+            & (pl.col("pct_distance") > threshold)
             & pl.col("dataset").is_in(list(dataset_name_map))
         )
         .select(
@@ -258,7 +261,6 @@ def find_all_misalignment(
         )
         .unique()
         .with_columns(pinned_expr.alias("pinned"))
-        .filter((pl.col("separation_ratio") > threshold) | pl.col("pinned"))
         .join(
             statements.rename({"cause": "source"}),
             left_on="source_idx",
