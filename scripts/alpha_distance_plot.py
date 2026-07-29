@@ -582,7 +582,7 @@ def _plot_alpha_curve(
             best_mean,
             color="#2ca02c",
             linewidth=2.0,
-            label="Best group",
+            label="Best author group",
             linestyle="--",
             zorder=3,
         )
@@ -596,7 +596,7 @@ def _plot_alpha_curve(
             worst_mean,
             color="#d62728",
             linewidth=2.0,
-            label="Worst group",
+            label="Worst author group",
             linestyle="--",
             zorder=3,
         )
