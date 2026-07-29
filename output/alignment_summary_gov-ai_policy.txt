@@ -4,7 +4,7 @@ Dataset summary (binary α-AUC, mean across demographics)
 ## gov-ai
   Human:       0.487  [0.470, 0.502]
   Best model:  mmBERTscandi-base-embedding  0.326  [0.291, 0.370]
-  Gap:         16.1pp  [11.0pp, 21.0pp]
+  Gap:         16.1pp  [11.0pp, 20.9pp]
   Oracle:      0.624  [0.602, 0.646]
   Gap (oracle): 29.9pp  [24.3pp, 34.9pp]
 

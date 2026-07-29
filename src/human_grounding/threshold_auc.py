@@ -227,8 +227,8 @@ def summarise_best_worst_mean(
     """From per-group AUC bootstraps, derive best/worst/mean summaries.
 
     For each ``(model, dataset, iteration)`` we compute:
-    - **Best Group**: max AUC across demographics
-    - **Worst Group**: min AUC across demographics
+    - **Best author Group**: max AUC across demographics
+    - **Worst author Group**: min AUC across demographics
     - **Mean**: mean AUC across demographics
 
     Then aggregate over iterations to get mean + CI.
@@ -241,8 +241,8 @@ def summarise_best_worst_mean(
     has_demo = "demographics" in group_auc.columns
     if has_demo:
         agg_exprs = [
-            pl.col("auc").max().alias("Best Group"),
-            pl.col("auc").min().alias("Worst Group"),
+            pl.col("auc").max().alias("Best author Group"),
+            pl.col("auc").min().alias("Worst author Group"),
             pl.col("auc").mean().alias("Mean"),
         ]
     else:
@@ -652,8 +652,8 @@ def _curve_to_group_auc(curve: pl.DataFrame) -> pl.DataFrame:
 
 _STAT_MARKERS: dict[str, tuple[str, int]] = {
     "Mean": ("D", 180),
-    "Worst group": ("o", 130),
-    "Best group": ("^", 130),
+    "Worst author group": ("o", 130),
+    "Best author group": ("^", 130),
 }
 
 
@@ -705,8 +705,8 @@ def plot_auc_bar(
     for (dataset,), ds_group in group_auc.group_by(["dataset"]):
         if dataset in demo_datasets:
             agg = ds_group.group_by("model", "dataset", "iteration").agg(
-                pl.col("auc").max().alias("Best group"),
-                pl.col("auc").min().alias("Worst group"),
+                pl.col("auc").max().alias("Best author group"),
+                pl.col("auc").min().alias("Worst author group"),
                 pl.col("auc").mean().alias("Mean"),
             )
         else:
