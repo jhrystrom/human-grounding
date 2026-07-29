@@ -1,17 +1,17 @@
 \begin{table*}[t]
 \centering
 \small
-\caption{Statement occurrence and co-occurrence statistics by dataset (\secref{sec:data}). Occurrences count the rounds in which a statement appears in any role; co-occurrence is the share of all unordered statement pairs that share at least one round.}
+\caption{Statement occurrence and co-occurrence statistics by dataset (\secref{sec:data}). Occurrences count the rounds in which a statement appears in any role; co-occurrence is the share of all unordered statement pairs that share at least one round. Rater pairs are the $\binom{n}{2}$ pairs a panel of $n$ participants allows ($N_\text{potential}$) and the subset that co-rated at least one round ($N_\text{sampled}$), which is what between-rater reliability is computed over.}
 \label{tab:coverage}
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
- & & & \multicolumn{2}{c}{Occurrences per statement} & Co-occurring \\
-\cmidrule(lr){4-5}
-Dataset & $N_\text{total}$ & $N_\text{sampled}$ & Mean & Median & \% of pairs \\
+ & & & \multicolumn{2}{c}{Occurrences per statement} & Co-occurring & \multicolumn{2}{c}{Rater pairs} \\
+\cmidrule(lr){4-5} \cmidrule(lr){7-8}
+Dataset & $N_\text{total}$ & $N_\text{sampled}$ & Mean & Median & \% of pairs & $N_\text{potential}$ & $N_\text{sampled}$ \\
 \midrule
-Gov-AI & 342 & 244 & 3.44 & 4.00 & 13.07 \\
-RAI & 873 & 294 & 3.95 & 2.00 & 11.91 \\
-Welfare & 377 & 174 & 3.45 & 2.00 & 17.77 \\
+Gov-AI & 342 & 244 & 3.44 & 4.00 & 13.07 & 15 & 9 \\
+RAI & 873 & 294 & 3.95 & 2.00 & 11.91 & 15 & 8 \\
+Welfare & 377 & 174 & 3.45 & 2.00 & 17.77 & 15 & 8 \\
 \bottomrule
 \end{tabular}
 \end{table*}
