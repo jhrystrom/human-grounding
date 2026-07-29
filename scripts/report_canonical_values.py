@@ -42,6 +42,7 @@ NON_MODEL_ROWS = {HUMAN_MODEL_NAME, ORACLE_MODEL_NAME}
 # Paper-spec design constant (not derivable from any data artifact).
 TOTAL_PLACEMENTS_APPROX = (6 * 14 * 20) + (6 * 7 * 20)
 
+
 # --------------------------------------------------------------------------- #
 # Formatting / loading helpers
 # --------------------------------------------------------------------------- #
@@ -93,6 +94,7 @@ def parse_latex_rows(tex: str) -> list[list[str]]:
 
 # Coverage-table display names -> internal dataset keys.
 COVERAGE_NAME_TO_DS = {"Gov-AI": "gov-ai", "RAI": "rai", "Welfare": "welfare"}
+
 
 # --------------------------------------------------------------------------- #
 # Shared data loaders / derived facts
@@ -585,6 +587,8 @@ def build_key_values_tex() -> str:
     gap_vals = [g for g in gap_vals if g is not None]
     grounding_policy = None
     mmteb_policy = None
+    grounding_average = None
+    mmteb_average = None
     if spearman is not None:
         row = spearman.filter(
             (pl.col("source") == "OurExercise") & (pl.col("experiment") == "policy")
@@ -596,6 +600,17 @@ def build_key_values_tex() -> str:
         )
         if not row.is_empty():
             mmteb_policy = row.row(0, named=True)
+
+        # Means across experiments -- these are what Table 3 (k-sensitivity)
+        # reports, so keep them available alongside the policy-only values.
+        def _mean_rho(source: str) -> float | None:
+            subset = spearman.filter(pl.col("source") == source)
+            if subset.is_empty():
+                return None
+            return float(subset["spearman"].to_numpy().mean())
+
+        grounding_average = _mean_rho("OurExercise")
+        mmteb_average = _mean_rho("MMTEB")
 
     def f2(x: object) -> str:
         """2 significant digits (after any leading zeros), not a fixed decimal count."""
@@ -978,6 +993,13 @@ def build_key_values_tex() -> str:
     )
     lines.append(
         _tex_cmd(
+            "GroundingClusteringCorrelationAverage",
+            f2(grounding_average) if grounding_average is not None else "",
+            "Grounding-clustering correlation (mean of policy and gov-ai; Table 3)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
             "MMTEBClusteringCorrelation",
             f2(mmteb_policy["spearman"]) if mmteb_policy else "",
             "MMTEB-clustering correlation (policy)",
@@ -995,6 +1017,13 @@ def build_key_values_tex() -> str:
             "MMTEBClusteringCorrelationHI",
             f2(mmteb_policy["ci_hi"]) if mmteb_policy else "",
             "Upper CI for MMTEB-clustering correlation",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MMTEBClusteringCorrelationAverage",
+            f2(mmteb_average) if mmteb_average is not None else "",
+            "MMTEB-clustering correlation (mean of policy and gov-ai; Table 3)",
         )
     )
     lines.append(
@@ -1047,13 +1076,6 @@ def build_key_values_tex() -> str:
             "Maximum reported stakeholder-model gap in the paper (pp)",
         )
     )
-    lines.append(
-        _tex_cmd(
-            "HeadlineGroundingCorrelation",
-            f1(grounding_policy["spearman"]) if grounding_policy else "",
-            "Headline downstream grounding-clustering correlation",
-        )
-    )
     blocks.append("\n\n".join(lines))
 
     # -- Text fragments ----------------------------------------------------- #
@@ -1086,4 +1108,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
