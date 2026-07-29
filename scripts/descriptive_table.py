@@ -14,6 +14,61 @@ DATASET_DISPLAY_NAMES = {
     "welfare": "Welfare",
 }
 
+# Validated placement coordinates -- the record of which participant rated
+# which round, and hence of which rater pairs co-rated a round. The policy
+# file is the validated one: ``combined_coordinates.csv`` additionally carries
+# two mislabelled G rounds (rai seed 8 duplicates welfare seed 8; rai seed 15
+# holds rai seed 16's statements) that would inflate the pair count.
+COORDINATE_FILES = ("valid_coordinates.csv", "govai_coordinates.csv")
+
+# A round is identified by dataset and seed.
+ROUND_KEY = ["dataset", "seed"]
+
+
+def rater_pair_coverage() -> pl.DataFrame:
+    """Potential vs. realised between-rater pairs per dataset.
+
+    Between-rater reliability is defined over pairs of participants who
+    co-rated at least one round, so a panel of ``n`` participants offers
+    ``n choose 2`` potential pairs of which only those sharing a round are
+    actually sampled. Read off the raw coordinate files rather than the
+    triplet set, since the placements are what define round membership.
+
+    Returns ``dataset, n_raters, n_pairs_potential, n_pairs_sampled``.
+    """
+    coords = pl.concat(
+        [
+            pl.read_csv(DATA_DIR / f)
+            .with_columns(pl.col("dataset").replace({"welfware": "welfare"}))
+            .select(*ROUND_KEY, "user_id")
+            for f in COORDINATE_FILES
+        ],
+        how="vertical_relaxed",
+    ).unique()
+
+    potential = coords.group_by("dataset").agg(
+        pl.col("user_id").n_unique().alias("n_raters")
+    )
+    potential = potential.with_columns(
+        (pl.col("n_raters") * (pl.col("n_raters") - 1) / 2)
+        .cast(pl.Int64)
+        .alias("n_pairs_potential")
+    )
+
+    # One unordered rater pair per co-rated round, deduplicated across rounds.
+    sampled = (
+        coords.join(coords, on=ROUND_KEY, how="inner", suffix="_b")
+        .filter(pl.col("user_id") < pl.col("user_id_b"))
+        .select("dataset", "user_id", "user_id_b")
+        .unique()
+        .group_by("dataset")
+        .agg(pl.len().alias("n_pairs_sampled"))
+    )
+
+    return potential.join(sampled, on="dataset", how="left").with_columns(
+        pl.col("n_pairs_sampled").fill_null(0)
+    )
+
 
 def make_statement_coverage_table(
     round_df: pl.DataFrame,
@@ -111,6 +166,7 @@ def make_statement_coverage_table(
         occurrence_stats.join(cooccurring_pairs, on="dataset", how="left")
         .join(pair_denominators, on=["dataset", "n_statements"], how="left")
         .join(total_statements, on="dataset", how="left")
+        .join(rater_pair_coverage(), on="dataset", how="left")
         .with_columns(
             pl.col("n_pairs_cooccurring").fill_null(0),
             (100 * pl.col("n_pairs_cooccurring") / pl.col("n_possible_pairs")).alias(
@@ -124,6 +180,8 @@ def make_statement_coverage_table(
             "mean_occurrences",
             "median_occurrences",
             "pct_pairs_cooccurring",
+            "n_pairs_potential",
+            "n_pairs_sampled",
         )
         .sort(
             by="dataset",
@@ -149,6 +207,8 @@ def make_statement_coverage_table(
                     fmt % record["mean_occurrences"],
                     fmt % record["median_occurrences"],
                     fmt % record["pct_pairs_cooccurring"],
+                    f"{record['n_pairs_potential']}",
+                    f"{record['n_pairs_sampled']}",
                 ]
             )
             + r" \\"
@@ -163,13 +223,19 @@ def make_statement_coverage_table(
         r"\caption{Statement occurrence and co-occurrence statistics by dataset "
         r"(\secref{sec:data}). Occurrences count the rounds in which a statement "
         r"appears in any role; co-occurrence is the share of all unordered "
-        r"statement pairs that share at least one round.}",
+        r"statement pairs that share at least one round. Rater pairs are the "
+        r"$\binom{n}{2}$ pairs a panel of $n$ participants allows "
+        r"($N_\text{potential}$) and the subset that co-rated at least one round "
+        r"($N_\text{sampled}$), which is what between-rater reliability is "
+        r"computed over.}",
         r"\label{tab:coverage}",
-        r"\begin{tabular}{lrrrrr}",
+        r"\begin{tabular}{lrrrrrrr}",
         r"\toprule",
-        r" & & & \multicolumn{2}{c}{Occurrences per statement} & Co-occurring \\",
-        r"\cmidrule(lr){4-5}",
-        r"Dataset & $N_\text{total}$ & $N_\text{sampled}$ & Mean & Median & \% of pairs \\",
+        r" & & & \multicolumn{2}{c}{Occurrences per statement} & Co-occurring "
+        r"& \multicolumn{2}{c}{Rater pairs} \\",
+        r"\cmidrule(lr){4-5} \cmidrule(lr){7-8}",
+        r"Dataset & $N_\text{total}$ & $N_\text{sampled}$ & Mean & Median "
+        r"& \% of pairs & $N_\text{potential}$ & $N_\text{sampled}$ \\",
         r"\midrule",
         *body_rows,
         r"\bottomrule",
