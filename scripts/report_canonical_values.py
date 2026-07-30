@@ -405,6 +405,23 @@ def _rater_pair_coverage() -> dict[str, dict[str, float]]:
     return {row.pop("dataset"): row for row in rater_pair_coverage().to_dicts()}
 
 
+def _pooled_median_co_rated_rounds() -> str:
+    """Median co-rated rounds over all contributing (panel, rater pair) units.
+
+    Pooled rather than a mean of the per-panel medians, so every contributing
+    pair counts once regardless of how many pairs its panel contributes.
+    """
+    import sys
+
+    sys.path.append(str(Path(__file__).parent))  # scripts/ is not a package
+    from descriptive_table import rater_pair_rounds
+
+    rounds = rater_pair_rounds()
+    if rounds.is_empty():
+        return ""
+    return f"{round(float(rounds['n_rounds'].median()), 1):g}"
+
+
 def _human_gender_auc() -> dict[str, tuple[float, float, float]]:
     """Human-human reliability AUC + 95% CI per RAI gender group.
 
@@ -773,6 +790,45 @@ def build_key_values_tex() -> str:
                 f"({pretty_dataset(ds)})",
             )
         )
+
+    def _mean_over_panels(field: str) -> str:
+        """Unweighted mean of a per-panel quantity across the datasets."""
+        vals = [
+            coverage_rows_by_ds[ds][field]
+            for ds in DATASETS
+            if coverage_rows_by_ds.get(ds, {}).get(field) is not None
+        ]
+        return "" if not vals else f"{round(sum(vals) / len(vals), 1):g}"
+
+    lines.append(
+        _tex_cmd(
+            "MeanPanelRaters",
+            _mean_over_panels("n_raters"),
+            "Participants per panel (mean across datasets)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MeanPossibleRaterPairs",
+            _mean_over_panels("n_pairs_potential"),
+            "Possible rater pairs per panel (mean across datasets)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "MeanContributingRaterPairs",
+            _mean_over_panels("n_pairs_sampled"),
+            "Rater pairs that co-rated at least one round (mean across datasets)",
+        )
+    )
+    lines.append(
+        _tex_cmd(
+            "PooledMedianCoRatedRounds",
+            _pooled_median_co_rated_rounds(),
+            "Median co-rated rounds per contributing rater pair, pooled over all "
+            "contributing pairs across datasets",
+        )
+    )
     blocks.append("\n\n".join(lines))
 
     # -- Human demographic reliability -------------------------------------- #

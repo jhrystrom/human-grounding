@@ -25,6 +25,38 @@ COORDINATE_FILES = ("valid_coordinates.csv", "govai_coordinates.csv")
 ROUND_KEY = ["dataset", "seed"]
 
 
+def _load_placements() -> pl.DataFrame:
+    """Unique ``(dataset, seed, user_id)`` placements across the panels."""
+    return pl.concat(
+        [
+            pl.read_csv(DATA_DIR / f)
+            .with_columns(pl.col("dataset").replace({"welfware": "welfare"}))
+            .select(*ROUND_KEY, "user_id")
+            for f in COORDINATE_FILES
+        ],
+        how="vertical_relaxed",
+    ).unique()
+
+
+def rater_pair_rounds() -> pl.DataFrame:
+    """Co-rated round counts per contributing rater pair.
+
+    Returns ``dataset, user_id, user_id_b, n_rounds``, one row per rater pair
+    that co-rated at least one round of that dataset. Pairs that never share a
+    round are absent, since they contribute nothing to between-rater
+    reliability. Pool over this frame for panel-independent statistics.
+    """
+    coords = _load_placements()
+    return (
+        coords.join(coords, on=ROUND_KEY, how="inner", suffix="_b")
+        .filter(pl.col("user_id") < pl.col("user_id_b"))
+        .select("dataset", "seed", "user_id", "user_id_b")
+        .unique()
+        .group_by("dataset", "user_id", "user_id_b")
+        .agg(pl.len().alias("n_rounds"))
+    )
+
+
 def rater_pair_coverage() -> pl.DataFrame:
     """Potential vs. realised between-rater pairs per dataset.
 
@@ -37,36 +69,19 @@ def rater_pair_coverage() -> pl.DataFrame:
     Returns ``dataset, n_raters, n_pairs_potential, n_pairs_sampled,
     median_rounds_per_pair``; the median is taken over the sampled pairs only.
     """
-    coords = pl.concat(
-        [
-            pl.read_csv(DATA_DIR / f)
-            .with_columns(pl.col("dataset").replace({"welfware": "welfare"}))
-            .select(*ROUND_KEY, "user_id")
-            for f in COORDINATE_FILES
-        ],
-        how="vertical_relaxed",
-    ).unique()
-
-    potential = coords.group_by("dataset").agg(
-        pl.col("user_id").n_unique().alias("n_raters")
-    )
-    potential = potential.with_columns(
-        (pl.col("n_raters") * (pl.col("n_raters") - 1) / 2)
-        .cast(pl.Int64)
-        .alias("n_pairs_potential")
-    )
-
-    # One row per (rater pair, co-rated round).
-    co_rated = (
-        coords.join(coords, on=ROUND_KEY, how="inner", suffix="_b")
-        .filter(pl.col("user_id") < pl.col("user_id_b"))
-        .select("dataset", "seed", "user_id", "user_id_b")
-        .unique()
+    potential = (
+        _load_placements()
+        .group_by("dataset")
+        .agg(pl.col("user_id").n_unique().alias("n_raters"))
+        .with_columns(
+            (pl.col("n_raters") * (pl.col("n_raters") - 1) / 2)
+            .cast(pl.Int64)
+            .alias("n_pairs_potential")
+        )
     )
 
     sampled = (
-        co_rated.group_by("dataset", "user_id", "user_id_b")
-        .agg(pl.len().alias("n_rounds"))
+        rater_pair_rounds()
         .group_by("dataset")
         .agg(
             pl.len().alias("n_pairs_sampled"),
