@@ -1,12 +1,10 @@
 # human-grounding
 
-Code for the paper *"Grounding Text Embeddings in Expert Human Associations"* (ACL submission).
-
-The paper introduces the **Human Grounding Exercise**, a methodology for measuring whether the geometric distances in a text embedding space reflect the conceptual distinctions that domain experts actually intend. Using two Danish-language datasets on "wicked problems", the paper finds that neural embedding models fall 20–30 percentage points short of human inter-rater reliability, and that this gap propagates directly into downstream clustering quality (Spearman ρ = 0.91 between human grounding scores and clustering ARI, versus ρ = 0.48 for MMTEB).
+Code for the paper *"Grounding Text Embeddings in Stakeholder Associations"* (*ACL submission).
 
 ## Overview
 
-Human experts physically arrange printed statements on a canvas such that spatial proximity reflects perceived semantic similarity. Their placements are digitised, and a triplet-based variant of Krippendorff's alpha is used to measure:
+Human stakeholders physically arrange printed statements on a canvas such that spatial proximity reflects perceived semantic similarity. Their placements are digitised, and a triplet-based variant of Krippendorff's alpha is used to measure:
 
 1. **RQ1 – Human reliability**: how consistently experts agree with each other and with their own earlier judgements.
 2. **RQ2 – Neural alignment**: how well embedding models reproduce those expert judgements.
@@ -18,12 +16,13 @@ Human experts physically arrange printed statements on a canvas such that spatia
 |---|---|---|
 | `rai` | Expert panel statements on Responsible AI governance challenges | Gender |
 | `welfare` | Danish local politicians' statements on the future of welfare | Political party (pseudonymised) |
+| `gov-ai` | AI use cases from the US Federal Governments | NA |
 
-Both datasets are in Danish; an English-translated ablation is available via `translate_statements.py`.
+First two datasets are in Danish and comprise the `policy` experiment; an English-translated ablation is available via `translate_statements.py`. The third is in English. 
 
 ## Installation
 
-The project uses [uv](https://github.com/astral-sh/uv) and requires Python ≥ 3.12.
+The project uses [uv](https://github.com/astral-sh/uv) and requires Python ≥ 3.12. For easy reproduction, we use [just](https://github.com/casey/just#installation). uv can install just using `uv tool install rust-just`. 
 
 ```bash
 uv sync

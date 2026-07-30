@@ -34,7 +34,8 @@ def rater_pair_coverage() -> pl.DataFrame:
     actually sampled. Read off the raw coordinate files rather than the
     triplet set, since the placements are what define round membership.
 
-    Returns ``dataset, n_raters, n_pairs_potential, n_pairs_sampled``.
+    Returns ``dataset, n_raters, n_pairs_potential, n_pairs_sampled,
+    median_rounds_per_pair``; the median is taken over the sampled pairs only.
     """
     coords = pl.concat(
         [
@@ -55,14 +56,22 @@ def rater_pair_coverage() -> pl.DataFrame:
         .alias("n_pairs_potential")
     )
 
-    # One unordered rater pair per co-rated round, deduplicated across rounds.
-    sampled = (
+    # One row per (rater pair, co-rated round).
+    co_rated = (
         coords.join(coords, on=ROUND_KEY, how="inner", suffix="_b")
         .filter(pl.col("user_id") < pl.col("user_id_b"))
-        .select("dataset", "user_id", "user_id_b")
+        .select("dataset", "seed", "user_id", "user_id_b")
         .unique()
+    )
+
+    sampled = (
+        co_rated.group_by("dataset", "user_id", "user_id_b")
+        .agg(pl.len().alias("n_rounds"))
         .group_by("dataset")
-        .agg(pl.len().alias("n_pairs_sampled"))
+        .agg(
+            pl.len().alias("n_pairs_sampled"),
+            pl.median("n_rounds").alias("median_rounds_per_pair"),
+        )
     )
 
     return potential.join(sampled, on="dataset", how="left").with_columns(

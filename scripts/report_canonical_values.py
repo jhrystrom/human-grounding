@@ -391,6 +391,20 @@ def _within_rater_auc() -> dict[str, float]:
     return out
 
 
+def _rater_pair_coverage() -> dict[str, dict[str, float]]:
+    """Per-dataset rater-pair coverage, keyed by dataset.
+
+    Delegates to ``descriptive_table.rater_pair_coverage`` so the macros and the
+    rater-pair columns of Table ``tab:coverage`` cannot drift apart.
+    """
+    import sys
+
+    sys.path.append(str(Path(__file__).parent))  # scripts/ is not a package
+    from descriptive_table import rater_pair_coverage
+
+    return {row.pop("dataset"): row for row in rater_pair_coverage().to_dicts()}
+
+
 def _human_gender_auc() -> dict[str, tuple[float, float, float]]:
     """Human-human reliability AUC + 95% CI per RAI gender group.
 
@@ -716,6 +730,49 @@ def build_key_values_tex() -> str:
             "Minimum retained triplets across Responsible AI gender groups at tau = 4",
         )
     )
+    blocks.append("\n\n".join(lines))
+
+    # -- Rater-pair coverage ------------------------------------------------- #
+    # Same source as the rater-pair columns of Table tab:coverage.
+    coverage_rows_by_ds = _rater_pair_coverage()
+    lines = [_tex_banner("Rater-pair coverage")]
+    for ds in DATASETS:
+        p = CMD_PREFIX[ds]
+        row = coverage_rows_by_ds.get(ds, {})
+
+        def _num(field: str, row: dict = row) -> str:
+            v = row.get(field)
+            return "" if v is None else f"{v:g}"
+
+        lines.append(
+            _tex_cmd(
+                f"{p}PanelRaters",
+                _num("n_raters"),
+                f"Participants in the {pretty_dataset(ds)} panel",
+            )
+        )
+        lines.append(
+            _tex_cmd(
+                f"{p}PossibleRaterPairs",
+                _num("n_pairs_potential"),
+                f"Possible rater pairs in the {pretty_dataset(ds)} panel (n choose 2)",
+            )
+        )
+        lines.append(
+            _tex_cmd(
+                f"{p}ContributingRaterPairs",
+                _num("n_pairs_sampled"),
+                f"Rater pairs that co-rated at least one {pretty_dataset(ds)} round",
+            )
+        )
+        lines.append(
+            _tex_cmd(
+                f"{p}MedianCoRatedRounds",
+                _num("median_rounds_per_pair"),
+                f"Median co-rated rounds per contributing rater pair "
+                f"({pretty_dataset(ds)})",
+            )
+        )
     blocks.append("\n\n".join(lines))
 
     # -- Human demographic reliability -------------------------------------- #
