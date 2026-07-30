@@ -33,9 +33,6 @@ dependencies = [
     "wandb>=0.20.1",
 ]
 
-[project.scripts]
-invi-x-oii = "human_grounding:main"
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
