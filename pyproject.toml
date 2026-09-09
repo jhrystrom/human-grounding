@@ -50,6 +50,7 @@ qr = [
 ]
 test = [
     "pytest>=8.4.1",
+    "pytest-playwright>=0.9.0",
 ]
 vision = [
     "colorlog>=6.9.0",

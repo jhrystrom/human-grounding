@@ -14,6 +14,8 @@
   header button:hover { background: #e4e4e4; }
   header button:disabled { opacity: 0.4; cursor: not-allowed; }
   #status { font-size: 12px; color: #666; margin-left: auto; }
+  #error { font-size: 12px; color: #a11; flex-basis: 100%; }
+  #error:empty { display: none; }
 
   main { flex: 1; position: relative; overflow: hidden; }
   #canvas { position: absolute; left: 0; right: 0; top: 0; bottom: var(--tray-h);
@@ -33,6 +35,9 @@
           cursor: grab; user-select: none; box-shadow: 0 1px 2px rgba(0,0,0,0.08);
           word-wrap: break-word; touch-action: none; }
   .stmt .id { font-size: 9px; }
+  /* In the tray cards are clipped to a common maximum, so the overlap layout can
+     guarantee a grabbable strip for each; they expand again when picked up. */
+  .stmt.in-tray { max-height: 96px; overflow: hidden; }
   .stmt.placed { background: #e8f3ff; border-color: #7ba6d4; }
   .stmt.selected { outline: 2px solid #2566c4; outline-offset: 1px; }
   .stmt.dragging { cursor: grabbing; box-shadow: 0 4px 12px rgba(0,0,0,0.22); z-index: 999; }
@@ -51,6 +56,7 @@
   <button id="load">Load</button>
   <button id="save" disabled>Save</button>
   <span id="status"></span>
+  <div id="error" role="alert"></div>
 </header>
 <main>
   <div id="canvas"></div>
@@ -81,6 +87,17 @@ function parseCSV(text) {
   if (field.length || row.length) { row.push(field); rows.push(row); }
   return rows.filter(r => r.length && !(r.length === 1 && r[0] === ''));
 }
+const REQUIRED_COLUMNS = ['statement_id', 'text'];
+
+// Returns an error message, or '' when every required column is present.
+function validateHeader(header) {
+  const missing = REQUIRED_COLUMNS.filter(c => !header.includes(c));
+  if (!missing.length) return '';
+  const names = missing.map(c => `"${c}"`).join(' and ');
+  return `Missing required column${missing.length > 1 ? 's' : ''} ${names}. ` +
+         `Found: ${header.map(h => `"${h}"`).join(', ') || '(no columns)'}.`;
+}
+
 function rowsToObjects(rows) {
   const header = rows[0].map(h => h.trim());
   return rows.slice(1).map(r => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ''])));
@@ -116,6 +133,11 @@ function seededSample(arr, n, seed) {
   return a.slice(0, Math.min(n, a.length));
 }
 
+// --- Tray layout: minimum visible strip of an overlapped card, in px.
+// Keeps every card reachable by pointer no matter how many are in the tray.
+const MIN_EXPOSED_X = 26;
+const MIN_EXPOSED_Y = 14;
+
 // --- App state ---
 let allStatements = [];
 let placed = [];
@@ -127,6 +149,7 @@ const canvasEl = $('canvas');
 const trayEl = $('tray');
 const marqueeEl = $('marquee');
 const statusEl = $('status');
+const errorEl = $('error');
 
 function clearSelection() {
   selected.forEach(el => el.classList.remove('selected'));
@@ -139,6 +162,20 @@ $('file').addEventListener('change', async e => {
   if (!f) return;
   const text = await f.text();
   const rows = parseCSV(text);
+  errorEl.textContent = '';
+  if (!rows.length) {
+    allStatements = [];
+    statusEl.textContent = '';
+    errorEl.textContent = 'The CSV is empty.';
+    return;
+  }
+  const headerError = validateHeader(rows[0].map(h => h.trim()));
+  if (headerError) {
+    allStatements = [];
+    statusEl.textContent = '';
+    errorEl.textContent = headerError;
+    return;
+  }
   allStatements = rowsToObjects(rows);
   statusEl.textContent = `${allStatements.length} statements loaded`;
 });
@@ -162,33 +199,81 @@ function renderSample(sample) {
   const trayRect = trayEl.getBoundingClientRect();
   const mainRect = main.getBoundingClientRect();
   const trayTopInMain = trayRect.top - mainRect.top;
-  const trayWidth = trayRect.width;
 
-  const cardW = 150;
-  const cardH = 56; // approx; real height set by content
   const padX = 10, padY = 10;
   const headerOffset = 24; // leave room for "Unplaced" label
-  const usableTrayH = trayRect.height - headerOffset - padY;
-  const cols = Math.max(1, Math.floor((trayWidth - padX) / (cardW + padX)));
 
-  sample.forEach((s, i) => {
+  // Create the cards first so we can measure their real (content-dependent) height.
+  const els = sample.map(s => {
     const el = document.createElement('div');
-    el.className = 'stmt';
+    el.className = 'stmt in-tray';
     el.innerHTML = `<span class="id">#${s.statement_id}</span>${escapeHTML(s.text || '')}`;
     main.appendChild(el);
+    return el;
+  });
+  if (!els.length) return;
 
+  const cardW = Math.max(...els.map(e => e.offsetWidth));
+  const cardH = Math.max(...els.map(e => e.offsetHeight));
+  const cardHMin = Math.min(...els.map(e => e.offsetHeight));
+  const usableW = trayRect.width - 2 * padX;
+
+  // Cards are laid out in DOM order, so each card paints over the ones before it.
+  // When the grid does not fit the tray we shrink the step instead of spilling out of
+  // main (which is overflow:hidden): cards overlap, but every card keeps an exposed
+  // strip at its top-left, so it stays clickable and therefore draggable.
+  const topMax = Math.max(0, main.clientHeight - cardH);
+  const leftMax = Math.max(0, main.clientWidth - cardW);
+  // A card counts as placed once its centre is on the canvas, so cards taller than the
+  // tray may overhang the divider but their centres must stay on the tray side of it.
+  // Heights vary with the text, and the shortest card has the highest centre, so it
+  // is the one that decides how far up the stack may start.
+  const topMin = clamp(trayTopInMain + 1 - cardHMin / 2, 0, topMax);
+  const preferredTop = clamp(trayTopInMain + headerOffset, topMin, topMax);
+  const preferredLeft = Math.min(padX, leftMax);
+
+  // Most rows/cols we can host while every card keeps its exposed strip.
+  const maxRows = Math.floor((topMax - topMin) / MIN_EXPOSED_Y) + 1;
+  const maxCols = Math.floor(leftMax / MIN_EXPOSED_X) + 1;
+
+  let cols = clamp(Math.floor((usableW + padX) / (cardW + padX)), 1, maxCols);
+  let rows = Math.ceil(els.length / cols);
+  if (rows > maxRows) {
+    // Too tall even when overlapped: spread into more (overlapping) columns instead.
+    cols = Math.min(maxCols, Math.ceil(els.length / maxRows));
+    rows = Math.ceil(els.length / cols);
+  }
+
+  // Prefer to sit inside the tray; only grow past it when the tray is too small.
+  let stepY = rows > 1 ? Math.min(cardH + padY, (topMax - preferredTop) / (rows - 1)) : 0;
+  let originY = preferredTop;
+  if (rows > 1 && stepY < MIN_EXPOSED_Y) {
+    stepY = MIN_EXPOSED_Y;
+    originY = clamp(topMax - stepY * (rows - 1), topMin, topMax);
+  }
+  let stepX = cols > 1 ? Math.min(cardW + padX, (leftMax - preferredLeft) / (cols - 1)) : 0;
+  let originX = preferredLeft;
+  if (cols > 1 && stepX < MIN_EXPOSED_X) {
+    stepX = MIN_EXPOSED_X;
+    originX = Math.max(0, leftMax - stepX * (cols - 1));
+  }
+
+  els.forEach((el, i) => {
     const col = i % cols;
     const row = Math.floor(i / cols);
-    const x = padX + col * (cardW + padX);
-    const y = trayTopInMain + headerOffset + row * (cardH + padY);
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
+    const x = originX + col * stepX;
+    const y = originY + row * stepY;
+    // Belt and braces: never let a card sit outside main.
+    el.style.left = clamp(x, 0, Math.max(0, main.clientWidth - el.offsetWidth)) + 'px';
+    el.style.top = clamp(y, 0, Math.max(0, main.clientHeight - el.offsetHeight)) + 'px';
 
-    const rec = { statement_id: s.statement_id, dataset: s.dataset, el };
-    placed.push(rec);
+    const s = sample[i];
+    placed.push({ statement_id: s.statement_id, dataset: s.dataset, el });
     makeDraggable(el);
   });
 }
+
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 function escapeHTML(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -222,6 +307,7 @@ function makeDraggable(el) {
       el.classList.remove('selected'); selected.delete(el); return;
     }
     selectEl(el);
+    selected.forEach(g => g.classList.remove('in-tray')); // show the full text once held
     el.setPointerCapture(e.pointerId);
     startX = e.clientX; startY = e.clientY;
     group = [...selected].map(g => ({
