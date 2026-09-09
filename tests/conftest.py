@@ -45,10 +45,13 @@ def make_csv(
 
 # Returns, for each .stmt card in DOM order, a viewport point where that card is the
 # topmost element -- or null if it is completely buried and thus impossible to grab.
+# Pass an index to scan just that one card, which keeps repeated grabs cheap.
 GRAB_POINTS_JS = """
-() => {
+(only) => {
   const step = 3;
-  return [...document.querySelectorAll('.stmt')].map(card => {
+  const all = [...document.querySelectorAll('.stmt')];
+  const cards = only === null ? all : [all[only]];
+  return cards.map(card => {
     const r = card.getBoundingClientRect();
     for (let y = r.top + 1; y < r.bottom - 1; y += step) {
       for (let x = r.left + 1; x < r.right - 1; x += step) {
@@ -63,11 +66,18 @@ GRAB_POINTS_JS = """
 
 
 def grab_points(page):
-    return page.evaluate(GRAB_POINTS_JS)
+    """A grabbable point for every card, in DOM order."""
+    return page.evaluate(GRAB_POINTS_JS, None)
+
+
+def grab_point(page, index):
+    """A grabbable point for a single card."""
+    return page.evaluate(GRAB_POINTS_JS, index)[0]
 
 
 def drag(page, point, to_x, to_y):
+    """One pointermove is all the drag handler needs, so keep the trip short."""
     page.mouse.move(point["x"], point["y"])
     page.mouse.down()
-    page.mouse.move(to_x, to_y, steps=10)
+    page.mouse.move(to_x, to_y)
     page.mouse.up()

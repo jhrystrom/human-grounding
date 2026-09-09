@@ -1,5 +1,5 @@
 import pytest
-from conftest import drag, grab_points, make_csv
+from conftest import drag, grab_point, grab_points, make_csv
 
 
 @pytest.mark.parametrize("size", [21, 30, 50])
@@ -180,7 +180,7 @@ def test_overlapped_cards_can_be_dragged_onto_the_canvas(canvas, upload_csv, ind
 
     card = canvas.locator(".stmt").nth(index)
     before = card.bounding_box()
-    point = grab_points(canvas)[index]
+    point = grab_point(canvas, index)
     assert point is not None
 
     target = canvas.locator("#canvas").bounding_box()
@@ -205,7 +205,7 @@ def test_all_forty_cards_can_be_dragged_one_by_one(canvas, upload_csv):
 
     target = canvas.locator("#canvas").bounding_box()
     for i in range(40):
-        point = grab_points(canvas)[i]
+        point = grab_point(canvas, i)
         assert point is not None, f"card {i} became unreachable"
         drag(
             canvas,
