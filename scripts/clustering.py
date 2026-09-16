@@ -1,4 +1,5 @@
 import argparse
+from collections.abc import Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,6 +21,17 @@ metrics = {
     "v_measure": v_measure_score,
     "adjusted_rand_index": adjusted_rand_score,
 }
+DEFAULT_METRICS = ("adjusted_rand_index",)
+
+
+def validate_metrics(selected: list[str] | tuple[str, ...]) -> list[str]:
+    """Fail fast on unknown or empty metric selections."""
+    unknown = [m for m in selected if m not in metrics]
+    if unknown or not selected:
+        msg = f"metrics must be a non-empty subset of {list(metrics)}, got {selected!r}"
+        raise ValueError(msg)
+    return list(dict.fromkeys(selected))
+
 
 COORDINATES = {
     "policy": OUTPUT_DIR / "normalised_coordinates.csv",
@@ -88,15 +100,19 @@ def ids_from_mask(ids_: list[int], mask: list[bool]) -> list[int]:
 def main(
     experiments: list[str],
     scale: float = 1.35,
-    top: int = 20,
+    n_extreme: int = 5,
     n_bootstrap: int = 2000,
     seed: int = 0,
     k_selection: str = "human",
+    selected_metrics: list[str] | tuple[str, ...] = DEFAULT_METRICS,
 ) -> None:
+    selected_metrics = validate_metrics(selected_metrics)
     _aggregated_full = []
     _combined_full = []
     for experiment in experiments:
-        aggregated_df, combined_df = analyse_single(experiment, k_selection=k_selection)
+        aggregated_df, combined_df = analyse_single(
+            experiment, k_selection=k_selection, selected_metrics=selected_metrics
+        )
         _aggregated_full.append(
             aggregated_df.with_columns(pl.lit(experiment).alias("experiment"))
         )
@@ -129,7 +145,21 @@ def main(
     logger.info(f"\n{formatted.to_pandas().to_markdown(index=False)}")
 
     plot_comparison(
-        aggregated_full, combined_full, scale=scale, top=top, k_selection=k_selection
+        aggregated_full,
+        combined_full,
+        scale=scale,
+        n_extreme=n_extreme,
+        k_selection=k_selection,
+        selected_metrics=selected_metrics,
+    )
+    write_results_table(
+        aggregated_full,
+        combined_full,
+        experiments,
+        n_bootstrap=n_bootstrap,
+        seed=seed,
+        k_selection=k_selection,
+        selected_metrics=selected_metrics,
     )
 
 
@@ -234,7 +264,9 @@ def compute_spearman_table(
 def analyse_single(
     experiment: str = "policy",
     k_selection: str = "human",
+    selected_metrics: list[str] | tuple[str, ...] = DEFAULT_METRICS,
 ) -> tuple[pl.DataFrame, pl.DataFrame]:
+    selected_metrics = validate_metrics(selected_metrics)
     if k_selection not in K_SELECTION_CHOICES:
         msg = f"k_selection must be one of {K_SELECTION_CHOICES}, got {k_selection!r}"
         raise ValueError(msg)
@@ -281,8 +313,8 @@ def analyse_single(
             continue
 
         metric_scores = {}
-        for metric, func in metrics.items():
-            metric_scores[metric] = func(user_1, user_2)
+        for metric in selected_metrics:
+            metric_scores[metric] = metrics[metric](user_1, user_2)
 
         scores.append(
             {
@@ -350,9 +382,9 @@ def analyse_single(
             model_labels = clusterer.labels_.tolist()
 
             metric_scores = {}
-            for metric, func in metrics.items():
-                user_1_score = func(user_1, model_labels)
-                user_2_score = func(user_2, model_labels)
+            for metric in selected_metrics:
+                user_1_score = metrics[metric](user_1, model_labels)
+                user_2_score = metrics[metric](user_2, model_labels)
                 metric_scores[metric] = (user_1_score + user_2_score) / 2
 
             model_scores.append(
@@ -376,7 +408,7 @@ def analyse_single(
     combined_df = pl.concat([model_df, human_df.select(model_df.columns)])
 
     aggregated_df = combined_df.group_by("model").agg(
-        *[pl.mean(metric).alias(metric) for metric in metrics]
+        *[pl.mean(metric).alias(metric) for metric in selected_metrics]
     )
     aggregated_path = (
         OUTPUT_DIR / f"cluster_consistency_aggregated_{experiment}{suffix}.csv"
@@ -384,35 +416,54 @@ def analyse_single(
     aggregated_df.write_csv(aggregated_path)
 
     aggregated_by_dataset = combined_df.group_by("model", "dataset").agg(
-        *[pl.mean(metric).alias(metric) for metric in metrics]
+        *[pl.mean(metric).alias(metric) for metric in selected_metrics]
     )
     return aggregated_by_dataset, combined_df
+
+
+def borda_ranking(aggregated_df: pl.DataFrame, metric: str) -> pl.DataFrame:
+    """Borda ranking (1 = best) over experiments, from per-dataset mean scores.
+
+    Ranks each (model, dataset) row within its experiment and sums the ranks per
+    model. `Human` is ranked alongside the models. Returns ``(model, rank)``.
+    """
+    return (
+        aggregated_df.with_columns(
+            pl.col(metric).rank(descending=True).over("experiment").alias("_rank")
+        )
+        .group_by("model")
+        .agg(pl.sum("_rank").alias("borda_score"))
+        .sort("borda_score", "model")
+        .with_row_index("rank", offset=1)
+        .select("model", "rank")
+    )
 
 
 def plot_comparison(
     aggregated_df: pl.DataFrame,
     combined_df: pl.DataFrame,
     scale: float = 1.35,
-    top: int = 20,
+    n_extreme: int = 5,
     k_selection: str = "human",
+    selected_metrics: list[str] | tuple[str, ...] = DEFAULT_METRICS,
 ) -> None:
-    # ---- Plotting ----
+    """Bar plot of the top and bottom `n_extreme` models (by Borda rank) + Human."""
     suffix = "" if k_selection == "human" else f"_{k_selection}"
     sns.set_theme(style="whitegrid", font_scale=scale)
-    for metric in metrics:
-        borda_ranks = (
-            aggregated_df.with_columns(
-                pl.col(metric).rank(descending=True).over("experiment").alias("_rank")
+    for metric in validate_metrics(selected_metrics):
+        ranking = borda_ranking(aggregated_df, metric)
+        model_ranking = ranking.filter(pl.col("model") != "Human")
+        top_models = model_ranking.head(n_extreme)
+        bottom_models = model_ranking.tail(n_extreme)
+        selected = (
+            pl.concat(
+                [top_models, bottom_models, ranking.filter(pl.col("model") == "Human")]
             )
-            .group_by("model")
-            .agg(pl.sum("_rank").alias("borda_score"))
-            .sort("borda_score")
-            .with_row_index("rank")
-            .select("model", "rank")
-            .head(top)
+            .unique("model")
+            .sort("rank")
         )
         strip_plot = sns.barplot(
-            data=combined_df.join(borda_ranks, on="model")
+            data=combined_df.join(selected, on="model")
             .sort("rank")
             .with_columns(pl.col("model").replace(PRETTY_NAMES)),
             x="model",
@@ -428,12 +479,138 @@ def plot_comparison(
         for label in strip_plot.get_xticklabels():
             if label.get_text() == "Human":
                 label.set_fontweight("bold")
+        # Dashed separator where the middle-ranked models are omitted
+        if model_ranking.height > 2 * n_extreme:
+            first_bottom = bottom_models["model"][0]
+            gap_x = selected["model"].to_list().index(first_bottom) - 0.5
+            strip_plot.axvline(gap_x, color="grey", linestyle="--", linewidth=1)
         plot_path = PLOT_DIR / f"cluster_consistency_comparison_{metric}{suffix}.pdf"
         plt.savefig(
             plot_path,
             bbox_inches="tight",
         )
         plt.clf()
+
+
+def _bootstrap_mean_ci(
+    values: np.ndarray,
+    rng: np.random.Generator,
+    n_bootstrap: int,
+) -> tuple[float, float, float]:
+    """Mean and percentile 95% CI via bootstrap over rounds."""
+    point = float(np.mean(values))
+    if len(values) < 2:
+        return point, float("nan"), float("nan")
+    idx = rng.integers(0, len(values), size=(n_bootstrap, len(values)))
+    means = values[idx].mean(axis=1)
+    lo, hi = np.percentile(means, [2.5, 97.5])
+    return point, float(lo), float(hi)
+
+
+def _latex_escape(text: str) -> str:
+    for char in ("\\", "&", "%", "$", "#", "_", "{", "}"):
+        text = text.replace(char, f"\\{char}")
+    return text
+
+
+def write_results_table(
+    aggregated_df: pl.DataFrame,
+    combined_df: pl.DataFrame,
+    experiments: list[str],
+    n_bootstrap: int = 2000,
+    seed: int = 0,
+    k_selection: str = "human",
+    selected_metrics: list[str] | tuple[str, ...] = DEFAULT_METRICS,
+) -> None:
+    """Appendix LaTeX table per metric: all models ranked by Borda, with
+    per-experiment mean score and bootstrap 95% CI (over rounds)."""
+    suffix = "" if k_selection == "human" else f"_{k_selection}"
+    experiment_names = {"policy": "Policy", "gov-ai": "Gov-AI"}
+    for metric in validate_metrics(selected_metrics):
+        rng = np.random.default_rng(seed)
+        ranking = borda_ranking(aggregated_df, metric)
+        rows: list[dict] = []
+        for model, rank in ranking.iter_rows():
+            row = {"rank": rank, "model": model}
+            for exp in experiments:
+                values = combined_df.filter(
+                    (pl.col("model") == model) & (pl.col("experiment") == exp)
+                )[metric].to_numpy()
+                row[exp] = (
+                    _bootstrap_mean_ci(values, rng, n_bootstrap)
+                    if len(values)
+                    else None
+                )
+            rows.append(row)
+
+        # Best score (incl. Human) per experiment, compared at displayed precision
+        best = {
+            exp: max(round(row[exp][0], 2) for row in rows if row[exp] is not None)
+            for exp in experiments
+        }
+
+        def _cell(row: dict, exp: str, bold: Callable[[str], str]) -> str:
+            if row[exp] is None:
+                return "--"
+            point, lo, hi = row[exp]
+            text = f"{point:.2f} [{lo:.2f}; {hi:.2f}]"
+            if round(point, 2) == best[exp]:
+                return bold(text)
+            return text
+
+        metric_name = metric.replace("_", " ").title()
+        exp_headers = [experiment_names.get(e, e) for e in experiments]
+
+        # ---- LaTeX ----
+        col_spec = "rl" + "c" * len(experiments)
+        header = " & ".join(
+            [r"\textbf{Rank}", r"\textbf{Model}"]
+            + [rf"\textbf{{{h}}}" for h in exp_headers]
+        )
+        body = [
+            r"\begin{table}[t]",
+            r"\centering",
+            r"\small",
+            rf"\caption{{Clustering consistency with human participants ({metric_name}) "
+            r"for all models, ranked by Borda count across experiments. "
+            r"Values are means over rounds with bootstrapped 95\% confidence intervals. "
+            r"The best score in each experiment is shown in bold.}",
+            rf"\label{{tab:cluster-consistency-{metric.replace('_', '-')}{suffix.replace('_', '-')}}}",
+            rf"\begin{{tabular}}{{{col_spec}}}",
+            r"\toprule",
+            header + r" \\",
+            r"\midrule",
+        ]
+        for row in rows:
+            name = _latex_escape(PRETTY_NAMES.get(row["model"], row["model"]))
+            if row["model"] == "Human":
+                name = rf"\emph{{{name}}}"
+            cells = [str(row["rank"]), name] + [
+                _cell(row, e, lambda t: rf"\textbf{{{t}}}") for e in experiments
+            ]
+            body.append(" & ".join(cells) + r" \\")
+        body.extend([r"\bottomrule", r"\end{tabular}", r"\end{table}", ""])
+
+        table_path = OUTPUT_DIR / f"cluster_consistency_table_{metric}{suffix}.tex"
+        table_path.write_text("\n".join(body))
+        logger.info(f"LaTeX table written to {table_path}")
+
+        # ---- Markdown ----
+        md = [
+            "| Rank | Model | " + " | ".join(exp_headers) + " |",
+            "|---:|:---|" + ":---:|" * len(experiments),
+        ]
+        for row in rows:
+            name = PRETTY_NAMES.get(row["model"], row["model"])
+            if row["model"] == "Human":
+                name = f"*{name}*"
+            cells = [str(row["rank"]), name] + [
+                _cell(row, e, lambda t: f"**{t}**") for e in experiments
+            ]
+            md.append("| " + " | ".join(cells) + " |")
+        md_path = table_path.with_suffix(".md")
+        md_path.write_text("\n".join(md) + "\n")
+        logger.info(f"Markdown table written to {md_path}")
 
 
 if __name__ == "__main__":
@@ -445,7 +622,10 @@ if __name__ == "__main__":
         "--scale", type=float, default=1.35, help="Font scale for the plots"
     )
     parser.add_argument(
-        "--top", type=int, default=20, help="Number of top models to plot"
+        "--n-extreme",
+        type=int,
+        default=5,
+        help="Number of top and bottom models to plot (Human is always shown)",
     )
     parser.add_argument(
         "--experiments",
@@ -473,13 +653,22 @@ if __name__ == "__main__":
             "or 'silhouette' (max silhouette over K in [2, 10])."
         ),
     )
+    parser.add_argument(
+        "--metrics",
+        nargs="+",
+        type=str,
+        choices=list(metrics),
+        default=list(DEFAULT_METRICS),
+        help="Clustering agreement metrics to compute, plot and tabulate",
+    )
     args = parser.parse_args()
 
     main(
         scale=args.scale,
-        top=args.top,
+        n_extreme=args.n_extreme,
         experiments=args.experiments,
         n_bootstrap=args.n_bootstrap,
         seed=args.seed,
         k_selection=args.k_selection,
+        selected_metrics=args.metrics,
     )
