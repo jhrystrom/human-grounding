@@ -14,7 +14,10 @@ from scipy.stats import spearmanr
 from tqdm import tqdm
 
 import human_grounding.evaluate
+import human_grounding.instruct_embed
+import human_grounding.model2vec_embed
 import human_grounding.oracle
+import human_grounding.sentence_embed
 import human_grounding.threshold_auc
 from human_grounding.constants import DATASET_PRETTY_NAMES, PRETTY_NAMES
 from human_grounding.data import (
@@ -24,7 +27,7 @@ from human_grounding.data import (
     get_welfare_demographics,
 )
 from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
-from human_grounding.embed import get_standard_models
+from human_grounding.embed import get_openai_models, get_standard_models
 from human_grounding.names import append_english
 
 TOP_N_TO_PLOT = 10
@@ -446,6 +449,111 @@ def find_all_misalignment(
     return out_path
 
 
+def _get_model_types() -> dict[str, str]:
+    return {
+        **dict.fromkeys(get_openai_models(), "Commercial"),
+        **dict.fromkeys(
+            human_grounding.instruct_embed.all_models(), "Instruction-tuned"
+        ),
+        **dict.fromkeys(human_grounding.model2vec_embed.all_models(), "Model2Vec"),
+        **dict.fromkeys(
+            human_grounding.sentence_embed.all_models(), "Sentence Transformer"
+        ),
+    }
+
+
+def compute_model_type_rank_deltas(
+    aggregated_bootstraps: pl.DataFrame,
+    mmteb_with_ranks: pl.DataFrame,
+) -> pl.DataFrame:
+    """Average (HumanGroundingRank - MMTEBRank) per model type.
+
+    Both ranks are re-ranked (1 = best) within the models present on MMTEB, so
+    a positive delta means the model type does worse on human grounding than
+    MMTEB would suggest.
+    """
+    ranks = (
+        aggregated_bootstraps.join(
+            mmteb_with_ranks, left_on="model", right_on="model_name"
+        )
+        .with_columns(
+            pl.col("alignment_score")
+            .rank(method="ordinal", descending=True)
+            .alias("human_rank"),
+            pl.col("Rank (Borda)").rank(method="ordinal").alias("mmteb_rank"),
+        )
+        .with_columns(
+            pl.col("model")
+            .replace_strict(_get_model_types(), default=None)
+            .alias("Model type"),
+            (
+                pl.col("human_rank").cast(pl.Int64)
+                - pl.col("mmteb_rank").cast(pl.Int64)
+            ).alias("rank_delta"),
+        )
+    )
+    unknown = ranks.filter(pl.col("Model type").is_null())["model"].to_list()
+    if unknown:
+        logger.warning(f"No model type for {unknown}; excluded from rank deltas")
+
+    return (
+        ranks.drop_nulls("Model type")
+        .group_by("Model type")
+        .agg(
+            pl.len().alias("N models"),
+            pl.col("rank_delta").mean().round(2).alias("Average rank delta"),
+        )
+        .sort("Model type")
+    )
+
+
+def write_model_type_rank_deltas(
+    auc_bootstraps: pl.DataFrame,
+    experiments: list[str],
+    use_english: bool = False,
+) -> None:
+    """One markdown table of average rank deltas, one column per experiment."""
+    rank_deltas = []
+    for exp in experiments:
+        mmteb_path = OUTPUT_DIR / f"mmteb_with_ranks_{exp}.csv"
+        if not mmteb_path.exists():
+            continue
+        datasets = EXPERIMENT_DATASETS.get(exp, [exp])
+        exp_scores = (
+            auc_bootstraps.filter(pl.col("dataset").is_in(datasets))
+            .group_by("model")
+            .agg(pl.col("auc").mean().alias("alignment_score"))
+        )
+        rank_deltas.append(
+            compute_model_type_rank_deltas(
+                exp_scores, pl.read_csv(mmteb_path)
+            ).with_columns(pl.lit(exp).alias("experiment"))
+        )
+    if not rank_deltas:
+        return
+
+    table = (
+        pl.concat(rank_deltas)
+        .pivot(
+            on="experiment",
+            index=["Model type", "N models"],
+            values="Average rank delta",
+        )
+        .sort("Model type")
+    )
+    out_path = (
+        OUTPUT_DIR / f"model_type_rank_delta_{_get_experiment_name(experiments)}.md"
+    )
+    if use_english:
+        out_path = append_english(out_path)
+    out_path.write_text(
+        "Average rank delta (HumanGroundingRank - MMTEBRank)\n\n"
+        + table.to_pandas().to_markdown(index=False)
+        + "\n"
+    )
+    logger.info(f"Wrote model-type rank deltas to {out_path}")
+
+
 def plot_mmteb_correlation(
     auc_bootstraps: pl.DataFrame,
     experiment: str,
@@ -774,6 +882,9 @@ def main(
                     use_english=use_english,
                     file_type=file_type,
                 )
+            write_model_type_rank_deltas(
+                auc_bootstraps, experiments, use_english=use_english
+            )
 
     # --- SPEARMAN SUMMARY ---
     if spearman_bootstraps is not None and all_spearman is not None:
