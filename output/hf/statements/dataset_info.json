@@ -6,7 +6,7 @@
       "dtype": "uint32",
       "_type": "Value"
     },
-    "cause": {
+    "text": {
       "dtype": "large_string",
       "_type": "Value"
     },
