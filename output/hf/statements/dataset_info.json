@@ -1,0 +1,20 @@
+{
+  "citation": "",
+  "description": "",
+  "features": {
+    "statement_id": {
+      "dtype": "uint32",
+      "_type": "Value"
+    },
+    "cause": {
+      "dtype": "large_string",
+      "_type": "Value"
+    },
+    "demographic": {
+      "dtype": "large_string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": ""
+}

@@ -1,0 +1,28 @@
+{
+  "citation": "",
+  "description": "",
+  "features": {
+    "statement_id": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "x": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "y": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "seed": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "user_id": {
+      "dtype": "large_string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": ""
+}
