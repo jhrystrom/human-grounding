@@ -2,13 +2,16 @@ import os
 
 import datasets
 import polars as pl
+from huggingface_hub import HfApi
 from loguru import logger
 
 import human_grounding.data
 from human_grounding.directories import DATA_DIR, OUTPUT_DIR
 
 HF_DIR = OUTPUT_DIR / "hf"
-REPO_NAME = "grounding-rai"
+REPO_NAME = "stakeholder-grounding"
+CONFIG_NAME = "rai"
+LIST_COLUMNS = ["statement_ids", "texts", "x", "y", "demographics"]
 
 
 def get_env(name: str) -> str:
@@ -33,31 +36,63 @@ def get_statements() -> pl.DataFrame:
 def get_coordinates() -> pl.DataFrame:
     return (
         pl.read_csv(DATA_DIR / "valid_coordinates.csv")
-        .filter(pl.col("dataset") == "rai")
+        .filter(pl.col("dataset") == CONFIG_NAME)
         .select("statement_id", "x", "y", "seed", "user_id")
-        .sort("user_id", "seed", "statement_id")
     )
 
 
-def to_hf(df: pl.DataFrame) -> datasets.Dataset:
-    return datasets.Dataset.from_polars(df)
+def get_rounds(coordinates: pl.DataFrame, statements: pl.DataFrame) -> pl.DataFrame:
+    missing = coordinates.join(statements, on="statement_id", how="anti")
+    assert missing.is_empty(), f"{missing.height} coordinates lack a statement"
+
+    return (
+        coordinates.join(statements, on="statement_id", how="left")
+        .with_columns(pl.col("x", "y").cast(pl.Float64))
+        .sort("user_id", "seed", "statement_id")
+        .group_by("seed", "user_id", maintain_order=True)
+        .agg(
+            pl.col("statement_id").alias("statement_ids"),
+            pl.col("text").alias("texts"),
+            "x",
+            "y",
+            pl.col("demographic").alias("demographics"),
+        )
+        .with_columns(
+            pl.format("{}-{}", "seed", "user_id").alias("round_id"),
+        )
+        .select("round_id", "seed", "user_id", *LIST_COLUMNS)
+    )
+
+
+def validate_rounds(rounds: pl.DataFrame) -> None:
+    assert rounds.height == 59, f"Expected 59 rounds, got {rounds.height}"
+    for column in LIST_COLUMNS:
+        lengths = rounds[column].list.len()
+        assert (lengths == 20).all(), f"{column} has lengths {lengths.unique()}"
+        assert not rounds[column].list.eval(pl.element().is_null()).list.any().any(), (
+            f"{column} contains nulls"
+        )
+    n_statements = rounds["statement_ids"].explode().n_unique()
+    assert n_statements == 301, f"Expected 301 statements, got {n_statements}"
+    assert (rounds["statement_ids"].list.n_unique() == 20).all(), (
+        "Duplicate statement_id within a round"
+    )
 
 
 if __name__ == "__main__":
     hf_token = get_env("HF_TOKEN")
     repo_id = f"{get_env('HF_USERNAME')}/{REPO_NAME}"
 
-    statements = get_statements()
-    coordinates = get_coordinates()
+    rounds = get_rounds(get_coordinates(), get_statements())
+    validate_rounds(rounds)
 
-    missing = coordinates.join(statements, on="statement_id", how="anti")
-    assert missing.is_empty(), f"{missing.height} coordinates lack a statement"
+    dataset = datasets.DatasetDict({"test": datasets.Dataset.from_polars(rounds)})
+    dataset.save_to_disk(HF_DIR / CONFIG_NAME)
+    logger.info(f"{CONFIG_NAME}: {dataset}")
+    for row in dataset["test"].select(range(3)):
+        logger.info(f"{CONFIG_NAME} example: {row}")
 
-    hf_datasets = {"statements": to_hf(statements), "coordinates": to_hf(coordinates)}
-    for name, dataset in hf_datasets.items():
-        dataset.save_to_disk(HF_DIR / name)
-        logger.info(f"{name}: {dataset}")
-        for row in dataset.select(range(min(3, len(dataset)))):
-            logger.info(f"{name} example: {row}")
-        logger.info(f"Pushing {name} to the Hub at {repo_id}")
-        dataset.push_to_hub(repo_id, config_name=name, private=True, token=hf_token)
+    logger.info(f"Pushing {CONFIG_NAME} to the Hub at {repo_id}")
+    dataset.push_to_hub(repo_id, config_name=CONFIG_NAME, private=True, token=hf_token)
+    sha = HfApi(token=hf_token).dataset_info(repo_id).sha
+    logger.info(f"Revision for TaskMetadata.dataset['revision']: {sha}")
