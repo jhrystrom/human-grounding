@@ -568,7 +568,7 @@ def write_results_table(
             + [rf"\textbf{{{h}}}" for h in exp_headers]
         )
         body = [
-            r"\begin{table}[t]",
+            r"\begin{table*}[t]",
             r"\centering",
             r"\small",
             rf"\caption{{Clustering consistency with human participants ({metric_name}) "
@@ -587,7 +587,7 @@ def write_results_table(
                 _cell(row, e, lambda t: rf"\textbf{{{t}}}") for e in experiments
             ]
             body.append(" & ".join(cells) + r" \\")
-        body.extend([r"\bottomrule", r"\end{tabular}", r"\end{table}", ""])
+        body.extend([r"\bottomrule", r"\end{tabular}", r"\end{table*}", ""])
 
         table_path = OUTPUT_DIR / f"cluster_consistency_table_{metric}{suffix}.tex"
         table_path.write_text("\n".join(body))
