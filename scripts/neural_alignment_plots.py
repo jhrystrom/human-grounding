@@ -55,6 +55,10 @@ EXPERIMENT_DATASETS: dict[str, list[str]] = {
     "policy": ["welfare", "rai"],
     "gov-ai": ["gov-ai"],
 }
+EXPERIMENT_PRETTY_NAMES: dict[str, str] = {
+    "policy": "Policy",
+    "gov-ai": "Government AI",
+}
 
 
 def get_embedding_alignments(
@@ -512,7 +516,7 @@ def write_model_type_rank_deltas(
     experiments: list[str],
     use_english: bool = False,
 ) -> None:
-    """One markdown table of average rank deltas, one column per experiment."""
+    """One booktabs LaTeX table of average rank deltas, one column per experiment."""
     rank_deltas = []
     for exp in experiments:
         mmteb_path = OUTPUT_DIR / f"mmteb_with_ranks_{exp}.csv"
@@ -541,16 +545,53 @@ def write_model_type_rank_deltas(
         )
         .sort("Model type")
     )
+    exp_cols = [exp for exp in experiments if exp in table.columns]
+
+    def _fmt_delta(value: float | None) -> str:
+        return "---" if value is None else f"${value:+.2f}$"
+
+    header = " & ".join(
+        [
+            r"\textbf{Model type}",
+            r"\textbf{$N$}",
+            *(rf"\textbf{{{EXPERIMENT_PRETTY_NAMES.get(e, e)}}}" for e in exp_cols),
+        ]
+    )
+    body = [
+        " & ".join(
+            [
+                str(row["Model type"]),
+                str(row["N models"]),
+                *(_fmt_delta(row[e]) for e in exp_cols),
+            ]
+        )
+        + r" \\"
+        for row in table.iter_rows(named=True)
+    ]
+    lines = [
+        r"\begin{table}[t]",
+        r"\centering",
+        r"\small",
+        (
+            r"\caption{human-grounding rank $-$ MMTEB(Danish) rank per model group.}"
+        ),
+        r"\label{tab:model-type-rank-delta}",
+        rf"\begin{{tabular}}{{lr{'r' * len(exp_cols)}}}",
+        r"\toprule",
+        header + r" \\",
+        r"\midrule",
+        *body,
+        r"\bottomrule",
+        r"\end{tabular}",
+        r"\end{table}",
+    ]
+
     out_path = (
-        OUTPUT_DIR / f"model_type_rank_delta_{_get_experiment_name(experiments)}.md"
+        OUTPUT_DIR / f"model_type_rank_delta_{_get_experiment_name(experiments)}.tex"
     )
     if use_english:
         out_path = append_english(out_path)
-    out_path.write_text(
-        "Average rank delta (HumanGroundingRank - MMTEBRank)\n\n"
-        + table.to_pandas().to_markdown(index=False)
-        + "\n"
-    )
+    out_path.write_text("\n".join(lines) + "\n")
     logger.info(f"Wrote model-type rank deltas to {out_path}")
 
 
