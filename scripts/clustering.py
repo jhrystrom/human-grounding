@@ -572,9 +572,7 @@ def write_results_table(
             r"\centering",
             r"\small",
             rf"\caption{{Clustering consistency with human participants ({metric_name}) "
-            r"for all models, ranked by Borda count across experiments. "
-            r"Values are means over rounds with bootstrapped 95\% confidence intervals. "
-            r"The best score in each experiment is shown in bold.}",
+            r"for all models, ranked by Borda count across experiments.}"
             rf"\label{{tab:cluster-consistency-{metric.replace('_', '-')}{suffix.replace('_', '-')}}}",
             rf"\begin{{tabular}}{{{col_spec}}}",
             r"\toprule",
