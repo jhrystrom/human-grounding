@@ -37,6 +37,8 @@ def get_coordinates() -> pl.DataFrame:
     return (
         pl.read_csv(DATA_DIR / "valid_coordinates.csv")
         .filter(pl.col("dataset") == CONFIG_NAME)
+        # Rounds need at least two raters per seed to be comparable.
+        .filter(pl.col("user_id").n_unique().over("seed") >= 2)
         .select("statement_id", "x", "y", "seed", "user_id")
     )
 
@@ -65,7 +67,7 @@ def get_rounds(coordinates: pl.DataFrame, statements: pl.DataFrame) -> pl.DataFr
 
 
 def validate_rounds(rounds: pl.DataFrame) -> None:
-    assert rounds.height == 59, f"Expected 59 rounds, got {rounds.height}"
+    assert rounds.height == 58, f"Expected 58 rounds, got {rounds.height}"
     for column in LIST_COLUMNS:
         lengths = rounds[column].list.len()
         assert (lengths == 20).all(), f"{column} has lengths {lengths.unique()}"
@@ -73,7 +75,7 @@ def validate_rounds(rounds: pl.DataFrame) -> None:
             f"{column} contains nulls"
         )
     n_statements = rounds["statement_ids"].explode().n_unique()
-    assert n_statements == 301, f"Expected 301 statements, got {n_statements}"
+    assert n_statements == 294, f"Expected 294 statements, got {n_statements}"
     assert (rounds["statement_ids"].list.n_unique() == 20).all(), (
         "Duplicate statement_id within a round"
     )
