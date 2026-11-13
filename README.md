@@ -1,6 +1,10 @@
 # human-grounding
 
-Code for the paper *"Grounding Text Embeddings in Stakeholder Associations"* (*ACL submission).
+[![arXiv](https://img.shields.io/badge/arXiv-2605.27168-b31b1b.svg?logo=arxiv)](https://arxiv.org/abs/2605.27168)
+[![Hugging Face Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-stakeholder--grounding-yellow)](https://huggingface.co/datasets/ryzzlestrizzle/stakeholder-grounding)
+[![MTEB](https://img.shields.io/badge/MTEB-StakeholderGrounding-blue)](https://leaderboard.mteb.org/tasks/StakeholderGrounding)
+
+Code for the paper *"Grounding Text Embeddings in Stakeholder Associations"* (EACL 2027).
 
 ## Overview
 
@@ -182,5 +186,20 @@ To reproduce the pipeline, simply run `just reproduce-full` which will run the p
 To install just, call `uv tool install rust-just` or check the [documentation](https://github.com/casey/just#installation) for your preferred package manager.
 
 ## Citation
-
-Anonymised for now.
+The paper is on ArXiv and can be cited using the below bibtex:
+```
+@misc{rystromGroundingTextEmbeddings2026,
+  title = {Grounding {{Text Embeddings}} in {{Stakeholder Associations}}},
+  author = {Rystr{\o}m, Jonathan and {Burgos-Thorsen}, Sofie and Fu, Zihao and S{\o}ltoft, Johan Irving and Enevoldsen, Kenneth C. and Russell, Chris},
+  year = 2026,
+  month = may,
+  number = {arXiv:2605.27168},
+  eprint = {2605.27168},
+  primaryclass = {cs.CL},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2605.27168},
+  url = {http://arxiv.org/abs/2605.27168},
+  urldate = {2026-08-20},
+  archiveprefix = {arXiv},
+}
+```
