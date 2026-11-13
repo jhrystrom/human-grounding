@@ -470,7 +470,7 @@ def compute_model_type_rank_deltas(
     aggregated_bootstraps: pl.DataFrame,
     mmteb_with_ranks: pl.DataFrame,
 ) -> pl.DataFrame:
-    """Average (HumanGroundingRank - MMTEBRank) per model type.
+    """Median (HumanGroundingRank - MMTEBRank) per model type.
 
     Both ranks are re-ranked (1 = best) within the models present on MMTEB, so
     a positive delta means the model type does worse on human grounding than
@@ -505,7 +505,7 @@ def compute_model_type_rank_deltas(
         .group_by("Model type")
         .agg(
             pl.len().alias("N models"),
-            pl.col("rank_delta").mean().round(2).alias("Average rank delta"),
+            pl.col("rank_delta").median().round(2).alias("Median rank delta"),
         )
         .sort("Model type")
     )
@@ -541,14 +541,14 @@ def write_model_type_rank_deltas(
         .pivot(
             on="experiment",
             index=["Model type", "N models"],
-            values="Average rank delta",
+            values="Median rank delta",
         )
         .sort("Model type")
     )
     exp_cols = [exp for exp in experiments if exp in table.columns]
 
     def _fmt_delta(value: float | None) -> str:
-        return "---" if value is None else f"${value:+.2f}$"
+        return "---" if value is None else f"${value:+.1f}$"
 
     header = " & ".join(
         [
@@ -573,7 +573,7 @@ def write_model_type_rank_deltas(
         r"\centering",
         r"\small",
         (
-            r"\caption{human-grounding rank $-$ MMTEB(Danish) rank per model group.}"
+            r"\caption{Median human-grounding rank $-$ MMTEB(Danish) rank per model group.}"
         ),
         r"\label{tab:model-type-rank-delta}",
         rf"\begin{{tabular}}{{lr{'r' * len(exp_cols)}}}",
