@@ -382,6 +382,14 @@ def find_all_misalignment(
             "~": r"\textasciitilde{}",
             "^": r"\textasciicircum{}",
         }
+        # Drop control characters (C0 except newline/tab, DEL, and C1
+        # U+0080-U+009F, e.g. stray U+0097 in gov-ai text): LaTeX can't
+        # typeset them.
+        text = "".join(
+            ch
+            for ch in text
+            if ch in "\n\t" or not (ord(ch) < 0x20 or 0x7F <= ord(ch) <= 0x9F)
+        )
         return "".join(replacements.get(char, char) for char in text)
 
     def _format_entry(entry: dict[str, object]) -> list[str]:
