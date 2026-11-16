@@ -1,16 +1,16 @@
 \begin{table}[t]
 \centering
 \small
-\caption{Median human-grounding rank $-$ MMTEB(Danish) rank per model group.}
+\caption{Median human-grounding rank $-$ MMTEB(Danish) rank per model group, with the interquartile range [Q1, Q3] across models in brackets. Positive values mean the group ranks worse on human grounding than on MMTEB.}
 \label{tab:model-type-rank-delta}
 \begin{tabular}{lrrr}
 \toprule
 \textbf{Model type} & \textbf{$N$} & \textbf{Policy} & \textbf{Government AI} \\
 \midrule
-Commercial & 3 & $+2.0$ & $-1.0$ \\
-Instruction-tuned & 4 & $+1.5$ & $+1.5$ \\
-Model2Vec & 10 & $-1.0$ & $-3.5$ \\
-Sentence Transformer & 15 & $+5.0$ & $+4.0$ \\
+Commercial & 3 & $+2.0$ {\scriptsize [$-10.5$, $+2.0$]} & $-1.0$ {\scriptsize [$-12.5$, $+0.5$]} \\
+Instruction-tuned & 4 & $+1.5$ {\scriptsize [$-1.2$, $+7.2$]} & $+1.5$ {\scriptsize [$-3.5$, $+5.5$]} \\
+Model2Vec & 10 & $-1.0$ {\scriptsize [$-4.2$, $-1.0$]} & $-3.5$ {\scriptsize [$-6.2$, $+4.8$]} \\
+Sentence Transformer & 15 & $+5.0$ {\scriptsize [$-2.5$, $+8.0$]} & $+4.0$ {\scriptsize [$-3.0$, $+7.0$]} \\
 \bottomrule
 \end{tabular}
 \end{table}
