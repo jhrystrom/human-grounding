@@ -21,6 +21,7 @@ import human_grounding.sentence_embed
 import human_grounding.threshold_auc
 from human_grounding.constants import DATASET_PRETTY_NAMES, PRETTY_NAMES
 from human_grounding.data import (
+    get_govai,
     get_rai_demographics,
     get_responsible_ai,
     get_welfare,
@@ -224,19 +225,24 @@ def find_all_misalignment(
     threshold: float = 13,
     output_dir: Path = OUTPUT_DIR,
     model_name: str = "paraphrase-multilingual-mpnet",
+    dataset_thresholds: Mapping[str, float] | None = None,
+    dataset_caps: Mapping[str, int] | None = None,
 ) -> Path:
     """Write a LaTeX appendix of high-separation model-human comparisons.
 
     A comparison is included when the human separation ratio r_i(t) exceeds
-    ``threshold``. Results are grouped by dataset and by whether the model
-    preserves or reverses the human ordering.
+    ``threshold`` (or the dataset's entry in ``dataset_thresholds``, which
+    overrides it per dataset). Results are grouped by dataset and by whether
+    the model preserves or reverses the human ordering.
 
     For presentation balance, the appendix includes all incorrect comparisons
     and an equal-sized sample of the highest-separation correct comparisons.
+    Each section shows at most ``MAX_ENTRIES_PER_SECTION`` entries, or the
+    dataset's entry in ``dataset_caps`` (highest separation ratio first).
     """
+    # Order here sets section order in the appendix.
     dataset_name_map = {
-        "rai": "Responsible AI",
-        "welfare": "Welfare",
+        ds: DATASET_PRETTY_NAMES[ds] for ds in ("rai", "welfare", "gov-ai")
     }
 
     pinned_rai_expr = (pl.col("dataset") == "rai") & (
@@ -255,10 +261,17 @@ def find_all_misalignment(
     )
     pinned_expr = pinned_rai_expr | pinned_welfare_expr
 
+    thresholds = {
+        ds: (dataset_thresholds or {}).get(ds, threshold) for ds in dataset_name_map
+    }
+    threshold_expr = pl.col("dataset").replace_strict(
+        thresholds, default=threshold, return_dtype=pl.Float64
+    )
+
     enriched = (
         results.filter(
             pl.col("model").str.starts_with(model_name)
-            & ((pl.col("pct_distance") > threshold) | pinned_welfare_expr)
+            & ((pl.col("pct_distance") > threshold_expr) | pinned_welfare_expr)
             & pl.col("dataset").is_in(list(dataset_name_map))
         )
         .select(
@@ -272,22 +285,22 @@ def find_all_misalignment(
         )
         .unique()
         .with_columns(pinned_expr.alias("pinned"))
+        # Join on dataset too: statement ids are not unique across datasets
+        # (e.g. gov-ai ids overlap with rai ids).
         .join(
             statements.rename({"cause": "source"}),
-            left_on="source_idx",
-            right_on="statement_id",
+            left_on=["dataset", "source_idx"],
+            right_on=["dataset", "statement_id"],
         )
         .join(
             statements.rename({"cause": "closer"}),
-            left_on="closer_idx",
-            right_on="statement_id",
-            suffix="_closer",
+            left_on=["dataset", "closer_idx"],
+            right_on=["dataset", "statement_id"],
         )
         .join(
             statements.rename({"cause": "farther"}),
-            left_on="farther_idx",
-            right_on="statement_id",
-            suffix="_farther",
+            left_on=["dataset", "farther_idx"],
+            right_on=["dataset", "statement_id"],
         )
         .select(
             "dataset",
@@ -302,6 +315,30 @@ def find_all_misalignment(
             "farther",
             "pinned",
         )
+        # Deduplicate on the unordered {anchor, closer} pair, ignoring the
+        # farther statement. This removes symmetric duplicates — (A, B, C) vs
+        # (B, A, C) — repeated ratings of the same triplet, and "soft"
+        # duplicates where the same close pair recurs with a different farther
+        # statement — (A, B, C) vs (A, B, D). Key on text (not ids) since some
+        # respondents wrote identical statements (e.g. 615/860).
+        # Deduplicate within each correct/incorrect section only: a pair that
+        # the model gets right against one farther statement and wrong against
+        # another is two distinct comparisons, and dropping it from one section
+        # would also shrink the balanced correct-section cap.
+        # Keep pinned rows first, then the highest separation ratio.
+        .with_columns(
+            pl.concat_list("source", "closer")
+            .list.sort()
+            .list.join("\x00")
+            .alias("_pair_key")
+        )
+        .sort(["pinned", "separation_ratio"], descending=[True, True])
+        .unique(
+            subset=["dataset", "embedding_correct", "_pair_key"],
+            keep="first",
+            maintain_order=True,
+        )
+        .drop("_pair_key")
         .sort(
             ["dataset", "embedding_correct", "separation_ratio"],
             descending=[False, False, True],
@@ -365,13 +402,25 @@ def find_all_misalignment(
             r"\end{description}",
         ]
 
+    overrides = [
+        f"$r_i(t) > {t:g}$ for {dataset_name_map[ds]}"
+        for ds, t in thresholds.items()
+        if t != threshold
+    ]
+    override_text = (
+        f" ({'; '.join(overrides)}, where no incorrect comparison exceeds "
+        f"the main threshold)"
+        if overrides
+        else ""
+    )
+
     lines: list[str] = [
         r"\section{Qualitative Triplet Analysis}",
         r"\label{app:triplets}",
         "",
         (
             r"We qualitatively analyse model--human triplet comparisons "
-            rf"with human separation ratio $r_i(t) > {threshold:.0f}$ "
+            rf"with human separation ratio $r_i(t) > {threshold:g}${override_text} "
             rf"for the best-performing model (\texttt{{{model_name}}}). "
             r"For each comparison, we show the anchor statement and the "
             r"statements judged closer to and farther from the anchor by "
@@ -396,9 +445,10 @@ def find_all_misalignment(
         selected.sort(key=lambda e: float(e["separation_ratio"]), reverse=True)  # type: ignore[arg-type]
         return selected
 
-    for dataset_key in sorted(grouped):
+    for dataset_key in (ds for ds in dataset_name_map if ds in grouped):
         dataset_label = dataset_name_map.get(dataset_key, dataset_key)
         incorrect_count = len(grouped[dataset_key]["incorrect"])
+        section_cap = (dataset_caps or {}).get(dataset_key, MAX_ENTRIES_PER_SECTION)
 
         for section in ("correct", "incorrect"):
             all_entries = grouped[dataset_key][section]
@@ -408,9 +458,9 @@ def find_all_misalignment(
             # Pinned entries (see PINNED_RAI_STATEMENT_IDS /
             # PINNED_WELFARE_TRIPLET) are always kept regardless of cap.
             cap = (
-                min(incorrect_count, MAX_ENTRIES_PER_SECTION)
+                min(incorrect_count, section_cap)
                 if section == "correct"
-                else MAX_ENTRIES_PER_SECTION
+                else section_cap
             )
             displayed_entries = _select_entries(all_entries, cap)
 
@@ -445,7 +495,7 @@ def find_all_misalignment(
     out_path.write_text("\n".join(lines), encoding="utf-8")
 
     logger.info(
-        "Triplet appendix written to %s (%d qualifying comparisons)",
+        "Triplet appendix written to {} ({} qualifying comparisons)",
         out_path,
         enriched.height,
     )
@@ -736,12 +786,17 @@ def main(
 
     all_statements = pl.concat(
         [
-            get_responsible_ai().select(
-                pl.col("cause"), pl.col("cause_id").alias("statement_id")
-            ),
-            get_welfare().select(
-                pl.col("cause"), pl.col("cause_id").alias("statement_id")
-            ),
+            loader()
+            .select(
+                pl.col("cause"),
+                pl.col("cause_id").cast(pl.Int64).alias("statement_id"),
+            )
+            .with_columns(pl.lit(ds).alias("dataset"))
+            for ds, loader in (
+                ("rai", get_responsible_ai),
+                ("welfare", get_welfare),
+                ("gov-ai", get_govai),
+            )
         ]
     )
 
@@ -785,10 +840,39 @@ def main(
     if not triplets_path.exists():
         _get_combined()
 
+    # The appendix always covers every experiment (policy + gov-ai),
+    # independent of --experiments. Use the cached raw triplets for an
+    # experiment when available; otherwise embed only the appendix model.
+    def _load_appendix_triplets(model_name: str) -> pl.DataFrame:
+        all_path = (
+            DATA_DIR / f"raw_triplets_{_get_experiment_name(list(COORDINATES))}.parquet"
+        )
+        if all_path.exists():
+            return pl.read_parquet(all_path)
+        frames = []
+        for exp in COORDINATES:
+            exp_path = DATA_DIR / f"raw_triplets_{_get_experiment_name([exp])}.parquet"
+            if exp_path.exists():
+                frames.append(pl.read_parquet(exp_path))
+                continue
+            model = next(m for m in models if m.startswith(model_name))
+            logger.info(f"No cached triplets for {exp}; embedding {model} only")
+            frames.append(
+                get_embedding_alignments(
+                    [model], pl.read_csv(DATA_DIR / COORDINATES[exp])
+                )
+            )
+        return pl.concat(frames, how="vertical_relaxed")
+
+    appendix_model = "paraphrase-multilingual-mpnet"
     find_all_misalignment(
-        results=pl.read_parquet(triplets_path),
+        results=_load_appendix_triplets(appendix_model),
         statements=all_statements,
         threshold=13,
+        # Gov-AI has far more high-separation triplets than RAI/Welfare; cap
+        # it so it doesn't dominate the appendix.
+        dataset_caps={"gov-ai": 10},
+        model_name=appendix_model,
     )
 
     def _load_human_aucs() -> pl.DataFrame | None:
