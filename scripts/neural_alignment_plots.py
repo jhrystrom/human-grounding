@@ -528,9 +528,10 @@ def compute_model_type_rank_deltas(
     aggregated_bootstraps: pl.DataFrame,
     mmteb_with_ranks: pl.DataFrame,
 ) -> pl.DataFrame:
-    """Median (HumanGroundingRank - MMTEBRank) per model type.
+    """Median and IQR of (HumanGroundingRank - MMTEBRank) per model type.
 
-    Both ranks are re-ranked (1 = best) within the models present on MMTEB, so
+    The quartiles are taken over the per-model rank deltas within each type
+    (linear interpolation). Both ranks are re-ranked (1 = best) within the models present on MMTEB, so
     a positive delta means the model type does worse on human grounding than
     MMTEB would suggest.
     """
@@ -564,6 +565,14 @@ def compute_model_type_rank_deltas(
         .agg(
             pl.len().alias("N models"),
             pl.col("rank_delta").median().round(2).alias("Median rank delta"),
+            pl.col("rank_delta")
+            .quantile(0.25, interpolation="linear")
+            .round(2)
+            .alias("Q1 rank delta"),
+            pl.col("rank_delta")
+            .quantile(0.75, interpolation="linear")
+            .round(2)
+            .alias("Q3 rank delta"),
         )
         .sort("Model type")
     )
@@ -594,6 +603,10 @@ def write_model_type_rank_deltas(
     if not rank_deltas:
         return
 
+    stats = {
+        (row["Model type"], row["experiment"]): row
+        for row in pl.concat(rank_deltas).iter_rows(named=True)
+    }
     table = (
         pl.concat(rank_deltas)
         .pivot(
@@ -605,8 +618,15 @@ def write_model_type_rank_deltas(
     )
     exp_cols = [exp for exp in experiments if exp in table.columns]
 
-    def _fmt_delta(value: float | None) -> str:
-        return "---" if value is None else f"${value:+.1f}$"
+    def _fmt_delta(model_type: str, exp: str) -> str:
+        row = stats.get((model_type, exp))
+        if row is None or row["Median rank delta"] is None:
+            return "---"
+        return (
+            f"${row['Median rank delta']:+.1f}$ "
+            rf"{{\scriptsize [${row['Q1 rank delta']:+.1f}$, "
+            rf"${row['Q3 rank delta']:+.1f}$]}}"
+        )
 
     header = " & ".join(
         [
@@ -620,7 +640,7 @@ def write_model_type_rank_deltas(
             [
                 str(row["Model type"]),
                 str(row["N models"]),
-                *(_fmt_delta(row[e]) for e in exp_cols),
+                *(_fmt_delta(row["Model type"], e) for e in exp_cols),
             ]
         )
         + r" \\"
@@ -631,7 +651,9 @@ def write_model_type_rank_deltas(
         r"\centering",
         r"\small",
         (
-            r"\caption{Median human-grounding rank $-$ MMTEB(Danish) rank per model group.}"
+            r"\caption{Median human-grounding rank $-$ MMTEB(Danish) rank per model group, "
+            r"with the interquartile range [Q1, Q3] across models in brackets. "
+            r"Positive values mean the group ranks worse on human grounding than on MMTEB.}"
         ),
         r"\label{tab:model-type-rank-delta}",
         rf"\begin{{tabular}}{{lr{'r' * len(exp_cols)}}}",
