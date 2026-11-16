@@ -651,9 +651,7 @@ def write_model_type_rank_deltas(
         r"\centering",
         r"\small",
         (
-            r"\caption{Median human-grounding rank $-$ MMTEB(Danish) rank per model group, "
-            r"with the interquartile range [Q1, Q3] across models in brackets. "
-            r"Positive values mean the group ranks worse on human grounding than on MMTEB.}"
+            r"\caption{Median [interquartile] human-grounding rank $-$ MMTEB(Danish) rank per model group.}"
         ),
         r"\label{tab:model-type-rank-delta}",
         rf"\begin{{tabular}}{{lr{'r' * len(exp_cols)}}}",
