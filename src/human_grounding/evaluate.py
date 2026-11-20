@@ -11,7 +11,7 @@ import human_grounding.embed
 import human_grounding.oracle
 from human_grounding.data import (
     get_govai,
-    get_responsible_ai_demographics,
+    get_responsible_ai,
     get_welfare,
 )
 from human_grounding.directories import CACHE_DIR, DATA_DIR, OUTPUT_DIR
@@ -21,7 +21,7 @@ memory = Memory(CACHE_DIR, verbose=0)
 
 statement_readers = {
     "welfare": get_welfare,
-    "rai": get_responsible_ai_demographics,
+    "rai": get_responsible_ai,
     "gov-ai": get_govai,
 }
 
@@ -309,7 +309,9 @@ def evaluate_human_embedding_match(
                     "stress": stress,
                 }
             )
-            curve_frames.append(curve.with_columns(pl.lit(str(dataset)).alias("dataset")))
+            curve_frames.append(
+                curve.with_columns(pl.lit(str(dataset)).alias("dataset"))
+            )
         pl.DataFrame(stress_rows).write_csv(OUTPUT_DIR / "oracle_stress.csv")
         pl.concat(curve_frames).write_csv(OUTPUT_DIR / "oracle_q_search.csv")
 

@@ -1,0 +1,783 @@
+statement_id,dataset,Agency,Use Case Topic Area,text
+23,gov-ai,Department of Homeland Security,Mission-Enabling,"Use Case: Position Description Generation and Evaluation
+Description: Faster and more accurate creation of PDs, reducing admin burden on field and HQs as well as HR specialists, allowing agency to get more done with less staff."
+24,gov-ai,Department of Homeland Security,Mission-Enabling,"Use Case: Source Code Development Tool
+Description: This capability will enable end users to develop software faster and more efficiently through the use of a generative artificial intelligence coding assistant.  
+"
+38,gov-ai,Department of Homeland Security,Mission-Enabling,"Use Case: Data and Entity Resolution
+Description: Entity resolution for ES multiple independent valid requirements that may be similar or able to be consolidated."
+61,gov-ai,Department of Homeland Security,Mission-Enabling,"Use Case: Vault Access Log (SPVAA)
+Description: The system will enhance monitoring and minimizes the risk of unauthorized access, contributing to stronger security protocols for handling seized property."
+66,gov-ai,Department of Homeland Security,Mission-Enabling,"Use Case: Draft Tailored Summaries of Media Materials for Different Publication Channels
+Description: The Large Language Models (LLMs) will summarize information from historical publications and pre-production documents intended for external publication."
+137,gov-ai,Department of Homeland Security,Mission-Enabling,"Use Case: Answer Engine
+Description: TSA aims to enhance its capabilities in managing and analyzing complex data, ultimately contributing to more effective and efficient security operations and optimizing the TSA's operational workflows and support capabilities."
+148,gov-ai,Department of Homeland Security,Mission-Enabling,"Use Case: Airport Throughput Predictive Model
+Description: This project was to create a predictive model for the passenger volume using the Security Operations throughput count from checkpoints to help with airport staffing."
+181,gov-ai,Department of Homeland Security,Mission-Enabling,"Use Case: Identity Match Option (IMO) Tool for Record Compilation
+Description: USCIS uses the IMO tool to aid in person-centric research and analytics. More specifically, IMO is used to derive a single identity across multiple systems for each applicant or beneficiary who interacts with USCIS."
+183,gov-ai,Department of Commerce,Mission-Enabling,"Use Case: GitHub Copilot for Code Modernization
+Description: Accelerate and improve the quality of code modernization projects at BEA"
+184,gov-ai,Department of Commerce,Mission-Enabling,"Use Case: Azure OpenAI Chat Prototype
+Description: Provide staff with the ability to chat with an LLM model, comparable to ChatGPT, that is contained within BEA's network boundary."
+185,gov-ai,Department of Commerce,Mission-Enabling,"Use Case: Sentinel One Purple AI
+Description: Faster and more throughout incident response within the BEA cybersecurity program"
+190,gov-ai,Department of Commerce,Mission-Enabling (internal agency support),"Use Case: Race and Ethnicity Autocoding
+Description: This AI use case aims to develop an automated methodology for coding race and ethnicity write-in entries. The goal is to improve quality and efficiency in the coding of race and ethnicity write-in entries."
+191,gov-ai,Department of Commerce,Mission-Enabling (internal agency support),"Use Case: Information extraction for web scraped data for Group Quarters frame enhancement
+Description: This AI use case examines publicly available information on the web related to a variety of Group Quarters (GQ) types. The goal is to improve quality and coverage of GQ frame."
+204,gov-ai,Department of Commerce,Mission-Enabling,"Use Case: FirstNet Authority Communications Topaz Labs Photo Editing
+Description: Utilize AI photo and video editing tools to improve picture quality, smooth video, and scale images without degredation."
+207,gov-ai,Department of Commerce,Mission-Enabling,"Use Case: Generative AI Tools Pilot - Enterprise & Solutions Architecture
+Description: Reduce manual effort in creating and managing architecture documentation
+Accelerate solution design
+Enhance overall operational efficiency and service quality"
+232,gov-ai,Department of Commerce,Mission-Enabling,"Use Case: AI use for CPC classification
+Description: Automatically assign patent utility classification (CPC) symbols to patent utility documents to reduce classification time, provide agency cost savings, and improve consistency of classification practices."
+236,gov-ai,Department of Commerce,Mission-Enabling,"Use Case: Patent Design Image Search (DesignVision)
+Description: A SaaS AI driven image search tool to support the examination of design applications. "
+238,gov-ai,Department of Commerce,Mission-Enabling,"Use Case: Patent Automatic Document Code Determination
+Description: Quality control of customer applied document labels"
+241,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: OpenText for Records Management (Email Auto-Classification)
+Description: Reduce time required to classify email records."
+248,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: PARSGPT
+Description: The value-add is derived from providing an accessible way for PM Analysts to safely interact with LLM technology."
+250,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: SCMC AWS Data Infrastructure
+Description: Automation of multiple manual processes and improvement of data quality and governance."
+251,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: ServiceNow Predictive Intelligence
+Description: Provide better and more consistent classification of ticket data entered into ServiceNow
+"
+252,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: AI-Enhanced Lab Assist
+Description: Integrating lessons learned into Lab Assist Activity Planning to enhance operational efficiency, improve information sharing leveraging best practices, and foster a culture of continuous improvement.  "
+253,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Microsoft 365 Copilot (Productivity Suite)
+Description: This helps PNNL streamline workflows, improve efficiency, and allow researchers to focus more on innovation and less on administrative tasks, ultimately accelerating scientific research and operational effectiveness."
+254,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: NLCOO AI for Lessons Learned tool 
+Description: Better search to gain insights from exisitng lessons learned to improve how we do work.
+"
+258,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: ServiceNow Virtual Agent
+Description: Provide troubleshooting assistance via chat to employees seeking assistance on IT-related issues
+"
+260,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: DOE Technical Standards
+Description: Enhance quality and accuracy of technical standards, supporting DOE's commitment to safety excellence. "
+261,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Microsoft Copilot for Security
+Description: Proactively identify, mitigate, and respond to threats. Copilot assists in real-time monitoring, threat detection, incident response automation, and vulnerability management."
+263,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Lex Natural Language Interface 
+Description: Create an efficient and user-friendly system that enables users to query project data, such as funding, AUs (allocation units), project focus, and fiscal years, with natural language prompts.
+"
+265,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: EnerGPT
+Description: EnerGPT aims to enhance user productivity and reduce time spent on redundant tasks . "
+268,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Records Digitization
+Description: SEPA is leveraging AI and ML to enhance metadata tagging and quality control during the records digitization process."
+269,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Machine Learning components within Splunk Enterprise Security
+Description: Allows for big data analysis and identification of trends in large datasets. SLAC expects to be able to perform data clustering, trend analysis, classification, and regression by using Splunk
+"
+271,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: AskOEDI
+Description: Making data more accessible and user-friendly for the public. "
+273,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: AI Chat Bot for IT User Services
+Description: Interactive RAG chat bot model trained on existing, updated and new IT resource documentation in the user space. Platform will be used as an informative method for users to handle tier 1 IT issues and help guide to the correct place."
+275,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: AI for Intelligent Automation
+Description: Improve the timeliness and quality of manual work processes through automation where generative AI can make comparisons and decisions using INL procedures and controlled documents, with humans performing final validation and approval."
+278,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: ServiceNow Now Assist
+Description: Improve the timeliness and quality of transactional service desk requests through improved incident search, resolution, feedback as well as AI-assisted coding of  workflows."
+280,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: WCD-AI
+Description: Recommend keyword-based search for relevant Lessons Learned published on DOE OPEXShare."
+281,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: OpenText for Records Management (File share auto-classification)
+Description: Reduce time required to classify legacy records accumulated over 20 years."
+282,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: OPQ-AI
+Description: Significantly reduces person-hours for manual review of incoming people registrations to match with existing database records by recommending most likely matches, if an existing record is identified that matches with the registration details."
+283,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Funding Finder
+Description: The Funding Finder will aggregate FOAs from different DOE sources and enables users to ask questions when identifying opportunities and developing proposals. "
+284,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: PDF Analyzer
+Description: PDF Analyzer will enable teams across the DOE to upload large PDFs and ask questions and generate content related to those PDFs.  "
+289,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: LLM EV 
+Description: Making NREL EV-specific data more accessible for researchers and accelerating research in this field. 
+"
+290,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: AskPRIMR
+Description: Making data more accessible and user-friendly for the public. 
+"
+291,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Coupa
+Description: AI functionality within Coupa drives better search functionailty and drives efficiency of sourcing and procurment processes."
+294,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Yurts AI search function
+Description: Locating relevant information across multiple data sources at SLAC. The expected benefit SLAC intends to receive from the use of Yurts is improved data accessibility for the userbase at SLAC
+"
+296,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Energy Wizard
+Description: Making NREL data more accessible for researchers and accelerating research. "
+297,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: LANL AI Portal
+Description: Democratized access to open-source/open-weights Large Language Models (LLMs) for general purpose office productivity, research of AI models, software development, operational streamlining, code development
+"
+298,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Position Description Tool
+Description: Currently requirements are still be collected for this use case. The end goal of this use case is to  streamline the creation of position descriptions used as a critical component for hiring federal employees. "
+299,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: ChatGPT Enterprise
+Description: General business productivity, research of AI models
+"
+300,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Argo
+Description: Enables anyone with the Argonne community to leverage text-based generative AI with their Argonne-specific information and data, including sensitive research or operational data up to and including CUI."
+303,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Topic Modeling for Energy.gov 
+Description: Minimize time spent through manual effort of reading and tagging 100,000 Energy.gov webpages."
+305,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Boston Dynamics Spot Robotics
+Description: Automation of the robots movements"
+306,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Elastic Stack Technology (ELK)
+Description: Enable intelligent media cataloging to assist with data discovery"
+307,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Raytheon Multimedia Monitoring System (M3S)
+Description: Enable off-cloud transcription of pre-recorded video media to improve data discoverability"
+308,gov-ai,Department of Energy,Mission-Enabling (internal agency support),"Use Case: Cognitive Prescreen Tool (CPT)
+Description: Serve as a recommender to Derivative Classifier to assist with document review to improve process accuracy and efficiency, in that order."
+321,gov-ai,Department of the Interior,Mission-Enabling (internal agency support),"Use Case: DOIChatGPT API Management Development Environment
+Description:  This will be a public facing version of the DOIChatGPT APIM and Azure OpenAI that is used for training and proof of concept validation (with sanitized data) prior to migrating to production DOIChatGPT APIM."
+326,gov-ai,Department of the Interior,Mission-Enabling (internal agency support),"Use Case: Liable Party Research
+Description: Supervised machine learning model for scraping leasing documents for current liable party ownership."
+327,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Data Extraction Using MS Power Automate AI Functionality
+Description: Train pre-built Machine Learning model to extract data from different document formats and convert into a consistent structured format to improve business operations."
+329,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Image Generation and Audio Video Editing
+Description: To efficiently create and edit images, audio, and video."
+347,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Video Creation and Editing
+Description: To efficiently generate captions, subtitles, text-to-speech, video, photo, and audio."
+355,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: PyForecast 
+Description: Pyforecast is a statistical/ML water supply forecasting software developed by Reclamation that uses a range of data-driven methods.  "
+361,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Forecasting Earthquake Ground Motion Time Series
+Description: Development of a deep learning models to generate earthquake ground motion time series for potential application to Earthquake Early Warning, Operational Aftershock Forecasting, and the National Seismic Hazard Model."
+363,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Prioritized Constituents: Sediment
+Description: Regional prediction of suspended sediment concentration in unmonitored rivers to characterize sediment transport in the Delaware, Illinois, and Colorado River Basins."
+364,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Avian population estimates from passive acoustic monitoring
+Description: Reliable estimates of avian abundance from acoustic recordings"
+365,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: FEMA mixed population flood-frequency analysis
+Description: Classification of historical floods based on causal mechanisms to support improved estimation of flood reoccurrence intervals"
+366,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Nutrient, Salinity, and temperature model development
+Description: Multiple projects designed to simulate nutrients (phosphorus and nitrate), temperature, and salinity in streams across the U.S. using machine learning approaches."
+367,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Data-Driven Streamflow Drought
+Description: Prototype streamflow drought forecasts using data-driven, machine learning approaches for USGS gage locations across the continental U.S."
+372,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: NGWOS External R&D - Using advanced computing techniques for image-based monitoring
+Description: Multiple projects conducting research on AI/ML techniques for image-based water monitoring"
+373,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Water Use Model Development
+Description: Goal to develop process-based and machine learning models to estimate multiple categories of water use across the U.S."
+377,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Building capacity for assessment and prediction of post-wildfire water availability
+Description: Model development to forecast water quality impacts of wildfires in the western U.S. focused on suspended sediment and salinity"
+383,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Deep-learning Integration into NEIC Operations
+Description: The National Earthquake Information Center (NEIC) is improving its earthquake detection and processing systems by leveraging artificial intelligence and machine learning."
+388,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Machine Learning algorithm for stream velocity prediction
+Description: The algorithm will be used to develop and incorporate a time-of-travel web-based application that will allow users to estimate travel times in a spill response scenario with greater accuracy."
+392,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Machine learning for tsunami source zones
+Description: State of the art tsunami hazard analysis for coastal communities and infrastructure is computationally demanding. Ml will be used to select the most representative source zones (among thousands of offshore earthquake ruptures)"
+393,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Shoreline Modeling
+Description: Exploring the prospect of using AI/ML models to predict shoreline change and compare accuracy to traditional models. Examples of AI/ML models include LSTM, CNN, and Transformers"
+394,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Determining the resource potential of critical minerals in seafloor massive sulfide deposits
+Description: ML to input data on seafloor massive sulfide geochemstry to predict composition."
+399,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Wildlife species recognition and distance from camera estimation
+Description: Reliable population estimates of animal density."
+401,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Machine Learning to evaluate water quality
+Description: Examining the effect of physicochemical and meteorological variables on water quality indicators of harmful algal blooms in a shallow hypereutrophic lake using machine learning techniques."
+402,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Ecological niche models for bat species
+Description: We are trying to understand what environmental factors determine the presence and absence of bat species across their range."
+403,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: HotLINK: The volcanic hotspot learning and identification network
+Description: An increase in volcanic thermal emissions can indicate subsurface and surface processes that precede, or coincide with, volcanic eruptions."
+407,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Earthquake Catalog Development
+Description: Using AI/ML to develop more complete and robust earthquake catalogs, including focal mechanisms. This includes volcanic earthquake catalog enhancement using integrated detection, matched-filtering, and relocation tools."
+410,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Flow Photo Explorer to estimate flow
+Description:   Full USGS streamgages can be expensive for cooperators, especially on internment streams, so a lower cost, low maintenance method for determining if a stream is flowing and relative flow volumes is needed."
+416,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Knowledge Graph development
+Description: Research and development of knowledge graph designs to make information more interoperable based on logical relationships automatically identified from text. The research work includes using AI for natural language processing."
+419,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Using machine learning to detect invasive bullfrogs
+Description: Detecting bullfrogs along their invasion front in order to inform removal efforts"
+425,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: SAMPLE Toolbox
+Description: A toolbox for land managers to develop plans for monitoring vegetation"
+426,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Mapping wildfire fuels in previously burned landscapes
+Description: The goal is to understand how land management treatments affect the probability of reburning."
+428,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Lava lake thermal pattern classification using self organizing maps and relationships to eruption pr
+Description: We apply a machine learning algorithm called self-organizing maps (SOM) to thermal infrared time-lapse images ."
+432,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Climate Futures for Lizards and Snakes in Western North America
+Description: Identifying new management challenges to reptiles based on shifting environmental conditions"
+437,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: PROSPER
+Description:   Machine learning approach to estimating the annual probability of streamflow permanence at a sub-reach (10m) scale."
+440,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Classifying GPS data to understand flight behavior of birds.
+Description: This project will help understand under what circumstances eagles are more likely to collide with wind turbines."
+442,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Predicting PFAS in shallow soils in northern New England
+Description: This project leverages statewide shallow soil data and machine learning methods (boosted regression tree models) to predict PFAS in soils across Maine, New Hampshire, and Vermont."
+445,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Machine learning-based landscape feature classification using satellite and airborne imagery
+Description: We use existing machine learning classifiers on satellite and airborne imagery to enhance the accuracy of habitat and land cover classifications."
+451,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Everglades-Flux, Digital Surveys
+Description: We are creating a program that can automatically process Normalized Difference Vegetation Index images and come up with a true value of live vegetation. It will also gap fill missing data via AI/ML programs."
+457,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Shoreline modeling
+Description: We're trying to evaluate the prospect of using AI/ML methods/models (e.g., LSTM, CNN, Transformers) to predict shoreline evolution and compare their accuracy to traditional physics-based models."
+458,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Cell Phone Application for Oil Spill Detection
+Description: We would like to develop a model that can be used to interpret cell phone images to predict oil in environmental samples. The tool can be rapidly deployed for use in the field by the oil spill responder community."
+461,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Storm Induced Erosion Response Network
+Description: Provide the next generation of Total Water Level and Coastal Change Forecast"
+464,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Sediment Transport in Coastal Environments (funded by San Francisco Bay-Delta PES)
+Description: Machine learning based time-series imputation of oceanographic time-series"
+465,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Machine learning based shoreline time-series imputation, classification and forecasting (time-series
+Description: Supports basic data generation and QC/QA procedures, for large scale and short-term forecasting of shoreline trends"
+466,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: National Oceanographic Partnership Program (NOPP)
+Description: Machine Learning based coastal sediments assessment and prediction"
+467,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: RSCC and TCA projects.
+Description: Machine Learning (ML) methods for identifying, assessing, and quantifying coastal features and habitats and coastal change hazards."
+468,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Machinine Learning based shoreline detection and sea ice dynamics using coastal cameras
+Description: Supports basic data generation and QC/QA procedures, for large scale and short-term forecasting of shoreline trends and sea-ice dynamics in coastal environments"
+469,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Using Machine Learning in USGS StreamStats to make suspended sediment and bedload predictions
+Description: A tool for resource managers who need estimates of suspended sediment and bedload in Minnesota rivers without sampling data."
+470,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Merbok Supplemental
+Description: Machine Learning based shoreline detection and mapping, automated data suitability analyses from satellite imagery"
+471,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Annual National Land Cover Database Deep Learning
+Description: Using geospatial artificial intelligence methods to map annual land cover and other land surface characteristics for the Nation."
+476,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Image classification from images on robotic platforms
+Description: Tool identifies different terrains based on training on labeled images. Application developed for NASA Mars rovers, but applicable elsewhere."
+478,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Analytical Chemistry & Geologic Resources Identification from Laser Spectroscopy
+Description: Determining composition of geologic, mineral, and resource targets from laser-based spectroscopic platforms"
+479,gov-ai,Department of the Interior,Mission-Enabling,"Use Case: Analytical Chemistry & Geologic Resources Identification from X-rays
+Description:   Determining chemistry and rock composition from X-ray-based analytical chemistry platforms"
+500,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Language Translation
+Description: To automatically translate unofficial documents into various languages quickly and easily, without the time and expense needed for human translation. "
+501,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Audio Transcription
+Description: Transcription of speech to text for records keeping using natural language processing models."
+502,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Text to Speech Conversion
+Description: Text to speech (Neural) for more realistic human sounding applications using natural language processing models."
+504,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Website Chatbot Assistant
+Description: The chatbot helps the end user with basic information about the program, information on who to contact, or seeking petition case status."
+505,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Data Ingestion of Payroll Forms
+Description: Custom machine learning model to extract data from complex forms to tag data entries to field headers. The input is a document or scanned image of the form and the output is a JSON response with key/value pairs"
+507,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: DOL Intranet Website Chatbot Assistant
+Description: 
+Conversational AI Assistant & DOL intranet websites to help answer common procurement questions, as well as specific contract questions."
+508,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Official Document Validation
+Description: AI detection of mismatched addresses and garbled text in official letters sent to benefits recipients."
+509,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Electronic Records Management
+Description: Meeting NARA metadata standards for (permanent) federal documents by using AI to identify data within the document, and also using NLP to classify and summarize documents."
+510,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Call Recording Analysis
+Description: 
+
+Automatic analysis of recorded calls made to Benefits Advisors in the DOL Interactive Voice Response (IVR) center. AI is not used for analysis, AI is used only for transcription"
+512,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Automatic Data Processing Workflow with Form Recognizer 
+Description: Automatic processing of current complex workflow to extract required data. "
+516,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Expenditure Classification Autocoder
+Description: Purpose: assign a reported expense description from Consumer Expenditure Diary Survey respondents to expense classification categories known as item codes. Benefits: improve productivity, cost savings"
+517,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Generative AI Assistant
+Description: Private and secure in-house solution to evaluate business use cases that can solve problems using Generative AI models and semantic search. Example use cases include text summarization, text analysis, and document comparisons."
+518,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Occupation Code Suggestion For Job Duties Data
+Description: Suggest appropriate occupation code for job duties data using natural language processing  and classification techniques"
+519,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Notice of Deficiency (NOD) Text Generation using Generative AI model
+Description: Application of custom Generative AI model to create Notice of Deficiency (NOD) text based on the input data"
+520,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: PII Redaction
+Description: Using Amazon Web Services Personal Identifying Information scrubber for ITA text fields and Named Entity Recognition to remove additional names from the text fields."
+521,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Website Chatbot Assistant
+Description: The chatbot helps the end user with basic information about the Workforce Recruitment Program and information on who to contact."
+527,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: OIICS Coding
+Description: 
+
+Auto-code assigning Occupational Injury and Illness Classification (OIICS)"
+528,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: AI Assisted coding -Microsoft GitHub Copilot
+Description: Automatically generate software code using Microsoft Copilot, this will reduce the time for generating code"
+533,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Note taking bot
+Description: 
+
+The bot will take the transcript and summarize the meeting notes"
+534,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Determine Occupation Codes from Text (NIOCCS)
+Description: The Industry and Occupation Computerized Coding System (NIOCCS), a free tool offered by NIOSH, used to code industry and occupation from text descriptions of job titles. (Public Tool) "
+546,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Dragon Naturally Speaking
+Description: Nuance Dragon Naturally Speaking is a software used for diction purposes, you can write any document, email, and use it with any applications using your voice."
+548,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Visual Studio
+Description: Visual Studio IDE is a creative launching pad that you can use to edit, debug, and build code, and then publish an app."
+549,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: ABBYY FineReader
+Description: ABBYY FineReader is an optical character recognition (OCR) system. It is used to convert scanned documents, PDF documents, and image files, including digital photos, into editable formats."
+550,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Google Earth Pro
+Description: Google Earth Pro is a free desktop tool with advanced GIS and mapping features. With this tool, users can create maps, import and export GIS data, and access historical images."
+552,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Autodesk
+Description: Autodesk Civil 3D® design software empowers civil engineers to meet complex infrastructure challenges in a 3D model-based environment."
+554,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Webex Meeting Transcription
+Description: Webex has an internal transcription feature that is used to transcribe webinars, though it is reviewed by someone before the transcript is posted."
+555,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Omni Page Ultimate 19
+Description: Convert physical documents or image-based text into editable digital text."
+556,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Tableau Public 2023
+Description: Allows users to share data visualizations, providing interactive insights."
+557,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Adobe Acrobat Professional Latest Version
+Description: Streamlines document workflows."
+558,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Tableau Creator (Desktop and Prep)
+Description: Enable analysts to connect, prepare, and visualize data."
+559,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Grammarly 14
+Description: Improve writing by correcting grammar, punctuation, and style errors while suggesting tone adjustments. NLP
+Grammar Correction
+Tone Detection"
+560,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Adobe Creative Cloud with Acrobat Pro Latest Version
+Description: Intended for enhancing creative workflows by automating repetitive tasks, improving accuracy of search functions, and enabling more advanced image manipulation and video editing. Object recognition
+Image Generation
+NLP"
+561,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Microsoft Project Office 365
+Description: Assists project managers in planning, scheduling, and managing resources. Project Scheduling
+Task automation
+Resource Allocation"
+562,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Stata/MP 18
+Description: Provides advanced statistical tools for data scientists and researchers to analyze large datasets and build predictive models. Statistical modeling
+Data Analysis
+Predictive Analytics"
+563,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Dragon Legal Individual (Speech Recognition) 
+Description: Helps legal professionals transcribe spoken language into text."
+564,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Speechify Text to Speech Voice Reader Chrome Extension 9
+Description: Converts written text into natural-sounding speech."
+565,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Adobe Creative Cloud / Adobe Express AI feature
+Description: Helps users create visual content quickly through AI-driven automation."
+567,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Kurzweil
+Description: Kurzweil 1000 makes printed or electronic text accessible to people with blindness and visual impairments, speaking text aloud in a variety of natural-sounding voices that can be modified to individual preferences."
+568,gov-ai,Department of Labor,Mission-Enabling (internal agency support),"Use Case: Microsoft Office Suite
+Description: Microsoft Office Suite is a collection of productivity software applications developed by Microsoft. It is widely used for various personal, educational, and business tasks"
+575,gov-ai,Environmental Protection Agency,Mission-Enabling,"Use Case: Agency Records Management System (ARMS)
+Description: purpose: to improve accuracy of Records schedule prediction
+expected benefit: reduce administrative burden on EPA staff "
+579,gov-ai,Environmental Protection Agency,Mission-Enabling,"Use Case: Data Management and Analytics Platform (DMAP) Operations and Governance AI Use Cases
+Description: Improve data quality, operational efficiency, and improved use of data to support mission outcomes"
+587,gov-ai,General Services Administration,Mission-Enabling,"Use Case: Acquisition Analytics
+Description: Takes Detailed Data on transactions and classifies each transaction within the Government-wide Category Management Taxonomy"
+589,gov-ai,General Services Administration,Mission-Enabling,"Use Case: Category Taxonomy Classifier
+Description: Classification of obligation transactions in to GWAS subcategories when existing FPDS coding scheme(PSC/NAICS) is insufficient for positive classification of a transaction. "
+590,gov-ai,General Services Administration,Mission-Enabling,"Use Case: CPRM Contract Breach Forecast
+Description: Applies obligation forecasting to ITC contracts to provide situational awareness of risk of contract ceiling breach. "
+591,gov-ai,General Services Administration,Mission-Enabling,"Use Case: Category Taxonomy Refinement Using NLP
+Description: Uses token extraction from product descriptions more accurately shape intended markets for PSCs."
+624,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Qualitative analysis
+Description: ACF staff often conduct surveys and interviews, which generate qualitative data that needs to be analyzed for themes and trends.
+
+The AI functionality assists users in identifying relevant passages in their narrative data related to specific topics."
+634,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Entity Resolution Tool
+Description: SCCT receives order information that references thousands of manufacturers and customers. These data need to be standardized.
+
+This allows analysts to aggregate data by manufacturer or customer to better characterize order and delivery patterns."
+637,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Generalized Demand Model Sensitivity Analyzer
+Description: The generalized demand model is used by SCCT to create demand projections for critical medical products.
+
+This is a diagnostic tool used to help analysts understand and refine their models."
+638,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Google Search Model Alerts
+Description: Publicly available information can enhance the ability to identify supply chain disruptions.
+
+This provides automated alerts that can help trigger review of the relevant data by analysts."
+639,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Google Search Model Rising Trend Entity Extraction
+Description: Publicly available information can enhance the ability to identify supply chain disruptions.
+
+The list of products produced by this model helps analysts identify products that may be in shortage."
+640,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Manufacturer Name Standardization
+Description: The SCCT receives many manufacturer name variants from its many distributors that need to be consolidated and standardized
+
+This allows analysts to have more standardized manufacturer names for reporting"
+698,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: AI-assisted comment triaging tool
+Description: Annual rulemaking-- the Physician Fee Schedule receives thousands of public comments and require assistance with reviewing and assigning the comments to the particular topics they address. 
+
+Assists with workload for the PFS team"
+711,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Relationships, Events, Contacts, and Outreach Network (RECON)
+Description: RECON AI for Recommender System| Sentiment Analysis
+
+It has the potential to analyze data faster."
+714,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: FOIA Document Review/Redaction Automation
+Description: OIT & OSORA partnership: Internal business process of reviewing and redacting CMS business documents subject to FOIA requests.
+
+Reduces burden on FOIA staff to manually redacting business documents subject to FOIA requests."
+727,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: ICPG Governance Tool
+Description: The business process it will affect involves the processing and analysis of acquisition plans (APs).
+
+It will help by streamlining the manual steps involved in validating and classifying acquisition plans, reducing the time and effort required. "
+737,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Improved Data Quality Checks
+Description: Improve consumer experience by providing an asynchronous solution to detect and provide near real time feedback via outreach to the consumer shortening the overall return cycle time without requiring UI changes. 
+
+Improvement of user experience"
+738,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Plan Certification Recommendation Model
+Description: Identify trends/patterns within plan certification justification templates, containing free-form text data through use of NLP and classification techniques. 
+
+Improve efficiency of the plan certification review process"
+739,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: AI-Assisted Data Entry
+Description: The intended purpose is to leverage AI technology to intake paper forms and assist in the data entry process, which will increase efficiency and reducing human error."
+740,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Transcription in Zoom and Teams
+Description: Meetings scheduled via Zoom or Teams can be transcribed live or from recorded meetings, which improves communication. "
+741,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Email Prioritization in Outlook
+Description: The Outlook in Office365 suite can categorize incoming emails based on users' definitions, which can help users manage their inbox more efficiently. The output is categorized emails."
+742,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: AI-assisted Pattern Detection
+Description: AI technologies have been integrated into many existing log systems to identify unusual patterns, which can help detect system log issues and raise alerts for human intervention. "
+743,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Report Summarization by commercial GenAI platform
+Description: Some GenAI platforms, such as ChatGPT and Google Gemini, can summarize documents with non-sensitive information. "
+744,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Information Search from Google
+Description: Google's search engine provides AI-assisted techniques to process search requests efficiently. "
+745,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Document Digitization by AdobePro
+Description: Adobe Pro can convert scanned documents into digital data."
+746,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Autocorrect in MS Word
+Description: MS Word's autocorrect feature uses AI to suggest corrections, which improves the quality of written communications. "
+747,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: AI-Assisted Real-time Collaboration
+Description: The AI-assisted real-time collaboration tool can process the inputs from team members and provide real-times stats using NLP, which offers real-time feedback for collaboration. "
+748,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Presentation Design by MS PowerPoint
+Description: MS PowerPoint can provide more appealing design suggestions based on the content. "
+749,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Data modeling and visualization by MS Excel
+Description: MS Excel contains many data analysis toolkits to provide AI-powered data analysis and visualization, which can improve understanding and presentation of data. "
+750,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: News from commercial publisher such as Google News
+Description: Major news publishers, such as Google News, send selective news based on users' preferences and recent visits. "
+751,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Travel Route Optimization by Google Maps and Apple Maps
+Description: Major commercial map service providers, such as Google Maps or Apple Maps, can automate and optimize travel routes based on algorithms and live traffic data, which can save time and provide optimal routes. "
+752,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: AI-Powered Travel Booking
+Description: Major travel booking websites, such as hotels.com, can provide booking options based on customers' preferences. Algorithms running in such services can optimize travel accommodations, which can save time and provide better deals. "
+753,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Facial Recognition Unlock
+Description: The Face ID feature in iPhones takes advantage of AI technology to securely unlock the phone. "
+772,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Four Part Harmony Identification
+Description: Accuracy of language used to report back deficiencies to submitters.
+
+This will reduce the amount of time it takes and reduce staff burden, thus allowing for MDUFA requirements to be met."
+781,gov-ai,Department of Health and Human Services,Mission-Enabling (internal agency support),"Use Case: Regulatory Starting Material 
+Description: Extract RSMs and their suppliers from unstructured module 3 industry submissions to create an inventory that will illuminate the upstream supply chain.
+
+The extracted data are presented in a dashboard for downstream analysis."
+885,gov-ai,Department of Housing and Urban Development,Mission-Enabling,"Use Case: Quantitative Text Analysis
+Description: Analysis of large amounts of text for patterns (commonly appearing words, common word clusters, etc.)"
+907,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: AI voice over
+Description: Commercial-off-the-shelf (COTS) - The AI system was purchased pre-built from a third-party, Wellsaid has been used to generate placeholder voice over, which will be replaced later by real voice over, so it doesnt cause much AI policy concerns.
+
+"
+908,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: Adobe Photoshop
+Description: OLPA's Creative Services team will use Photoshop's AI-powered tools "
+909,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: Resubmit Checker 
+Description: The resubmit checker takes a list of proposal IDs and returns a list of similar proposals submitted to NSF in the past, scored by their similarity. "
+910,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: AWS Assisted Software Development
+Description: Within software development, AI-driven tools, such as AWS CodeWhisperer, Amazon Q and Bedrock, and integration with development workflow, promise to elevate developer productivity and refine code quality. ."
+913,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: Enhancing TIP Awards: Efficient Tagging for the 10 Key Technology Areas (KTA)
+Description: Per the CHIPS and Science Act mandate, TIP needs to know our investment portfolio based on the 10 KTA."
+915,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: FOIA processing
+Description: No tool has been selected yet, exploring tools tht may help with sorting requests"
+916,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: Alt text Generator for Images in NSF's Media Hub
+Description: Exploring using a ChatGPT integration with NSFs Digital Asset Management system (DAM), for the images we host there. "
+917,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: Exploring the use of BERTopic Modeling for a portfolio analysis
+Description: Exploring whether the application of BERTopic modeling (or a similar NLP method) is applicable to a portfolio analysis. "
+920,gov-ai,National Science Foundation,Mission-Enabling,"Use Case: Ask NSF Initial Pilot
+Description: Ask NSF initial pilot is intended to test the hypothesis that a chatbot can be rapidly created using an AI Platform."
+939,gov-ai,Social Security Administration,Mission-Enabling,"Use Case: Speech to Text Video Transcription
+Description: Generate transcript from recorded audio of disability hearings"
+943,gov-ai,Social Security Administration,Mission-Enabling,"Use Case: Agency Support Companion (ASC) chatbot
+Description: Generative AI model to create content, summarization and research capabilities"
+948,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: Property and Procurement Analytics
+Description: Plan to expand current analytics within the Integrated Logistics Management System (ILMS) through development of a machine learning model for detecting patterns of potential anomalous activity in property and procurement."
+949,gov-ai,Department of State,Mission-Enabling,"Use Case: AI input in Translation
+Description: Leveraging machine-based tools to streamline workflows in translation work. Machine output is carefully post-edited by professional human translators to ensure highest quality product. "
+950,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: FOIA Web ML Document Indexer
+Description: Development is underway for a machine learning algorithm to generate index metadata for the documents in the Department's online Freedom of Information Act (FOIA) Library, thereby improving document classification and accuracy of search. "
+951,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: BudgetChat AI Tool
+Description: BudgetChat (aka BudgetSearch) is expected to consolidate budget documents to make searching and summarizing them easier, thereby streamlining access and analysis of initiatives over multiple years and programs."
+968,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: POA&M Orchestration
+Description: This planned AI Use Case involves the orchestration of automatically opening and closing of Plan of Action and Milestones (POA&Ms) based upon log and vulnerability data specific to each Federal Information Security Modernization Act (FISMA) system."
+969,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: NLP for Foreign Assistance Appropriations Analysis
+Description: Natural Language Processing (NLP) application for F/RA to streamline the extraction of earmarks and directives from the annual appropriations bill. Before NLP this was an entirely manual process."
+978,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: StateChat
+Description: StateChat is the Department's enterprise Generative AI-powered chatbot."
+979,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: Crisis Campaign Cable Analytics
+Description: Used optical character recognition and Natural Language Processing (NLP) on Department cables in order to evaluate gaps and trends in crisis training and bolster post preparedness for crisis events.  This project is retired."
+980,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: NLP to pull key information from unstructured text
+Description: Natural language processing (NLP) to pull key information from unstructured text.  Use NLP to extract information such as country names and agreement dates from dozens of pages of unstructured PDF document."
+981,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: ECA Program Management and Outreach - Summarization
+Description: Use approved Large Language Models to create artifacts for leadership as well as visiting legateship utilizing relevant and accurate datasets."
+993,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: Digital Media Analytics Platform
+Description: Using open-source neural machine translation models to translate global media articles and Department and public foreign social media posts into English. "
+994,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: Geospatial Mapping of Historical Survey Data
+Description: Used PowerBI to create an interactive map. Cleaned and collected historical data consisting of all statistically significant results from all Pollfish surveys/tests. This project is retired."
+995,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: AI Tools to Enhance PD Workflows
+Description: Plan to leverage ChatGPT Licenses to streamline existing Public Diplomacy workflows with AI tools following Department policy."
+996,gov-ai,Department of State,Mission-Enabling (internal agency support),"Use Case: LEO - Budget Office Inquiries
+Description: Answer questions frequently asked about budget. "
+1034,gov-ai,Department of the Treasury,Mission-Enabling,"Use Case: Transcription -- Evidence.com
+Description: Evidence.com provides an accurate AI based transcription tool for law enforcement recordings."
+1045,gov-ai,Department of the Treasury,Mission-Enabling,"Use Case: Customer Experience Analytics
+Description: Extract insights from data sources in the customer service domain to better understand service interactions and create new opportunities to improve the customer experience."
+1141,gov-ai,United States Agency for International Development,Mission-Enabling,"Use Case: ESDB/IDEA Series Classification
+Description: Reduce labor hours involved in classifying new economic and social data indicators to categories in the ESDB/IDEA system by providing automatically suggested categories to data curation staff."
+1144,gov-ai,United States Agency for International Development,Mission-Enabling,"Use Case: FADB QA Support Automation
+Description: Reduce data QA and curation level of effort by automating ""first-pass"" of following: 
+ 
+(1) Classification of activities by DAC purpose code
+(2) Identification of countries and regions present in activity descriptions"
+1146,gov-ai,United States Agency for International Development,Mission-Enabling,"Use Case: BHA/DMEAL: Application Review Processes Automation
+Description: Use AI/ML algorithms to perform automated ""first-pass"" reviews and trends analysis of partner-submitted RFSA applications for reduction of burden on BHA staff."
+1149,gov-ai,United States Agency for International Development,Mission-Enabling,"Use Case: USAID CDM-XDR (Extended Detection and Response)
+Description: Cybersecurity threat detection, threat hunting, and threat response tools to pinpoint vulnerabilities and bolster the security of the Agency's information technology (IT) infrastructure."
+1188,gov-ai,Department of Agriculture,Mission-Enabling,"Use Case: Repair Spend
+Description: The intended purpose of this model is to review financial documents and then classify each expense as money spent on ""facility repairs"" or ""not facility repairs"". The expected benefits include reduction of manual hours identifying the types of transactions."
+1209,gov-ai,Department of Agriculture,Mission-Enabling,"Use Case: Video Surveillance System
+Description: The purpose of this system is to conduct facial recognition video surveillance to provide enhanced security. Benefits include reduced labor hours for technicians and augmented surveillance capability.    "
+1228,gov-ai,Department of Agriculture,Mission-Enabling,"Use Case: Public Comments Analysis
+Description: The purpose of the model is to automate the analysis of comments from regulations.gov to help personnel in their review and response tasks. Benefits include a reduction in the number of labor hours needed for review and response."
+1251,gov-ai,Department of Agriculture,Mission-Enabling,"Use Case: NASSportal Intranet Bot
+Description: This model will assist National Agricultural Statistics Service (NASS) staff in finding answers to questions on how to administer programs. This will decrease labor hours and increase efficiency of NASS staff in program administration."
+1253,gov-ai,Department of Agriculture,Mission-Enabling,"Use Case: Incident Invoice Document Understanding
+Description: The purpose of this tool is to analyze incident invoices and return the values that need to be entered into a database. This new approach leads to faster invoice processing and reduces data entry mistakes for more accurate data."
+1273,gov-ai,Department of Agriculture,Mission-Enabling,"Use Case: Esri ArcGIS Pro Deep Learning Modules
+Description: The purpose of this tool is to enhance scientific modeling and analysis, which will standardize Geographic Information System (GIS) workflows for modeling and analytics."
+1277,gov-ai,Consumer Financial Protection Bureau,Mission-Enabling,"Use Case: Complaint Summarization
+Description: Support staff that analyze complaints by helping to scale internal review of consumers' complaint narratives and companies' response narratives in light of increasing complaint volumes. Cost avoidance. "
+1278,gov-ai,Consumer Financial Protection Bureau,Mission-Enabling,"Use Case: Ask Complaints
+Description: Support staff that analyze complaints by helping to scale production of quantiative data in response to questions posed by users. Cost avoidance."
+1281,gov-ai,Commodity Futures Trading Commission,Mission-Enabling,"Use Case: Anomaly Detection for Data Quality
+Description: Anomaly detection model designed to identify potentially erroneous data loads in TCR data. Uses an isolation forest model with and automatically runs daily. "
+1284,gov-ai,Commodity Futures Trading Commission,Mission-Enabling,"Use Case: MPD Entity Risk Modeling
+Description: Entity-level risk modeling project. Use statistical and probabalistic models to predict firms experiencing changes in capital levels. Very early stage R&D effort. "
+1285,gov-ai,Election Assistance Commission,Mission-Enabling,"Use Case: Microsoft Copilot Integration
+Description: Efficiency and improved administrative tasks."
+1292,gov-ai,Equal Employment Opportunity Commission,Mission-Enabling,"Use Case: Records Management
+Description: Establish and maintain integrity of electronic data"
+1293,gov-ai,Equal Employment Opportunity Commission,Mission-Enabling,"Use Case: FOIA
+Description: Improve FOIA process"
+1294,gov-ai,Equal Employment Opportunity Commission,Mission-Enabling,"Use Case: Cybersecurity
+Description: Strengthen Cybersecurity practices"
+1296,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Server Failure Prediction
+Description: Server outages create work stoppages for FDIC.  This use case will use predictive intelligence to predict when a server is about to fail, and will use natural language processing and query to create a help desk ticket for a server about to fail.  "
+1297,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Plain Language Policy Assistant
+Description: Policy writers at the FDIC need to ensure drafted policies comply with the Plain Language Writing Act. The system would be an AI that provided suggested feedback to the user's draft to better comply with the Plain Language Writing Act (PLWA)"
+1299,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: AI Coding Assistant
+Description: Enhance coding speed and accuracy by offering code suggestions in real time, writing unit tests, debugging code, explaining code, adding comments, and translating code across languages. "
+1300,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Content Creation
+Description: Reducing time to create content, increase volume of content, provide content for students who struggle to take notes and engage in class. "
+1303,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Student Monitoring 
+Description: To track course progress, comprehension and enable adaptive learning. Improve engagement, to provide performance management, workforce planning, success of employee on-boarding and encourage learning and development. "
+1304,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Plagiarism Detection 
+Description: Detect and prevent cheating and dishonesty,  Promoting the FDIC's values including Fairness, Accountability, and Integrity.  Reduce the time manually inspecting for plagiarism.  "
+1322,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Automatically-Scored Writing Assessment (AWA)
+Description: The Automatically-Scored Writing Assessment (AWA) is intended to significantly increase speed and reduce cost of essay scoring for the purpose of employment decisions."
+1323,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Structured Interview (SI) tool
+Description: The FDIC seeks to improve the personnel selection process by automating the scheduling, creation, administration, scoring, and maintenance of structured interview materials using an online platform. "
+1324,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: FDIC Predictive Budget Analysis
+Description: Take in budget data for reporting and prediction; Analyze and explain differences in budget and actuals data. Reduces time and work to produce the report; increases response time to react and review data; allows deeper dives."
+1325,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: CFOO Assessment Chatbot
+Description: Compiling data from external FDIC website and targeted documents to answer public questions about Bank Assessments that are currently available on FDIC gov. Makes information more readily available to the public, searchable and readable."
+1326,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Goals and Workload Assumptions
+Description: Summarize divisional efforts into a narrative taking into consideration staff numbers and competencies. Reduced time to receive answers based on data."
+1327,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: CFOO Admin Chatbot
+Description: Compiling data from internal FDIC website and targeted documents to answer questions about CFOO admin. Makes information more readily available to the public, searchable and readable."
+1328,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: CFOO Travel Chatbot
+Description: Compiling data from internal FDIC website and targeted documents to answer questions about FDIC travel. Makes information more readily available, searchable and readable."
+1329,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: CFOO Transactional Data Analysis
+Description: AI assistance in monitoring financials/invoices for proper submittal, duplicate payments, and other abnormalities. Reduced time to catch errors, perform reviews, make data visualizations available."
+1330,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: FDIC Staffing Model
+Description: Monitor retention rate, retirement planning, and knowledge retention and succession. Reduced time to receive answers, allowing folks to focus on more critical mission-driven work."
+1331,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: FDIC Financial Audit Report
+Description: Monitor employee transactions ensure regulations and policies are being followed. Reduce time to receive answers, allowing folks to focus on more critical mission-driven work."
+1332,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: Risk Identification and Response
+Description: Apply a risk model to identified risks and incorporate additional data sets to identify any correlations or possible solutions. Reduce risk to corporation by being able to more quickly and accurately analyze and report out on data."
+1333,gov-ai,Federal Deposit Insurance Corporation,Mission-Enabling,"Use Case: FDIC Narrative Reports Generation
+Description: Analyze quarterly narrative/table data points to generate a narrative report for internal use. Reduced time to receive answers, allowing folks to focus on more critical mission-driven work."
+1354,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: LexisNexis
+Description: Generative AI-assisted legal research tool"
+1355,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Neural Networks for FHFA Modeling Analytics Platform (FMAP)
+Description: Help researchers optimize the framework and specifications of the production of the Single-Family FHFA Modeling Analytics Platform (FMAP)."
+1357,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: WestLaw
+Description: Generative AI-assisted legal research tool"
+1358,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Public Comments Summarization and Topic Classifications Pilot Project
+Description: To summarize and classify comments received by FHFA during public comment processes."
+1360,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Analytics,, Search, Queries and LLM integration for data management on Oracle
+Description: Oracle Enterprise 23AI has built in AI for predictive analytics, AI Vector search, Natural Language queries and integration with Large Language Models"
+1361,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Python modules to support AI/ML
+Description: Multiple Python modules are installed to support AI and ML"
+1362,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: R modules to support AI/ML
+Description: Multiple R modules are installed to support AI and ML"
+1364,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Desktop productivity using Microsoft 365
+Description: To help foster smart recommendations, data insights, and enhanced collaboration."
+1365,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Virtual Desktop using Citrix 
+Description: Citrix uses AI to optimize virtual desktops, manage workloads, and enhance security with behavioral analysis and threat detection."
+1366,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Analytics, Indexing, and Anomaly Detection for Data Management on SQL Server 
+Description: Predictive analytics, automated indexing, and anomaly detection in data management and queries."
+1367,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Workflow automation and predictive analytics using ServiceNow
+Description: Help to automate workflows, predictive analytics, and providing intelligent service management solutions."
+1368,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Security and Compliance in file sharing and collaboration using Kiteworks
+Description: Enhances security and compliance in file sharing and collaboration by detecting anomalies and potential threats in real-time."""
+1369,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Network monitoring, anomaly detection through Whats Up Gold and Flowmon integration
+Description: Uses AI for network visibility, anomaly detection, and security through Flowmon integration"
+1370,gov-ai,Federal Housing Finance Agency,Mission-Enabling,"Use Case: Mathematical formula transcription using Commonlook Online
+Description: Commonlook Online is used to translate complex mathematical formula into plain language for publicly released documents."
+1373,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Document Organization Tool
+Description: To enhance the efficiency and organization of reference materials to support adversarial analysis"
+1378,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Incident Reporting Pattern Detection
+Description: Automatic detection of network-based security risks"
+1379,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Consumer Related Information Classification
+Description: Classification of consumer related information to relevant regulations"
+1380,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Commercial Real Estate Index
+Description: Identify principal component using various data points to create a market index for commercial real estate"
+1381,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Variable Optimization
+Description: Iterate through alternative lag structures to identify the optimal one for forecasting call report metrics"
+1390,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Newsfeed Data Transformations
+Description: Applying labels for country of origin and topic to articles"
+1391,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Newsfeed Data Processing
+Description: To improve the processing of news articles"
+1403,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Financial News Processing
+Description: Assist with financial news processing"
+1404,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Bank Exam Quality Control
+Description: A traditional machine learning NLP model of bank performance that utilizes information in news articles among various inputs"
+1405,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Document Summarization Statistics
+Description: Provide statistics about bank review letters based on the length of the letters and the frequency of common financial terms"
+1406,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Writing Quality Analysis Model
+Description: A NLP model to help leaders better understand the writing quality and consistency of documents"
+1411,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Time Reporting Tool
+Description:  Automatically classify individual work activities and produce a classification report"
+1412,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Threshold Monitoring
+Description: Enhance monitoring on limits thresholds, faster collaboration"
+1413,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Supply and Demand Tool
+Description:  The tool is used to monitor and project resource and supply demand? based on defined rule sets"
+1414,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Outlier Detection
+Description: Traditional AI to help identify, synthesize, and deliver information provided by firms."
+1415,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Earnings Call Topic Model
+Description: Model used to classify topics from earnings calls"
+1416,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Bank Performance Monitoring
+Description: Model used to support off site risk analysis"
+1417,gov-ai,Board of Governors of the Federal Reserve System,Mission-Enabling,"Use Case: Network management platform
+Description: Automatic detection of network configuration issues"
+1435,gov-ai,National Archives and Records Administration,Mission-Enabling,"Use Case: Topic Summarizer and Entity Extraction using AI
+
+Description: NARA plans to use AI to automatically create descriptions for its digital objects. This will free up archivists' time and make it easier for people to find and understand the digital materials in NARA's system."
+1436,gov-ai,National Archives and Records Administration,Mission-Enabling,"Use Case: Automated Data Discovery and Classification Pilot 
+Description: NARA plans to test how well AI can automatically organize and categorize its data. This pilot project will help NARA understand its data better, find information faster, improve efficiency, and manage risks more effectively."
+1437,gov-ai,National Transportation Safety Board,Mission-Enabling,"Use Case: Voice to text transcription
+Description: Create draft voice to text transcription of investigation recordings, improving speed and efficiency of initial processing for audio recordings prior to manual transcription"
+1438,gov-ai,National Transportation Safety Board,Mission-Enabling,"Use Case: Semantic Similarity Text Search
+Description: Semantic search of agency library of safety recommendation and report texts, improving speed and efficiency of researching previously identified transportation safety topics"
+1440,gov-ai,Pension Benefit Guaranty Corporation,Mission-Enabling,"Use Case: IT Security Monitoring
+Description: Analyzing large data sets of end user activity to detect anamolies and potential security events  "
+1442,gov-ai,Presidio Trust,Mission-Enabling,"Use Case: Productivity and communications including the generation of insights, automation and workflow
+Description: Improved productivity, collaboration, information and communications"
+1443,gov-ai,Presidio Trust,Mission-Enabling,"Use Case: Ability to find information through search results and other methods
+Description: Improved finding of information"
+1444,gov-ai,Presidio Trust,Mission-Enabling,"Use Case: Pattern identification, simulations, optimization and forecasting leading to alerts, notifications and reporting
+Description: Improved awareness of the environment, better forecasting of future events"
+1445,gov-ai,Presidio Trust,Mission-Enabling,"Use Case: Scheduling and managing social media posts using AI, including sentiment analysis
+Description: Improved communications, sentiment analysis, awareness and insights"
+1446,gov-ai,Presidio Trust,Mission-Enabling,"Use Case: Optimized navigation for traffic and other purposes
+Description: Improved navigation and routing"
+1449,gov-ai,Securities and Exchange Commission,Mission-Enabling,"Use Case: Federal Acquisition Research Solution
+Description: Aggregates and summarizes federal acquisition policy, best practices, and templates for common issues raised for the federal acquisition workforce and stakeholders. This tool will support OA operations, training, and policy formulation."
+1450,gov-ai,Securities and Exchange Commission,Mission-Enabling,"Use Case: Human Resources Search
+Description: Provides results to staff inquiries. "
+1453,gov-ai,Securities and Exchange Commission,Mission-Enabling,"Use Case: Mobile Phone Artificial Intelligence Features
+Description: Tests new mobile phone AI features. "
+1457,gov-ai,Securities and Exchange Commission,Mission-Enabling,"Use Case: Evaluating Cybersecurity Alerts
+Description: Enhances identification of anomalous cybersecurity alerts for review. "
+1463,gov-ai,Securities and Exchange Commission,Mission-Enabling,"Use Case: Testing Developer Workflows
+Description: Tests workflows to inform guidance for future AI use case development."
+1464,gov-ai,Securities and Exchange Commission,Mission-Enabling,"Use Case: Exploring AI Products for Enterprise Use
+Description: Tests web-based AI features. "
+1479,gov-ai,United States Agency for Global Media,Mission-Enabling,"Use Case: AI-Powered CMS Guide Agent 
+Description: An AI-driven agent is being developed to enhance user support within the CMS. The agent will respond to natural language questions, offering tailored guidance and solutions from the CMSs internal help documentation. "
+1481,gov-ai,United States Agency for Global Media,Mission-Enabling,"Use Case: Automated Text Narration 
+Description: AI-generated audio narrations are being explored as a tool to enhance accessibility and engagement for long-form articles. An integrated audio player would allow users to consume content in a more convenient and flexible manner. "
+1485,gov-ai,United States Trade and Development Agency,Mission-Enabling,"Use Case: Lookout for mobile security
+Description: Lookout uses AI and machine learning to detect and respond to cyberattacks in real time. Lookout's threat intelligence services include data forensics, incident response, and research."
+1486,gov-ai,United States Trade and Development Agency,Mission-Enabling,"Use Case: Qualys Cloud Detection and Response
+Description: Qualys uses AI to detect threats in real time, such as malware, ransomware, and unauthorized access."
+1487,gov-ai,United States Trade and Development Agency,Mission-Enabling,"Use Case: Crowdstrike Falcon Threat Detection and Response
+Description: Crowdstrike uses AI to detect and respond to threats in real-time, such as malware, ransomware, and unauthorized access."
+1490,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: VA Chat Copilot Meta Pilot
+Description: Administrative efficiency for VA employees "
+1527,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: VCA & PPMS Chatbot 
+Description: The Network Support VCA & PPMS ChatBot, a virtual agent designed to assist field staff with questions related to VCA & PPMS. This tool was designed to provide answers to frequently asked questions received from the field."
+1544,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: National Training Team | Schools  FAQ Dashboard
+Description: The 1.0 dashboard clusters thousands of submitted questions during a monthly Office Hours session with School Certifying Officials and presents a ""top ten"" list of associated categories that have the most questions."
+1545,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: National Training Team | Schools  FAQ Dashboard
+Description: The model should classify thousands of questions into categories, generate a sample question based on the category, and provide a suggested answer based on previous responses to similar questions."
+1558,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: ESD-Speech Sentiment and Analytics
+Description: Utilizing AI to analyze speech sentiment of internal customers (non-veterans) to improve quality of service at the Enterprise Service Desk."
+1574,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: BlueTeam AI
+Description: BlueTeam AI enables network monitoring capabilities to provide governance and guardrails for LLM Generative AI use for the enterprise."
+1579,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: VA TryOpenAI
+Description: TryOpenAI aims to improve VA employee efficiency and satisfaction. TryOpenAI can be used complete basic administrative tasks like drafting emails and communications, summarizing long text, and draft template project plans (among other similar uses). "
+1610,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: HTM-LLM
+Description: RAG chatbot using technical service manuals to aid Healthcare Technology Management staff in medical device maintenance and troubleshooting"
+1625,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: Nuance Dragon Medical One (DMO)
+Description: Documentation is entered into the electronic health record leveraging voice to text technology"
+1713,gov-ai,Department of Veterans Affairs,Mission-Enabling (internal agency support),"Use Case: Fusion 2024 (JAWS/ZoomText)
+Description: Allows blind and low vision employees to gain information from charts, graphs, tables and other images on the screen to provide comparable access in support of legal requirements of Section 508."
+1716,gov-ai,Department of Veterans Affairs ,Mission-Enabling,"Use Case: Transcription Services
+Description: Increased efficiency"
+1717,gov-ai,Department of Veterans Affairs ,Mission-Enabling,"Use Case: Chatbot within ESMS
+Description: Increased efficiency"
+1747,gov-ai,Tennessee Valley Authority,Mission-Enabling,"Use Case: Natural Reader
+Description: Text-to-speech desktop software for individual use. This easy-to-use software with natural-sounding voices can read any text such as Microsoft Word files, webpages, PDF files, and E-mails.
+"
+1748,gov-ai,Tennessee Valley Authority,Mission-Enabling,"Use Case: River Forecast
+Description: A multi-scale graph neural network-based autoregressive model. It is trained on historical weather data from ECMWF's ERA5 reanalysis archive. The tool generates predictions at 6-hour time steps for a set of surface and atmospheric variables."
+1754,gov-ai,Tennessee Valley Authority,Mission-Enabling,"Use Case: Threat Intelligence Feed
+Description: Information Sharing; advanced technology and industry expertise to provide participants with near real-time delivery of relevant and actionable threat information of external network traffic."
+1755,gov-ai,Tennessee Valley Authority,Mission-Enabling,"Use Case: AI-Enhanced Search
+Description: Portal users can find answers more quickly and easily with features like auto-complete search queries, natural language support, and typo handling."
+1756,gov-ai,Tennessee Valley Authority,Mission-Enabling,"Use Case: Network Anomaly Detection
+Description: Real-time visibility into network communications, assets, connections, and protocols. "
+1808,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: AWS/cloud.gov -  Network Routing
+Description: Purpose: To enable network routing technology to optimize speed of routing and re-route traffic around any configuration issues.
+
+Expected benefits: Helps sustain reliable networks access to CRT networked infrastructure by CRT staff."
+1809,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Azure Platform/Tools - Network Routing
+Description: Purpose: To enable network routing technology to optimize speed of routing and re-route traffic around any configuration issues.
+
+Expected benefits: Helps sustain reliable networks access to CRT networked infrastructure by CRT staff."
+1845,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Generative AI R&D Sandbox
+Description: Purpose: The purpose of this use case is to create a R&D environment to enable DEA to test and prototype Generative AI based solutions.
+
+Expected benefits: To provide a safe environment to prototype and test experimental AI based use cases."
+1859,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: General Web Search
+Description: Purpose: DOJ employees use services such as Google and Bing to retrieve information on a variety of subjects.
+
+Expected benefits: Streamline the information-gathering processes."
+1863,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: ThomsonReuters CLEAR (AI assisted legal research)
+Description: Purpose: Performing legal research.
+
+Expected benefits:  Improving accuracy and efficiency of legal research. "
+1864,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Westlaw (AI assisted legal research)
+Description: Purpose: Performing legal research.
+
+Expected benefits:  Improving accuracy and efficiency of legal research. "
+1880,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Enterprise Telecommunications Information System
+Description: Purpose: Quicker processing of calls coming into threat intake examiners when the caller information can be gathered and put into data fields automatically.
+
+Expected benefits: Reduced customer wait time."
+1882,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Human Language Extraction and Translation Technology
+Description: Purpose: Multi-language text extraction and translation tools.
+
+Expected benefits: Transcribing of audio and video files into text which enables users to search for pertinent information."
+1895,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: ahrefs
+Description: Purpose: This application was used to check for grammatical errors and spelling. The application can also suggest verbiage, paraphrase content, and change tone. 
+
+Expected benefits: Improved written communications; increased efficiency in drafting communications."
+1896,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: aifreebox.com
+Description: Purpose: This application was used to check for grammatical errors and spelling. The application can also generate and translate text.
+
+Expected benefits: Improved written communications; increased efficiency in drafting communications."
+1903,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: ChatGPT
+Description: Purpose: This tool was used to improve the quality of written communication, emails, and fliers to notify staff on institution updates.
+
+Expected benefits: Improvements in the quality of written communications."
+1905,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Descript
+Description: Purpose: This tool  synchronizes audio files to video. 
+
+Expected benefits: Video to be used for communications and training purposes."
+1907,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Gemini
+Description: Purpose: This application was used to check for grammatical errors. The application can also generate content. 
+
+Expected benefits: To help improve the clarity and grammar of written communications."
+1909,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Grammarly
+Description: Purpose: This tool was used to improve the quality of written communication.
+
+Expected benefits: Better written communications."
+1927,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Wellsaid
+Description: Purpose: This AI tool converts text to speech audio that is used in social media, training videos, and audiobooks
+
+Expected benefits: Audio to be used for communications and training purposes."
+1931,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: AWS AI Testbed
+Description: Purpose: Components test AWS AI tools in a test environment to assess utility. 
+
+Expected benefits: Improves efficiencies, productivity, and data quality."
+1932,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: CoPilot
+Description: Purpose: Intelligent Recap feature within Microsoft Outlook is used for calendaring, meeting summaries, and email drafting.
+
+Expected benefits: Reduces administrative time for user."
+1963,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Adobe
+Description: Purpose: Adobe has function that enables the generation of images. PAO does not use this function/feature.
+
+Expected benefits: PAO does not use this feature/function."
+1964,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: EEG - Live Captioning
+Description: Purpose: EEG provides real-time captioning of live events that PAO broadcasts.
+
+Expected benefits: Greater accessibility. Compliance with law; Section 508 requires live captioning of live events, and this provides it. "
+1966,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: Social Media Products
+Description: Purpose: Social media platforms used by PAO, such as Instagram and YouTube, can automatically create video captions or alt text for images/graphics when multimedia is uploaded.
+
+Expected benefits: Greater accessibility."
+1977,gov-ai,Department of Justice,Mission-Enabling (internal agency support),"Use Case: JAWS
+Description: Purpose: Text to speech software for the visually impaired.
+
+Expected benefits:  Increased accessibility. Audio description of visual objects. Typically used for blind individuals and satisfies 508 requirements."
+2130,gov-ai,National Credit Union Administration,Mission-Enabling,"Use Case: Machine Learning Data Validation
+Description: Improve Call Report data quality "
+2131,gov-ai,National Credit Union Administration,Mission-Enabling,"Use Case: Supervisory Stress Testing
+Description: Estimate loan default probability for Supervisory Stress Testing."
+2132,gov-ai,National Credit Union Administration,Mission-Enabling,"Use Case: Risk Indicator Model
+Description: Support credit union supervision"

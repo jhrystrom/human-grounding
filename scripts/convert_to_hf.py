@@ -25,7 +25,7 @@ def get_env(name: str) -> str:
 
 
 def get_rai_statements() -> pl.DataFrame:
-    demographics = human_grounding.data.get_rai_demographics("gender")
+    demographics = human_grounding.data.get_rai_demographics()
     return (
         human_grounding.data.get_responsible_ai()
         .select("cause_id", "cause")

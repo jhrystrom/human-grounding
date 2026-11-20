@@ -31,7 +31,7 @@ from scipy.stats import spearmanr
 from tqdm import tqdm
 
 import human_grounding.evaluate
-from human_grounding.directories import OUTPUT_DIR, PLOT_DIR
+from human_grounding.directories import DATA_DIR, OUTPUT_DIR, PLOT_DIR
 from human_grounding.embed import get_all_models
 
 if TYPE_CHECKING:
@@ -332,7 +332,7 @@ def plot_subsampling_stability(
 
 
 def main(font_scale: float = 3.0) -> None:
-    full_dataset = pl.read_csv(OUTPUT_DIR / "valid_coordinates.csv")
+    full_dataset = pl.read_csv(DATA_DIR / "valid_coordinates.csv")
     models = sorted(get_all_models())
 
     results: list[pl.DataFrame] = []

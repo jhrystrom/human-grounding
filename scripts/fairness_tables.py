@@ -96,7 +96,7 @@ CONTROL_COLS: tuple[str, ...] = (
 def _load_coordinates_with_demographics() -> pl.DataFrame:
     coords = load_coordinates(DATA_DIR / COORDS_FILE)
     rai_demo = (
-        get_rai_demographics(demographics="gender")
+        get_rai_demographics()
         .select("cause_id", "demographic")
         .rename({"cause_id": "statement_id"})
     )
@@ -435,7 +435,7 @@ def _attach_source_demographic(triplets: pl.DataFrame) -> pl.DataFrame:
     the same demographic frames as ``neural_alignment_plots.py``.
     """
     rai_demo = (
-        get_rai_demographics(demographics="gender")
+        get_rai_demographics()
         .select("cause_id", "demographic")
         .rename({"cause_id": "source_idx", "demographic": "source_demographic"})
     )

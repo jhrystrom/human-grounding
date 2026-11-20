@@ -1,0 +1,874 @@
+cause_id,cause,demographic
+0,Fake newes,Mand
+1,"Myndigheder, der ikke holder øje.  F.eks. Finanstilsynet forstår eller mangler kapacitet til at sikre finanssektoren overholder etiske regler. Det kan også være algoritmer i det offentlige, som ikke overvåges.",Mand
+2,"Virksomheder mangler respekt for etik.  Virksomheder der bare bruger algoritmer - uvidende eller kritikløst. Eller udnytter modellerne bevidst til ikke-etiske formål, fordi det er svært at opdage hvad modellerne gør.",Mand
+3,Borgere er uvidende om etikken.  Borgernes ukritiske anvendelse.  Borgere bruger bare og udnytter algoritmernes leverancer uden at tænke over hvordan de betaler med data eller information - ligesom når vi bruger Google Maps uden at tænke over at ?Big Brother is watching you?.,Mand
+4,"Økonomisk fokus i kommunerne  Allerede i dag har vi problemer særligt indenfor det sociale system, fordi kommunerne, på foranledning af Folketinget, har fokus rettet mod økonomi fremfor på mennesker.",Mand
+5,"Udvikling sker ofte på techgiganternes betingelser  Danske løsninger udvikles ofte på basis af særligt amerikansk producerede løsninger (fx LLM'er). Det er fornuftigt ud fra et arbejdsmængde synspunkt, men kan være uheldigt ud fra et personoplysningsperspektiv og ikke mindst ud fra et kultur- og sprogmæssigt perpektiv.",Mand
+6,"Fokus på vækst fremfor mennesker  Et fokus på økonomi er ikke kun et problem på det sociale områder. Vi er - ligesom resten af verden - fokuseret på at skabe vækst og det gør, at vi ofte overser eller ""overser"" arbejdstageres forhold og det gælder både på et nationalt og et internationalt niveau.",Mand
+7,At det er profit hos internationale selskaber der driver udviklingen eller autokratier som Kina.,Mand
+8,AI er fantastisk og bedre end de fleste til mere og mere. Det gør det svært at finde og benytte alternativer.,Mand
+9,Vi er et lille sprogområde. Det kan holde visse AI løsninger lidt på afstand men kan også bare generere mere viden og bedre løsninger hurtigere end os lige om lidt,Mand
+10,"Dumhed.   Vi mister personlig dømmekraft.   Faglighed er i fremtiden ikke iboende hos individer.   Vi mister kompetencer, da der ikke længere er efterspørgsel på færdigheder og kunnen.",Kvinde
+11,AI er altid tilgængelig - man skal ikke vente på at ens ven har tid til at tale med en f.eks.,Kvinde
+12,At AI er bygget op af algoritmer så vi får skabt ekkokamre.,Kvinde
+13,Jeg ser en fare i at børn overlades til at tale med en AI i stedet for at tale med en voksen.,Kvinde
+14,At 'nogen' styrer AI så det kan påvirke en hel befolkning.,Kvinde
+15,"Worst case: vi visner fordi vi holder op med at bruge hinanden, så vi i stedet får et forhold til en robot, lidt ala Tom Hanks i Cast away der får et forhold til sin fodbold Wilson. Det er indbygget i os mennesker at vi har behovet for at connecte, men vi kan connecte med stoffer, sex, arbejde og ja AI og det skaber ulykkelighed på den lange bane. AI er bare mere 'farlig' måske end stofferne, fordi man trods alt kan få et respons så det ligner en menneskelig relation. Derfor tror jeg heller ikke at de virkelig skader eller måske bare forandringer kan ses før om nogle generationer. Der tror jeg vores genetik har ændret sig. Helt evolutionært. Ligesom vi også på et tidspunkt begyndte at gå oprejst. Måske er vi ved at udvikle os til pattedyr der ikke har det sociale behov. Dvs. vores hjerner vil ændre sig.",Kvinde
+16,"Worst worst case, robotterne tager over og de ser os som skadedyr der skal bekæmpes, lidt ligesom vi sætter myrelokkedåser op (men nok inden for 10 år trods alt)",Kvinde
+17,Jeg håber der også kommer en side med potentialerne fordi jeg blive helt depri af at komme med skrækscenarierne og problemerne :-),Kvinde
+18,manglende koordinering  vi formår ikke at skabe ensartethed fordi vi ikke kan gennemskue hvad vi skal koordinere.,Kvinde
+19,"vi kan ikke reel tænke os frem til den nye virkelighed.    vi kender ikke udviklingen og kan måske komme til kort i styringen - altså vi kan ikke bevidst ""holde Styrepinden""",Kvinde
+20,"Mangel på troværdighed  AI er et boss word lige nu - alle skal det og alle vil det. Derfor kommer det til at gå alt for hurtigt at etablere løsninger, som så ikke er hverken troværdige",Kvinde
+21,"Mangel på bæredygtighed   AI er et boss word lige nu - alle skal det og alle vil det. Derfor kommer det til at gå alt for hurtigt at etablere løsninger, som så ikke er hverken bæredygtige og klimavenlige",Kvinde
+22,"Med ansvarlig udvikling mener jeg, at vi skal se at fremme brug og indsigt i AI - alt andet ville være uansvarlig anvendelse af AI.",Kvinde
+23,"Hastighed: Hvordan skal vi nå at komme i forkøbet og give gode guidelines, når teknologien udvikler sig så hurtigt?",Kvinde
+24,"Vi er et lille land - afhænger af, hvad resten af verden gør",Mand
+25,Konkurrencekraft trumfer ansvarlighed.,Mand
+26,"Repetetion uden refleksion. Hermed mener jeg for stor automatisering med AI med utilstrækkelig menneskelig kontrol. Det er afgørende, at lovgning på området sætter høje standarder for det menneskelige tilsyn i afgørelser eller praksis udført af AI, og at lovgivningen tager højde for både storskala-brug af AI og den enkelte medarbejders anvendelse af AI som produktivitetsstyrkende værktøj.",Mand
+27,"Manglede uddannelse. Hermed mener jeg manglede uddannelse af arbejdsstyrken til at anvende AI, så medarbejdere erstattes af AI frem for at medarbejderes produktivitet øges pga. AI.",Mand
+28,"Modstand mod forandringer grundet frygt for at blive erstattet. Hvis 1) reguleringen af AI er tilstrækkelig god, og 2) den relevante arbejdsstyrke formår at kompetenceudvikle sig, så den enkelte medarbejder kan anvende AI hensigtsmæssigt, er denne frygt irrationel. Det er derfor afgørende, at kompetenceudvikling og god regulering går hånd i hånd, hvis vi i Danmark skal udnytte potentialerne i AI.",Mand
+29,"Big Tech    AI udvikles af private firmaer ejet af milliardærer, der ikke har til formål at hjælpe sociale aktører. De er sat i verden for at tjene penge.",Mand
+30,"Accountability    Det er et demokratisk problem, når programmer og algoritmer ikke er gennemsigtige. Desuden kan data ligge på servere langt væk fra politikere og brugere, som derfor ikke kan kontrollere dem.",Mand
+31,"Ubrugelighed    AI er nu (og i den fremtid vi kan se) ikke specielt brugbar til komplekse opgaver. Den kan skrive en dansk stil, ja, men kan den udforme en sundhedsstrategi der holder? Plus, vi kan ikke isolere hvornår den virker og hvornår den ikke gør, uden at tjekke grundigt efter. Og så er vi jo ligesom lige vidt.",Mand
+32,"At der ikke tænkes nok på tværs mellem sektorer, ministerier og der derfor udvikles mange små løsninger.",Kvinde
+33,At der ikke er gunstige nok forhold for start ups for AI,Kvinde
+34,At vi som samfund helt mister den kritiske sans over for information.,Kvinde
+35,"At vi undlader at bruge vores menneskelige intuition som dømmekraft, fordi vi vænner os til at bruge AI som løsningsgenerator på de udfordringer vi møder.",Kvinde
+36,"At det skal gå hurtigt, men ikke alle er parate.",Mand
+37,Om kendskab/sikkerheden er tilstrækkelig for brugerne.,Mand
+38,At lovgivningen ikke kan følge med udviklingen.,Mand
+39,"Øget ulighed.  AI kan forstærke eksisterende uligheder, da de, der har adgang til avanceret teknologi og data, kan få store fordele. Hvis AI ikke udvikles ansvarligt, kan visse grupper af mennesker, fx dem uden digital adgang eller teknisk viden, blive marginaliseret yderligere.",Kvinde
+40,"Bias og diskrimination.  AI-modeller er afhængige af de data, de trænes på, og hvis disse data indeholder forudindtagede eller skæve perspektiver, kan det føre til diskrimination og forstærkelse af fordomme. Det kan påvirke alt fra ansættelsesprocesser til beslutninger i det offentlige system, fx i sundhedsvæsenet eller retssystemet.",Kvinde
+41,"Sikkerhedsrisici.  Uansvarlig brug af AI kan føre til sikkerhedsproblemer. AI kan bruges til cyberangreb eller manipulation af information, fx i form af deepfakes eller andre former for desinformation. Dette kan true både national sikkerhed og den demokratiske proces.",Kvinde
+42,"Manglende gennemsigtighed og ansvar.  Hvis AI-systemer bruges uden klare regler og ansvarlighedsmekanismer, kan det blive svært at forstå eller stille nogen til ansvar for beslutninger truffet af AI. Det kan skabe et demokratisk underskud, hvor borgere og virksomheder mister tilliden til teknologien og institutionerne bag den.",Kvinde
+43,"Etisk dilemma og autonomi.  Uden fokus på etik kan AI blive anvendt i scenarier, hvor maskinernes beslutninger kolliderer med menneskelige værdier, fx i sundhedssektoren eller autonome våbensystemer. Det kan skabe et dilemma omkring, hvor meget magt vi vil overlade til maskiner, og hvordan vi skal kontrollere dem.",Kvinde
+44,"ACCELERATION OG TEMPO  Vi forsøger at følge med og jeg er i tvivl om det kan lade sig gøre at styre og kontrollere.     Jeg tror vi sammen er nødt til lære at ?være i det?. Svømme med i floden, da den flyder uanset.     Jeg tror udviklingen internationalt går så hurtigt at vores lovgivningsmæssige bureaukrati tempomæssigt ikke kommer til at kunne følge med.     Vil vi nationalt regulere må ?nogen? nok bemyndiges til hurtige reguleringer (Sikkerheds eller Digitaliseringsstyrelsen måske?)",Kvinde
+45,"SIKKERHED OG GDPR  Jeg er ikke så bekymret for den enkelte dansker, men vi vil være nødt til at sikre os mod ?for nem? indtrængen af dem der ikke vil os noget godt digitalt.",Kvinde
+46,"BØRN OG UNGE  Jeg er mor til drenge på 11 og 13, og fordi vi som mor og far har svært ved at regulere vores eget forbrug (komme fra viden til ændret adfærd) har drengene det selvfølgelig også!   Måske er vi nødt til at regulere stærkt - fx som på vores børns skole, hvor det ALTID har været sådan, at de ikke har tlf.  Det er adfærdsregulerende ligesom vores affaldssortering i Danmark gennem generationer har været/er.",Kvinde
+47,"ULIGHED  Der risikerer at blive større ulighed mellem os i samfundet, hvilket fører til øget kriminalitet, polarisering, ensomhedsproblemstikker og offentlige udgifter på forsørgelser, støtte og sundhed.    (Største bekymring).",Kvinde
+48,"Overvågning til onde formål:  Jeg kan forestille mig, Kunstig intelligens kan risikere at blive brugt af kriminelle grupperinger til overvågning af personer, der påtænker at forlade bandemiljøet",Kvinde
+49,"Kriminelle aktiviteter:  Jeg kan forestille mig, at kunstig intelligens kan blive brugt til at begå økonomisk kriminalitet, der er svær at opdage",Kvinde
+50,"Seksuel kriminalitet:  Jeg kan forestille mig, at kunstig intelligens kan bruges til at overvåge adfærdsmønstre på sociale aktiviteter og dermed udvælge personer, som er nemme at manipulere med og dermed nemme at begå overgreb imod.",Kvinde
+51,"Uddannelsesaktiviteter:  Vi ser allerede at kunstig intelligens bliver brugt til fx at skrive en stil i folkeskolen. Hvis det ikke bliver reguleret hensigtsmæssigt, risikerer vi, at unge mennesker kan miste evnen til at analysere og til at tænke kritisk.",Kvinde
+52,"Jeg oplever, at vi sket ikke forholder os til ""crap in crap out"" men er mere optagede af de nye teknologiske muligheder. Jeg kunne godt tænke meget mere bred information om og fælles forståelse af, hvordan AI kan bidrage til at validere og kvalitetssikre de data og informationer vores kompas og navigation baseres på og hvilke krav det eventuelt stiller til vores evner til at forstå og arbejde med metadata.",Kvinde
+53,"Det kan blive et stort problem, hvis ikke vi også forstår betydningen af og at vi sikrer datasikkerhed.",Kvinde
+54,"Jeg synes det er et problem at vi ikke i dag har et vist niveau af fælles forståelse af betydningen af dataarkitektur, systemarkitektur etc. Det er forbeholdt og vi overlader det til IT professionelle at have den indsigt. Jeg mener vi alle skal blive bedre til at forstå hvilke elementer der indgår så vi kan blive bedre til at hjælpes ad med at se potentielle udfordringer.",Kvinde
+55,"'Complianceuhyret'  Navnlig for danske virksomheder (som ofte ikke er så store) er regeloverholdelse på det digitale område kompliceret. Lovgivning om persondatabeskyttelse, cybersikkerhed, modstandsdygtighed, og kunstig intelligens er selvstændigt krævende - og de krydser ind over hinanden. Hertil kommer compliance på tværs af værdikæden.",Mand
+56,"Tab af innovationskraft  Risikoen er åbenlys, hvis det sander til i implementeringsproblemer.  Hovedspørgmålet må være, hvordan lovkrav og  digital etik i øvrigt kan omsættes til konkurrencefordele og positiv udvikling i den offentlige sektor.  Her kan et fokus på 'kontekst-validitet' være relevant. Det handler om, at AI-systemer har indbygget fortællingen om , hvad de kan og ikke kan, så brugeren er med. 'Kontekst by design'.",Mand
+57,"Fortsat erosion af tillid og legitimitet  Fake news, manglende tillid til ejendomsvurderinger, chatbots, der ikke kan levere service og bilsikkerhed, der fejler mv. er medvirkende til, at vi som borgere og kunder mister tilliden til samfundets institutioner. Vi bør udvide kommissoriet for dataetisk råd til at omfatte den generelle tillidsdagsorden i det digitale samfund.",Mand
+58,"Politisk regulering sker for sent  Det kan blive en udfordring, hvis private virksomheder står i spidsen for udviklingen af AI-værktøjer, og at den politiske regulering kommer bagud fra start. Ligesom vi har set det med de store tech-virksomheder og den kæmpe indflydelse, de har fået på vores samfund.",Kvinde
+59,"Manglende kompetenceudvikling af arbejdsstyrken  Det kan blive - og er måske allerede - en udfordring, hvis for mange hægtes af fra start og ikke i tide forstår, hvad teknologien kan bruges til i hverdagen.",Kvinde
+60,"Vi har menneskeskabte problemer, der ikke kan løses digitalt",Kvinde
+61,Vi har brug for et samfund med omsorg og nærvær - det kan vi ikke få digitalt,Kvinde
+62,"Vi har et skolesystem og velfærdsystem i knæ, det kan vi ikke løse digitalt",Kvinde
+63,"Et skævere samfund  Nogle grupper kan blive efterladt på perronen, hvis ikke vi sikrer os at AI kan komme alle til gavn og ikke kun de få der forstår kompleksiteten i det.",Kvinde
+64,Et yderligere skub i retning af et postfaktuelt samfund  Blackbox AI's som giver en løsning uden at angive kilder eller forbehold og overvejelser i udarbejdelsen af løsningen vil kun gøre det sværere at gennemskue hvad der er sandt og ikke sandt,Kvinde
+65,"For stor afstand mellem dem, der udvikler teknologien og dem, der bruger dem.     Dem, der kender teknologien til bunds, kender ikke den praksis/alle de praksisser, som teknologien skal ud og leve i, og dem, der skal bruge teknologien i praksis har ikke de nødvendige forudsætninger for at forstå teknologiens maskinrum.",Kvinde
+66,Danske politikere forstår ikke kompleksiteten - formår ikke at stille de vigtige spørgsmål eller stille de nødvendige krav til producenter - før det er for sent.,Kvinde
+67,Begrænsning af udviklingspotentialer  Hvis udviklingen af ansvarlig anvendelse  af AI sker for langsomt kan kan det begrænse og forringe vores konkurrenceevne.,Kvinde
+68,"Presset fra techgiganterne    Som lille land er der en fare for at de services der er nødvendige for at drive samfundet arbejder så meget med en AI, at vi ikke kan slippe fri af grebet. Hvis Word insisterer på at påvirke det vi skriver, kan det blive svært at undgå, når det er nødvendigt.",Mand
+69,Manglende folkeoplysning    Påvirkningen vil komme alle steder fra og ramme alle. Der vil være et stort skel mellem dem der får læring i at være kritisk og dem der tager det upåagtet ind. Dette kan føre til en digital over- og underklasse.,Mand
+70,"Patenter og design    Originale idéer vil hurtigt drukne i en overflod af efterligninger, af-arter og afledte produkter, idéer og planer. Det vil være svært at skelne mellem hvad der er kvalitet og hvad der blot ved første øjekast fremstår som sådan. De tal, tegninger, tekster eller billeder der kan blive fremsat, er svære at eftervise om er rigtige, erfarings- og vidensbaserede.",Mand
+71,ulighed i befolkningen  ulighed i befolkningen omkring brug og læring af Ai værktøjer.,Kvinde
+72,inkompetence,Kvinde
+73,isolation    hvis DK ikke følger med vil der være uligheder i forhold til andre lande,Kvinde
+74,Regler kommer altid langsommere end teknikken udvikles. =kaos,Mand
+75,Myndigheder mister kontrollen over samfundet.,Mand
+76,Manglende institutionelle muskler både nationalt og internationalt til at håndhæve gældende lovgivning.,Mand
+77,Manglende lovgivning ift. fremtidige udfordringer med AI.,Mand
+78,Kontrol over AI samlet på få kommercielle aktører - og dermed manglende national suverænitet ift. AI som kommende kritisk infrastruktur.,Mand
+79,Uddannelse.    En bekymring for at vi ikke er gode nok til at omstille yngre generationer til en ny form for læring og udvikling. Så de kan styre AI og ikke vice-versa.,Mand
+80,Ulighed    Dem som han adgang til den nyeste og kraftigste AI bliver A-holdet.,Mand
+81,Økonomisk/digital kriminalitet    Bekymring for om ressourcestærke organisationer kan udnytte smuthuller endnu bedre med assistance fra AI.,Mand
+82,"AI tilbyder konstruerede sandheder, der kan tilpasses den enkelte behov - hvordan sikrer vi anvendelse af AI, der tilgodeser fællesskabet?",Mand
+83,"AI tilbyder en nem løsning på mange komplekse opgaver i vores samfund i dag. Løsninger er nemme, men det kræver refleksion og tænkning, før de bliver gode.",Mand
+84,Uddannelse   På uddannelser er personale ikke klædt på til at tackle AI og kan derfor ikke læse unge mennesker på til at være kritiske ifht materialer og viden skabt via AI.,Kvinde
+85,Krig og AI   AI kan anvendes til krigsførelse i form af systemer der analyserer hvor  der skal bombes dette kan koste mange civile menneskeliv,Kvinde
+86,AI og fordomme   AI viden skabes via en samling af allerede eksisterende viden. Derfor vil diskrimination og racisme blive forstærket via AI materiale,Kvinde
+87,"Etik: I takt med at AI's potentiale vokser, stiger også fristelserne for misbrug. Derfor skal der udvikles omfattende lovgivning for anvendelse af AI.",Kvinde
+88,"Selvstændighed: AI udfordrer vores even til selv at tage beslutninger, der bunder i vores eget, indbyggede kompas.",Kvinde
+89,"Demokrati: AI udfordrer på mange områder vores demokratiske debat, som er en af grundpillerne i vores demokrati.",Kvinde
+90,"Kognitiv dovenskab: Jeg ser en risiko for, at vi lader AI gøre for emget af vores intellektuelle arbejde, så vores evner  til selv at sætte os ind i komplekse problemstillinger svækkes.",Kvinde
+91,"AI udvikling finder sted uden en tilstrækkelig forståelse for den kontekst, det skal udføres inden for. Resultatet bliver suboptimering frem for at være transformative.",Mand
+92,Ukyndig organisering: deltagere i et projekt kommer fra samme enhed / silo og projektet igangsættes uden mandat til at komme med transformative forslag - disse vil ofte kræve organisatoriske ændringer.,Mand
+93,Kan begrænse muligheder for at afsøge/dokumenter  gavnlig anvendelse af AI,Mand
+94,"GDPR er den isolerede største barrierer, specielt for dem som ikke har indsigt.",Mand
+95,Vi kan sagtens være et ansvarligt foregangsland for udviklingen af AI - sagt af mig som har været i IT branchen hele min erhvervskarriere. Og i dag arbejder med mulighederne for AI,Mand
+96,"AI flugter ikke sektorlovgiv- ning. AI skaber på godt og ondt nye magtbaser ved at kombinere viden på tværs. Kalder på organisatoriske API'er, ellers forløses AI-potentiale måske ikke?",Kvinde
+97,"Begrænsning af prioriteret tid til det, jeg vil kalde ""forsyn""  i beslutningsprocesser.",Kvinde
+98,Begrænsning på spredning og formidling af viden om AI,Kvinde
+99,"Hvis fokus på ""ansvarlig"", tænker jeg også behov for rammer og national regulering. Og hvis den muskel bliver for svag?",Kvinde
+100,"Modsat seneste årsag, så vil der være behov for fristelse af AI under kontrollerede former, for at få erfaringer.    Et paradoks - og måske vildt problem.",Kvinde
+101,hastigheden i udviklingen overstiger så langt (den manglende) hastighed(en) i de ministerielle/offentlige myndigheder og institutioner ift nødvendige ændringer,Mand
+102,Prioritering og tid til opgaven,Kvinde
+103,Hvis ikke vi får en tilpas EU regulering.,Mand
+104,"Hvis vi laver en dansk regulering, uden sammenhæng med EU",Mand
+105,"I undervisningen.    At vi ikke lærer befolkningen, hvordan man kan bruge AI konstruktivt. Det kræver en del retningslinjer fra Christiansborg, som pt. lader vente på sig. Det er der ikke tid til.",Mand
+106,Relationer  Hvis AI erstatter menneskelige relationer - f.eks. ved medicinske undersøgelser/diagnoser.,Kvinde
+107,Undervisning/uddannelse  Over alt i undervisnings- og uddannelsesmiljøer skal der undervises i plusser og minusser ved AI.,Kvinde
+108,Er vi sikre på at det bliver et problem over de næste 10 år? Er det ikke en mærkelig præmis?,Kvinde
+109,"Hvis det bliver et problem, er det fordi vi ikke har taget fat i de rigtige eksperter - dem der ikke kun ser forretningsideer men forskere i AI og anden teknologi. Det er min oplevelse, at de fleste forskere udtaler sig ud fra en præmis om at teknologien er kommet for at blive - lad os få det gode ud af det - og være opmærksomme i de rigtige retninger.",Kvinde
+110,"Jeg ved ingenting om AI og kan mærke st det er svært at svare på dette, fordi jeg synes min frygt for det jeg ikke kender kan gå ind og farve mit svar på hvad jeg synes ?vi skal gøre ved det? - og jeg er nok bekymret for at lovgivningen på området kommer til at bære præg af en sådan frygt - lige som snakken om skærme, sociale medier mv aldrig rigtig tager udgangspunkt i at vi som mennesker SKAL lære at forholde os til noget nyt",Kvinde
+111,"Hvis det bliver et problem har vi glemt at inddrage de unge der er vokset op med teknologien, som ser igennem det",Kvinde
+112,Manglende strategi både på nationalt og virksomheds niveau,Mand
+113,manglende uddannelse og kompetence. både i privatlivet og i skolen og de videregående uddannelser,Mand
+114,"AI kommer snigende som quick fix på små problemer, og så tror vi at det også kan løse komplekse problemer",Mand
+115,Beskeden forståelse for at AI blot er et avanceret søgeværktøj. AI kan ikke stille meningsfulde spørgsmål eller sætte en dagsorden,Mand
+116,Højt energiforbrug er i modstrid med grøn omstilling,Mand
+117,mistillid til afsenderen af budskabet. Er det en robot eller et menneske jeg kommunikerer med,Mand
+118,Sandhed,Kvinde
+119,Usandheder,Kvinde
+120,"Vi skal alle tage ansvar for de værktøjer vi bruger, det gælder også brugen af AI. Men jeg ser det ikke som et problem.",Mand
+121,"Øget individualisering på arbejdspladserne    Der er en fare for at brug af AI kan medføre en øget individualisering, hvor medarbejderne primært sparre med AI. Det kan have store konsekvenser for for det kollegiale og den faglige sparring.",Mand
+122,"Tab af job.  Fx mener Boston Consulting Group, at der om 16 år kan undværes 9.000 lærerstillinger takket være AI.",Mand
+123,"Tab af kreativitet.  Hvis alting kan måles, vejes og sammenlignes med henblik på hele tiden at opnå det ""optimale"", går vi måske glip af alle de skæverter, som for nogens vedkommende bliver til noget innovativt, noget nyskabende.",Mand
+124,"Vi er tit begejstrede for ny teknologi, og implementerer nogle gange meget hurtigt, uden at tænke over eller helt forstå grundlaget og rammerne for teknologien.",Mand
+125,Det er dyrt og besværligt at gøre ting ordentligt.,Mand
+126,Vi vil se flere advanceret cyberangreb på vores sundhedssystem og generelt den offentlige sektor end vi har set hidtil.,Mand
+127,"Vi vil se advanceret våben, der er svære at detektere blive udviklet af sikkerhedspolitiske fjender, vi anser for at være terrorister.     Bomber der springer inden for EU's grænser, kan potentielt være noget vi kommer til at se mere af.",Mand
+128,"Staters advanceret krigsførsel vil ændre sig.   - Færre fysiske mennesker i fronten, fordi vi faktisk allerede nu kan udvikle funktionelle robotter til mindre praktiske erhverv.   - Selvkørende tanks der kan styres, som vi ser det med droner.   - Missiler vil kunne strække sig længere og undvige/manøvre.",Mand
+129,"Fordi vi vil have færre soldater tabt i krig, vil krigsførende nationers egne borgere protestere mindre, når krigen udfoldes, da de mærker det betydeligt mindre på egen krop. Folk der styrer droner, mærker ikke mennesket de dræber, det føles som et spil for dem.",Mand
+130,"Ledende nationer og virksomheder indenfor AI vil sætte den nye international sikkerhedspolitiske scene.     Når sikkerheds/våbenproducerende virksomheder udvikler nye våben/produkter, vil der automatisk opstå nye produkter, der introduceres til det private marked. Det er sjældent det sker, men med den teknologiske udvikling af AI indenfor forsvaret, vil der højst sandsynligt blive introduceret nye måder at udnytte (måske nye) energiressourcer mere effektivt og styre fartøjer mere kontrolleret, som man ser det hos droner.     Som vi har set det hos Space X, kan man nu gribe en kontrolleret raket, der lander, som den blev affyret. Dette kræver høj advanceret AI med en utrolig stor CPU, som vi ikke har set før.       Disse typer af virksomheder, vil have meget mere at sige, og have større politisk indflydelse end mindre nationer som Danmark.",Mand
+131,"Mange brancher vil disruptes.     Små virksomheder i Danmark på tværs af brancher som kommunikation, Jura og Revision, kan ved et par enkelte klik og sætninger i et AI program udføre et stort stykke arbejde, der ville have fyldt en stor del af arbejdsdagen på et par minutter til en times tid.     Mange brancher vil derfor se sig blive reduceret til langt færre fagprofessionelle, der dog udvikler og bidrager til de meget mere advanceret opgaver.",Mand
+132,Manglende kritisk refleksion og kildekritik blandt borgere - måske især børn og unge ift. output fra generativ AI =Manglende teknologisk dannelse.,Kvinde
+133,Manglende regulering af udviklere og udbydere af AI services og produkter.,Kvinde
+134,Manglende stillingstagen til og løsninger på klimabelastninger ved brug af AI.,Kvinde
+135,"AI kan karakterisere os til jobsamtaler, forsikringer og vurdere os som mennesker",Mand
+136,Med AI kan vi skabe spil som er mere attraktive for os end virkeligheden,Mand
+137,"Med AI kommer vi nemmere til at tage beslutninger afkoblet fra vores reelle værdier, men baseret på færre og mindre komplekse målepunkter",Mand
+138,"Uddannelse    Vi har brug for LANGT flere ingeniører og dataloger, viden er nøglen for at sikre god udvikling og anvendelsen af denne teknologi. Det er et kæmpe problem at så mange ikke faglærte bliver brugt, som eksperter for en så kompleks teknologi som AI er.",Mand
+139,"Hype    Vi har brug for at hype bølgen bliver dæmpet, pt kører toget for stærkt til at nogen som helst kan følge med og de generelle over hype skader, som man har set før anes nu også inden for AI området.",Mand
+140,"Produkter    Der er brug for gode, solide og værdiskabende produkter. Som virksomheder og organisationer kan købe, implementere og opleve teknologien skabe værdi. Aldrig før har vi haft en innovations bølge som nu. Iværksætteri er voldsomt populært for tiden og det er som om den hype har kollideret med AI hypen og gjort at alle tænker de skal innovere og skabe innovation med denne teknologi. Sandheden er at størstedelen af alle danske virksomheder hverken har vidensbasen, kapitalen eller risikovilligheden til sådan et innovations eventyr. Derfor har vi brug for konkrete produkter, som kan købes ind og skabe værdi.",Mand
+141,"Retningslinjer    Gennemtænkte retningslinjer der beskytter slut brugerne, men stadig sikre internationale konkurrence muligheder og ikke bremser selve den teknologiske udvikling.",Mand
+142,"Naivitet og overdreven begejstring.  Manglende fokus på anvendelighed.  Manglende inddragelse af slutbrugere.  Overførsel af erfaringer fra område til område uden vurdering af, om det giver mening.  Økonomisk vurdering bør først komme i anden række.",Mand
+143,"Forfalskning  Med AI bliver det muligt at fremstille forfalskede dokumenter mv., som det ikke vil være til at skelne fra ægte. Måske vil der være værktøjer, som kan identificere AI-genereret materiale. Hvis ikke alle har adgang til sådanne værktøjer, vil det kunne give anledning til alle mulige konflikter.",Mand
+144,"Ulighed  Samfundet kan blive endnu mere ulige, hvis adgang til AI giver fordele til nogle grupper. Dem, som ikke har adgang til AI - uanset om det er pga. økonomi eller teknologisk forståelse - vil formentlig blive svagere stillet end dem, som har adgang til AI.",Mand
+145,"Energiforbrug   AI bruger meget strøm, og hvis anvendelsen af AI bliver stadig mere udbredt, vil der blive behov for endnu mere energi.",Mand
+146,"Lovgivning, der ikke følger med udvikling",Kvinde
+147,Kommercielle interesser,Kvinde
+148,"AT EJERSKABET TIL MANGE AF LØSNINGERNE ER PÅ PRIVATE HÆNDER    Mange af løsningerne leveres af et marked, som har økonomiske interesser i det. Det gør det svært at vurdere det reelle potentiale, at føre ""tilsyn"" med AI og at sikre, at AI bruges, hvor det har størst værdi",Kvinde
+149,"AT VI HAR DESIGNET ARBEJDSMARKEDET OG VORES UDDANNELSESSYSTEM, DA VI IKKE KENDTE TIL AI    Hvad vil AI betyde for, hvad man skal kunne som studerende og medarbejder i fremtiden? Hvad skal vi fremover måle på, præmiere osv.?",Kvinde
+150,"AT VI BLIVER DOVNE OG KRÆVER FOR LIDT AF DEN MENNESKELIGE INTELLIGENS    Vil vi blive holdt lige så meget intellektuelt til ilden af samarbejdet med algoritmer, som hvis vi selv havde skullet løse de svære opgaver? Sygner vores analytiske kapacitet hen?",Kvinde
+151,Manglende forståelse for hvad AI kan og ikke kan altså ukritisk brug,Mand
+152,Pres for at bruge AI ukritisk fordi det er det nye smarte,Mand
+153,"Manglende viden om ansvarlig udvikling og anvendelse af AI:    Hvis vi skal sikre os - gøre os bestræbelser på at forhindre, at ansvarlig udvikling og anvendelse af AI IKKE bliver et problem i Danmark, så må vi som samfund sikre os den nødvendige viden om AI. Hvis vi mangler viden om AI, så sker der selvsamme mekanismer, som har været på spil i implementering af mobiltelefoner, digitale platforme som FB, Instagram, Snapchat osv., hvor vi først 10-20 år efter oplever, erfarer og tager konsekvenserne af udviklingen og og brugen heraf alvorligt.   Derfor kan vi lære af fortiden om implementering af mobiltelefoner, digitale platforme osv. ved at skabe solid viden om AI gennem prototype-eksperimenter.  Denne viden skal tages alvorligt - denne forhåndsviden må og skal fremstå som værende vigtigere end blot at følge ""udviklingen uden kritisk og konstruktiv stillingtagen.""    VIDEN ER INDSIGT OG VIDEN ER FORSTÅELSE OG GROBUND FOR AT KUNNE TAGE KRITISK OG KONSTRUKTIV STILLING TIL FORHOLD I VORES TILVÆRELSE, SOM HAR BETYDNING FOR OS.    AI vi i løbet af de næste 10-20 år få betydning for os - derfor må vi tilstræbe os at optimere vores viden om, hvad AI ER og BØR være i vores menneskelige og samfundsmæssige liv.   Vi må IKKE bare ignorere og lade konsekvenserne overhøre - DERFOR: Lad viden være en del af det at implementere AI i vores samfund på en god, kritisk og konstruktiv måde.    Det fordrer INDDRAGELSE AF UNDERVISNING OG LÆRING, MOD OG TID TIL AT EKSPERIMENTERE MED AI!",Kvinde
+154,"Manglende inddragelse af undervisning og læring om ansvarlig udvikling og anvendelse af AI:    Hvis vi som samfund IKKE inddrager pædagoger og lærere i at undervise og implementere AI i skole- og dagtilbud, så sikrer vi IKKE en viden om og erfaringen i en ansvarlig udvikling og anvendelse af AI.     Fundamentet for de kommende generationer og deres måder at forholde sig kritisk og konstruktiv til en ansvarlig udvikling og anvendelse af AI i Danmark, FORDRER, at voksne og ansvarlige pædagoger og lærere klæder sig på gennem viden og indsigt om AI, hvorved de er i stand til at videreformidle, undervise børn og unge i og forholde sig kritisk og konstruktivt til etisk forsvarligt og ikke mindst ansvarsfuldt brug af AI.    Det er dog ikke blot skole - og dagtilbud. Det er hele uddannelsessektoren som en pallette: Skole- og dagtilbud. Fri- og efterskoler. Højskoler. Gymnasier, handelsskoler, tekniske skoler - landbrugsskoler  - universiteter og hele den danske uddannelsesverden.     UNDERVISNING OG LÆRING ER EN DEL AF AT FÅ KONSTRUKTIV KRITISK VIDEN OM AI - OG DERMED MULIGHEDEN FOR AT FORHOLDE SIG DERTIL.    Det er utrolig væsentligt at tage børn og unge alvorligt i denne proces - at lytte til børn- og unges erfaringer, forståelser og indsigter skaber et bredt perspektiv og flere erfaringer i den videre vej fremad.",Kvinde
+155,"Manglende MOD til at eksperimentere med ansvarlig udvikling og anvendelse af AI:    For at sikre viden om og læring i og omkring AI, så må vi som samfund have modet til at eksperimentere med ansvarlig udvikling og anvendelse af AI på en etisk forsvarlig og fremadrettet måde. Dette betyder at give sig tid og ro til eksperimentere med områder inden for AI og skabe prototype-erfaringer, som ikke tager afsæt i eksperimeter i form af liv og død, men hvor der er eksperimenteret på en god og konstruktiv måde med resultater af anvendelsen af AI, som vi kan bruge konstruktivt og fremadrettet. Måske kan disse eksperimenter skabe grobund for yderligere eksperimenter for at understøtte viden og indsigt.  Start med de ""sikre"" områder først!",Kvinde
+156,"Manglende TID til at eksperimentere med ansvarlig udvikling og anvendelse af AI:     For at sikre viden om og læring i og omkring AI, så må vi som samfund IKKE blot have modet til at eksperimentere med ansvarlig udvikling og anvendelse af AI på en etisk forsvarlig og fremadrettet måde, men og så have TIDEN til rådighed for at kunne fremelske mere viden, indsigt, erfaringer og erkendelser inden for AI området.  Dette fordrer politisk tålmodighed og tillid til de mennesker, som fuldfører - og ikke mindst gennemfører eksperimenter, prototype-forsøg osv.  MOD og TID er vigtige ingredienser, når vi skal forebygge - klargøre - eksperimentere - videreudvikle og implementere nye tendenser, tiltag og teknologier.",Kvinde
+157,"At der lovgives men at befolkningen ikke kan følge med, hvor der vil være et mindretal, som er klar over potentialet inden for AI. Det virker uoverskueligt for flertallet med henblik på AI potentiale, hvor en større viden og erfaring med AI måske bør etableres, før vi evt. beslutter regler og love på området.    I undervisnings sektoren kan det f.eks. være vanskeligt eller bremsende, hvis den digitale undervisning f.eks. i folkeskolen hæmmes ved alt for rigide retningslinjer indenfor området. Det gør det måske vanskeligere at arbejde med elevernes digitale dannelse, hvis der er forbud om mobiltelefoner og restriktive retningslinjer for skærmbrug. Jeg mener vi har jo selv sat det på skemaet i mange år og nu ligges det ud til forældrene.",Mand
+158,At folk ikke forstår hvad data er og hvordan AI bruger data,Mand
+159,At det vedbliver med at salonfæhig at være ?ansvarlig? uden at have kompetencer til kunne forstå teknologi i forhold til situation og anvendelse.,Mand
+160,At man forveksler AI med llms,Mand
+161,"DET ER IKKE ET PROBLEM  Jeg ser ikke, at ansvarlig udvikling og anvendelse af AI er et problem i sig selv.  Problemet er mere, hvis vi ikke udvikler det, eller udvikler det på en ikke-ansvarlig måde.",Mand
+162,"BESKÆFTIGELSE  Ansvarlig udvikling og anvendelse af AI kan blive et problem, hvis store grupper af arbejdstagere bliver arbejdsløse og ikke finder anden meningsfuld beskæftigelse. Jeg ser dog lille chance for dette inden for de næste 10 år.",Mand
+163,"Konkrete / fysiske fejl i processer, der kan skade mennesker og naturen (hvis vi automatiserer processer, og AI ikke gør som vi forventer, eks. putter gift i piller eller mad, affyrer raketter, træffer forkerte afgørelser, etc.",Kvinde
+164,"AI bliver ""vennen  fra helvede"" for børn og andre sårbare, som så ikke socialiseres hensigtsmæssigt, o.lign.",Kvinde
+165,"AI er bidragsyder til ""fake news"" for mennesker generelt, hvilket i sidste ende er samfundsundergravende.",Kvinde
+166,"Manglende retssikkerhed, hvis vi automatiserer offentlige beslutningsprocesser der ikke er transparente og ikke kan ankes / rettes nemt. Mgl. retssikkerhed vil / kan medføre manglende tillid til staten og til de demokratiske processer, og dermed nedbryde samfundet. Læs eksempelvis hvad ansatte / jurister i Ankestyrelsen havde at sige om dette i min rapport ""Preparing for a potential future of using algorithms in case decision work at Ankestyrelsen"", fra 2019 (skriv til bettina@hartmannconsulting.dk)",Kvinde
+167,"Vi effektiviserer de forkerte steder, fordi vi tror teknologi / IT / AI redder os. ""Vi kan spare en masse administrativt personale"". Men AI kræver tværtimod ekspertviden, som ingen i den offentlige sektor har i dag. De få eksperter, der findes, suges til Big tech (Shoshana Zuboff har en masse at sige om dette). Så vi vil få mere og mere behov for teknisk viden, ikke mindst pga. retssikkerhed, sådan at besparelsen næppe betaler sig. Men det opdager man for sent - alle IT-projekterne i Skatteministeriet er glimrende eksempler, selv om det ""bare"" var IT og ikke AI.",Kvinde
+168,"Jeg er vild med AI og digitalisering - brugt rigtigt. Men som det er nu vil jeg sige, at det er dovne politikeres og beslutningstageres våde drøm, som mest er en utopi, fordi ingen ikke har kompetencer til at forstå hele processen - og ikke engang FORSTÅR hvad de ikke forstår, så de gider ikke engang tænke over det, eller udføre ordentlige risikoanalyser, med brede grupper af eksperter og borgere.     Og når man ikke forstår processen, holder man op med at bruge fakta som beslutningsgrundlag, men bruger sin mavefornemmelse (=bias) i stedet. Se eks. Kowalczyk, M., 2017. The Support of Decision Processes with Business Intelligence and Analytics - Insights on the Roles of Ambidexterity, Information Processing and Advice. Det skrev jeg også speciale om: ""Data-driven decision making in the Danish public sector ? a case study of a municipality social services department, with a focus on data quality and data literacy"" (2020) - skriv til bettina@hartmannconsulting.dk",Kvinde
+169,"Man ved ikke hvad man ikke ved, fordi vi har designet samfundet forkert. Vores evne til at se os selv udefra, og til sammen at se de systemer, vi er en del af, udefra, er ikke-eksisterende. Ligesom i INVI, hvor I startede med at sammensætte ekspertpanelet udelukkende med cand. politter etc. Og nu har et PIP-panel, som er hemmeligt, dvs. vi ved ikke om det er repræsentativt. Og når man fortæller jer det, trækker I på skuldrene. Det er bare eet eksempel på, hvor nemt der er at udøve bias i praksis. Og da vi har ""lov"" til det, så behøver vi ikke engang at rette ind, når nogen forsøger at gøre os opmærksomme på det. Og det er den slags mennesker og det samfund I vil slippe AI løs i?    Jeg er af den opfattelse, at ingen må tage vigtige beslutninger uden supervision. Det kalder man eksempelvis ""høring"" i nogle processer, men det bliver brugt forkert, fordi man ikke forstår hvor vigtigt det er. Lovforslag skal høres af et tilfældigt repræsentativt borgerting, som kan nedlægge veto, osv.  Ingen ledere må træffe beslutninger, der vedrører mennesker og planeter, alene, osv.    Og så er der hele den manglende indre dimension, som eksempelvis IDG (Inner Development Goal) initiativet kan fortælle mere om. Når folk ikke tager det indre bevidsthedsarbejde alvorligt, hvordan skal man så opdage bias og problemstillinger med noget så kraftfuldt som AI?",Kvinde
+170,"Jeg mener at dette er en forkert proces. Ved at gøre dette først alene og derefter sammen med andre, kan man finde på flere ting. Og jeg har nogle særlige kompetencer der gør, at jeg ville kunne finde på noget andet, end andre kan, og vice versa.",Kvinde
+171,Svært at kontrollere  Det er simpelthen for svært at opsætte regler og rammer i nutidens og fremtidenssamfund. Verden er for længst gået fra at være lokal til global. Det samme gælder adgangen til viden herunder AI.,Mand
+172,"Ansvarlighed er en lang proces  En bæredygtig kontrol og ansvarlig anvendelse skal ske igennem oplysning og uddannelse af befolkningen, hvilket tager lang tid at implementere, når du tager vores politiske og kommunale system i betragtning. Måske så lang tid, at problemet allerede er ikke-reversible.",Mand
+173,"Udviklingen sker hurtigere end vores viden om konsekvenserne    Den teknologiske udvikling sker med eksponentiel hastighed, og hvis vi ikke finder metoder til løbende at evaluere og applicere disse fund, så kan ansvarligheden få trænge kår.",Mand
+174,"besparelser  - ift førnævnte inddragelse af mennesker og deres kompetencer, som skal udvikles løbende",Kvinde
+175,uvidenhed  - det koster igen penge at uddanne mennesker til at håndtere AI,Kvinde
+176,"etiske fejlslutninger  - der er baseret på fornuftsstyrede etikker, som man logisk kan regne sig frem til",Kvinde
+177,manglende nuancering af etik  - at etik også kan være følelsesmæssigt implikeret - hvilket kræver personlig indignation mm,Kvinde
+178,at AI's etik træder i stedet for menneskers etik,Kvinde
+179,"forskellige former for logik  formal logik er kun en form for logik, der findes efterhånden mange former eks. traumets logik, modal logik osv",Kvinde
+180,"mainstream vinder  hvis vi ikke har et menneske, der opfordre AI til kritik",Kvinde
+181,fejlkilder  AI fejlciterer - den tager den nemme løsning og siger det vi gerne vil høre,Kvinde
+182,"falsk viden produceres  og citeres igen af andre indtil den oprindelige kilde er væk, gemt under AI",Kvinde
+183,"AI vil belønnes  hvis vi lover den penge yder den bedre, hvor stopper dette, og hvad kan det få af følgevirkninger?",Kvinde
+184,"Techgiganternes indflydelse, magt og mangel på restriktioner    sociale medier",Kvinde
+185,Ansvarlig udvikling af AI kan blive et problem hvis der er bias i ansvarligheden.,Mand
+186,Er spørgsmålet ikke formuleret forkert?,Mand
+187,Sygehusvæsenet,Kvinde
+188,Psykiatrien,Kvinde
+189,Myndighedsområdet,Kvinde
+190,Mangel på ansatte,Kvinde
+191,Det nære sundhedsvæsen,Kvinde
+192,Hjælp til Patienter,Kvinde
+193,Hjælp til borgere i kommuner,Kvinde
+194,Uddannelsesområdet,Kvinde
+195,Forskning,Kvinde
+196,Innovation,Kvinde
+197,Se sidste svar,Mand
+198,At vi er for forstrækkede og ikke tør bruge det med den maksimale ydelsesevne,Kvinde
+199,"Fordi AI ikke et noget alle forstår eller interesserer sig for, men som er et faktum for vores organisering og struktur - fra i divid niveau til samfundsniveau",Kvinde
+200,"A: Lovgivningen rammer skævt og for sent    Politikere og embedsmænd formår/evner ikke at sætte sig tilstrækkeligt ind i, hvad AI som teknolgisk driver på tværs af sektorer tidligt. Kommer for sent ind og regulerer relevante områder.",Mand
+201,"B: Vi er som lille sprogområde og land ikke i kontrol    Udbredelsen af og udviklingen i AI styres og prioriteres langt fra dansk indflydelse (både kommercielt, teknisk og politisk). Sprogmodeller vil være et af de centrale elementer - her vil udvilingen bl.a. være dikteret af store sprog (engelsk og kinesisk)",Mand
+202,"C: Vores uddannelse og dannelse i brug af AI vil være for de få    AI ruimmer store potientialer (stor og små). Ansvarlig udvikling kræver forståelse og indsigt som er dybere end fx. betydning af SoMe og den indflydelse platforme har. Det tager tid, enerig og kompetencer at sætte sig ind i. Det går for langsomt for bredden.",Mand
+203,"At AI ganske enkelt ikke er udviklet nok til at benyttes, og at intelligens er skabt med ét perspektiv og ikke flere perspektiver. Og dermed kun én slags rigtig konklusion.",Kvinde
+204,"POLITIK:  Politisk kan det få stor betydning, i forhold til at udvikle nye love og reformer, men det kræver at alle er orienteret om, at man har anvendt AI, ved udvikleng af lovforslaget, og/eller fremlæggelse af reformforslag,",Mand
+205,"MISINFORMAION:  En af de største ulempe ved anvendelse af AI, er klart misinformation, på lige fod med det man i øjeblikket ser i USA, en sådan mængde af misinformation, vil kunne ødelægge ethvert forsøg på at fremstå som seriøs, i den politiske kommunikation.",Mand
+206,"MANIPOLATION:  Her har AI en absolut fordel, ingen kan med sikkerhed sige at de bliver manipoleret, med mindre de har været med til at forfalske den informationen, de forsøger at føre dem bag lyset..",Mand
+207,Polarisering blandt jobsøgende - har du adgang til og forstår at benytte værktøjet eller har du ikke?   HVEM SKAL INVESTERE I BORGERES GENERELLE VIDEN?,Kvinde
+208,"Favorisering af medarbjdere, der er AI-agile - uden at have tilbudt alle medarbejdere en mulighed forat komme med på vognen. HVEM SKAL INVESTERE I MEDARBEJDERES VIDEN?",Kvinde
+209,"Særligt digitalt udsatte borgere forbigås i (endnu flere) sammenhænge, hvor AI bliver almindeligt.",Kvinde
+210,Ensidig bearbejdning og påvirkning af data i AI-modeller fører til endNu mindre repræsentative svar fra AI.,Kvinde
+211,"Mangel på etiske regler og kontrol  Hvis der ikke er en form for kontrol og regulering af samt retningslinjer for  AI (a la presseetiske retningslinjer), vil man kunne producere lige hvad man vil via AI. Hvor går de etiske grænser for hvad der må produceres? Hvilken kontrol vil man kunne lave, hvis man ikke ved hvem der er afsender af AI genereret materiale? Vil det kunne spores? (fx billede- og videomateriale)",Kvinde
+212,"Mangel på at forholde sig kritisk til information  Hvis vi som mennesker ikke fortsat forholder os kritisk til den information vi får, så kan al information blive til fakta, og misinformation kan tage over og skabe store konsekvenser for både individer, institutioner/virksomheder/, regeringer m.v. Det sætter også i højere grad til vores undervisningssystem ift. at lære kritisk tænkning og forholde sig til (mis)information",Kvinde
+213,Hastighed  At vi ikke kommer hurtig nok med på udviklingen,Kvinde
+214,Begrænsning  At angsten for at personfølsomme oplysninger bliver tilgængelig for andre - begrænser os i vores udforskning af hvad AI kan hjælpe med,Kvinde
+215,Menneskelig begrænsninger,Mand
+216,Bagefter i udvikling,Mand
+217,Lovgivning,Mand
+218,Nybrud med det traditionelle,Mand
+219,Problemer med transparens. Med at forklare og beskrive en AI's beslutninger og beslutningsgrundlag. Kan blive et retsligt problem i det offentlige.,Kvinde
+220,Problemer med privacy. Vores private oplysninger samkøres (måske på udlandske servere) og bruges til prediktioner.,Kvinde
+221,AI systemer underbygger 'det normale' som et meget smalt begreb. Det bliver formentlig mere svært og besværligt at være et menneske udenfor et smalt 'normal' begreb,Kvinde
+222,"Bias i algoritmer giver os et skævt syn på verden, som hvidt, maskulint og europæisk/amerikansk. Nogle er lette at spotte, men meget bias skal man være meget bevidst for at fange, men bliver ikke desto mindre en del af vores forståelse af verden",Kvinde
+223,"Autonome våben, som selv finder sit mål og trykker på aftrækkeren. Alle ovenstående problemer smeltet ind i liv og død og dermed sat på spidsen.",Kvinde
+224,"Vi bliver kognitivt 'dummere' når vi konstant læner os op af AI hjælp til at finde vej, til at huske, til hvad som helst. Vi bliver en generation af demente.",Kvinde
+225,"AI assistenter som vil lære og bedre og bedre at kende, hjælpe os med at navigere div. logistisk, komme med råd, og anbefalinger. Jo mere tillid der indbygges i systemerne jo mere sårbare bliver vi for manipulation.",Kvinde
+226,"Hov, det skrev jeg i forrige svar.     Den hurtige udvikling",Kvinde
+227,"Vi kender ikke konsekvenserne. Vi skal kunne se langt og tænke i scenearier og gøre andre øvelser konstant for at tænke i konsekvenser.     Vil det fx gøre, at mellemmenneskelige relationer i organisationer, og andre sociale rum i samfundet for teknologiske og umenneskelige.",Kvinde
+228,"Der er allerede eksempler på, at vi ikke kan stole på AI.   Sikkerheden og tilliden er nødvendig at forholde sig til hele tiden og i alle tilfælde.",Kvinde
+229,Alle dele af samfundet kan ikke være med i AI udviklingen.,Kvinde
+230,Mangel på kritisk sans,Kvinde
+231,Fokus på fordelene fremfor at se helhedsbilledet,Kvinde
+232,Politisering,Kvinde
+233,"AI kan gøre alt, hvad vi som mennesker gør nu, bare hurtigere og billigere.",Kvinde
+234,"Total overvågning af mennesker via AI - et skrækscenarie er at få et samfund, hvor tanker/dialoger, der går imod den vedtagne norm betyder en straks reaktion i form af straf. Et eksempel: hvis man er uenig i kønsdebatten, og nævner, at der kun er to køn, ville man så blive straffet øjeblikket, selv hvis man bare taler om det derhjemme, fordi vi er under konstant overvågning?",Kvinde
+235,Jeg forstår ikke spørgsmålet.,Kvinde
+236,For stram lovgivning  At vi lægger ud med at se det som et problem og skaber for store begrænsninger.,Kvinde
+237,Privat/kommerciel contra offentlig  Private virksomheder bruger AI kommercielt mens det offentlige tager afstand,Kvinde
+238,Uklarhed om anvendelsesområdet  AI som beslutningstager- fordi vi bruger det ukritisk  AI som analyse - vi får bedre grundlag for at træffe beslutninger både privat og kollektivt.,Kvinde
+239,DK kommer ikke til at have sin egen politik  Vi kommer til at sidde og vente på noget EU eller vi bliver rendt over ende af kommerciel udvikling på verdensplan,Kvinde
+240,Nedlæggelse af stillinger/ fyringer,Kvinde
+241,"Et manglende humant perspektiv i eksempelvis sagsbehandling, som automatiseres",Kvinde
+242,Kritisk analyse og tolkning,Kvinde
+243,Manglende kreativitet,Kvinde
+244,"Altså det er et problem, hvis ikke regeringen regulerer og laver systemer og rammer, som AI kan bruges ansvarligt indenfor",Kvinde
+245,"Evner til at anvende AI er ikke ligeligt fordelt.     Viden og know-how er formodentligt skævvredent, både mellem ældre/yngre generationer, men også internt i generationskohorterne.",Mand
+246,"Udvikling i computerbaserede løsninger på alverdens velfærdsproblemer har et højt tempo.     Udviklingen foregår i tigerspring, og i et meget højt tempo. Vi har ringe mulighed for at nå at have en demokratisk dialog om en potentiel udvikling, før den er indført og erstattet af en anden.",Mand
+247,"Menneskelig kontakt er fortsat et behov.     Forvaltninger kan ud fra en effektiviseringslogik godt prioritere at erstatte menneskelig kontakt med forskellige AI løsninger, der kan spare penge forvaltninger er pålagt. Det kan dog betyde at vi oplever kontakten med system som mere kold, og distancen mellem borger og samfundssystem som længere.",Mand
+248,"Syn på demokrati og gennemskuelighed.    Desto mindre vi oplever at vores demokrati er baseret på mennesker, desto mere kan vi opleve at det er meningsfuldt. Et AI drevet bureaukrati kan også være uigennemskueligt, fordi vi ikke kan se hvilke mekanismer der fører til hvilke valg.",Mand
+249,Juridiske gråzoner,Mand
+250,Ren hype,Mand
+251,Manglende AI-praktikere,Mand
+252,"For få AI-produkter, der skaber reel værdi",Mand
+253,Kompetencer til at bruge AI,Mand
+254,Kritisk sans om AI,Mand
+255,"Overfladisk og hallucinerende viden  Viden om AI og hvordan det fungere er helt essentielt for at forstå, hvordan man kan bruge det - og hvordan man ikke kan bruge det. AI vil gerne hjælpe og fylder huller ud, når den ikke ved, hvad den skal svare. Derfor er ekspertviden vigtigt og bliver det måske i endnu højere grad i fremtiden, hvor flere og flere bruger AI til at tilegne sig viden.",Mand
+256,"AI på skoleskemaet  Som man spørger, får man svar. Og de svar kan være virkelig dårlige, når vi har at gøre med AI. Hvis man forlader sig på de svar alene kan vi ende et meget uheldigt sted, og derfor er uddannelse i prompting og brug af AI til alle nødvendig.",Mand
+257,Ufleksible reguleringer,Mand
+258,Bekymring ift AI erstatning af arbejdskraft,Mand
+259,Danmark sakker bagud i brugen af AI til nye innovative løsninger til effektivisering af arbejdsgange,Mand
+260,AI misbruges ifm trolls og SoMe,Mand
+261,AI kommunikerer 'menneskeligt'. Det kan f. Eks. Give en trang til at sige tak efter en information.  Men da AI ikke er menneskelig har den jo ikke følelser selvom det kan virke sådan.  Jeg er bekymret for om befolkningen vil kunne holde fast i de subtile menneskelige reaktioner når AI bliver en mere almindelig kommunikationspartner,Kvinde
+262,AI og unge mennesker/Børn. Her ser jeg ovenstående som en særlig stor udfordring.,Kvinde
+263,"Vil AI mon betyde at vi ser mere snævert på problemløsning i fremtiden? AI bygger på det vi allerede ved, men det kreative er ikke til stede og skal komme fra os selv. Mon vi formår at se gennem den massive vidensdatamængde og holde fast i kreationerne ?",Kvinde
+264,AI kan bruges til at samme mange mennesker.,Kvinde
+265,Undervisning uddannelse i brugen af AI bliver vigtig afhebsyn til ovenstående udfordringer,Kvinde
+266,"Hvad sker der med de mennesker som der Ikke længere bliver brug for på arbejdsmarkedet?  F.eks. Programmøren af mindre opgaver, hvis job nemt vil kunne varetages af AI på sigt.",Kvinde
+267,"Et ureguleret marked    Da det er private tech giganter, der står med ansvaret for udviklingen af sprogmodellerne, vil det være meget svært for stater/verdenssamfund at regulere, hvilke data modellerne anvender, om der er bias i datakilderne osv.",Kvinde
+268,"AI infiltrerer vores hjerner    Med AI bliver det i stigende grad muligt at gennemskue, hvordan forbrugere tænker, og det bliver derfor nemmere og nemmere at manipulere med vores vaner og forbrug - og måske fx vores politiske ståsted. Der er brug for en skrap politisk regulering af, hvordan  kortlægning af individers eller gruppers tanke- og handlemønstre må anvendes.",Kvinde
+269,Manglende kontrol med AI produceret materiale.,Mand
+270,"Andre lande overhaler  De lande som for gang i adoption. Vil kunne rykke deres samfund ekstremt hurtigt, effektivisere og prioritere midler endnu bedre.",Mand
+271,"Person data  Delingen af persondata er essentielt i en fremtid med AI. Har vi ikke fundet en god løsning i Danmar, vil vi enten skulle dele med andre, eller slet ikke kunne dele.",Mand
+272,Amerikanske tech giganter  Hvis AI teknologi udspringer af USA vil vi blive afhængige af dem.,Mand
+273,"Manglende Investeringer i velfærden     Det kræver store investeringer i velfærden med mangel på arbejdskraft, flere på deltid og flere som bliver ældre med multisygdomme. En ansvarlig udvikling kan betyde at det går for langsomt med at få anvendt ny teknologi samtiden med at der skal være complience",Kvinde
+274,Understøtte investeringer og muligheder for SMV`er    De små og mellemstore virksomheder har behov for at kunne udvikle sig teknologisk. For store administrative bespænd (AI-lovgivning) kan være en barriere i forhold til deres udvikling af produkter og ydelser,Kvinde
+275,Uddannelsesområdet   Udfordring med på den ene side at viden bliver let tilgængelig for alle og som det allerede er tilfældet en integreret del af uddannelserne men på den anden side kræver en stram lovgivning/regulering af den enkeltes brug af AI,Kvinde
+276,"Mangel på arbejdskraft  Hvis ikke det bliver implementeret ansvarligt, så kan AI ikke bruges i den offentlige sektor eller i sundhedsvæsenet, hvor der er et stort potentiale for at frigive behandleressourcer",Kvinde
+277,Overvågning og ufrihed  Ureguleret AI er meget farligt og destabiliserende for et demokrati,Kvinde
+278,Manglende stillingtagen via  lovgivning og retningslinjer.    At der ikke bliver taget politisk stilling til anvendelsen af AI-genereret stof samt givet og holdt efterfølgende øje med retningslinjer og effekter på tværs af felter og lag i felterne.,Kvinde
+279,"Manipulationsmulighed.   At vi ikke trækker på viden om de menneskelige faktorer så som vilje, frihed, håb, fællesskab, længsler osv og følger heraf.     Vi har nu gjort os erfaringer fra menneskers brug af internet og fx sociale medier. Lad os trække på disse erfaringer og den viden om menneskers mangfoldige ageren med ?uendeligheder? og ?usynlighed?.",Kvinde
+280,Mærkning og kodex:  At der ikke kommer mærkning og kodex for anvendelse af AI-genereret stof.,Kvinde
+281,"Ulighed  Den stigende ulighed, både hvad angår teknisk adgang til AI og økonomisk muligheder for at påvirke udviklingen.",Mand
+282,"Fællesskabets traditionelt og historisk manglende muligheder at kontrollere udviklingen og brugen af tekniske udvikling, p.g.a. vores blinde tiltro til at markedskræfterne vil regulere både videreudviklingen og brugen.",Mand
+283,"Kontroltab    Man regner med, at AI overstiger menneskelig intelligens inden for få år. Det kan stikke af for os derefter.",Mand
+284,"Miljøbelastning    AI forbruger store mængder energi. Så længe energien ikke er 100% grøn, belaster det.  Hardwareforbrug vil ligeledes belaste.",Mand
+285,"Arbejdsløshed    Måske tager AI jobs fra os mennesker i en grad, så det bliver et problem.",Mand
+286,Digital ulighed.,Mand
+287,At man anvender AI som en erstatning for noget og ikke komplementært.,Mand
+288,"Overblik over de typer af AI der er udviklet, deres styrker og begrænsninger.",Mand
+289,At AI bliver en del af vores dagligdag uanset om vi vil det eller ej.,Mand
+290,Teknologi blindhed.  Vi gør os for afhængige af IT og AI,Kvinde
+291,Lovgivning og Wild West  Myndighederne kan ikke følge med lovgivningsmæssigt.,Kvinde
+292,Global ulighed  Nogle steder på kloden er der adgang til IT Ig AI  Andre steder ikke,Kvinde
+293,Infrastruktur og skrøbelighed  Mange af vores forsyningskæder er koblet på IT. Det gør det sårbart i forhold til ufred og politiske og klimamæssige udfordringer?,Kvinde
+294,"Hvis vi ikke forholder os kritisk, konstruktivt til hvad og hvordan vi anvender AI. Vi må ikke lade os forblinde af teknologi - men heller ikke lade os skræmme af den med aktivt tage stilling til det igennem dialoger, diskussioner og alle de sunde demokratiske processer og værktøjer vi har og anvendte i Danmark.",Mand
+295,"Tech industrien og området skal reguleres. Det skal være mennesket først, samfundet først FØR teknologien. Industrien skal ikke have et forspring/fordele af/gennem lobbyisme. Vækst og kapitalisme må ikke (igen) gå amok som vi har ladet stå til med så mange andre industrier hvor vi har ladet os forlade os på for meget frivillighed.",Mand
+296,Klima og miljø SKAL medtages og der skal findes løsninger på indvirkningen AI og tech industrien har på omgivelser - fx både vand og energi forbrug. Vi kan ikke bare tror industrien selv har styr det. Hellere begrænse AI til et niveau/omfang der er indenfor de planetære grænser end at vi (igen) giver lods.,Mand
+297,"Folk er generelt bare eksalterede over AI findes og med på en bølge.   De billeder der fx pt bliver lavet er jo mega gennemskuelige som AI men alle synes det ?The shit?. Så det der med, at vi ikke kan undgå får så meget liv, at det bliver sådan.",Kvinde
+298,Kriminalitet og ugennemskuelighed.,Kvinde
+299,"Manglende vilje til at at tage stilling og sige nej tak, som de gamle hønisser, der bare er AI forskrækkede.",Kvinde
+300,Løbet er allerede kørt. De bliver jo talt op alle vegne at man er bagud - det i sig er jo meningsløst og fordummende.,Kvinde
+301,At vi tror det skal bruges alle vegne og implementeringen dermed gor fir stærkt. Vi får ikke faldgruberne ordentligt med,Kvinde
+302,Manglende vilje til at tage ansvar politisk og psykologisk,Kvinde
+303,"Vi ved ikke nok om hvad det kan, så derfor er det svært at sætte grænser og lave regler",Kvinde
+304,Der er en risiko for større overvågning.,Mand
+305,Nogle jobs vil formentlig forsvinde (men nye jobs vil opstå).,Mand
+306,"De store tec firmaer, som står bag udvikling og anvendelse af AI, er internationale og private - og så store, at de kan sætte sig ud over demokratisk kontrol både i DK, EU og resten af den demokratiske",Mand
+307,"Udviklingen af AI er så specialiseret og fagligt kompleks, at det vil være svært for almindelige politikere at forstå, hvad der skal til for at opbygge en effektiv demokratisk kontrol af udviklingen",Mand
+308,Jf. præsidentvalget og hele den politiske udvikling i USA - kan det også i et erklæret demokratisk system være en udfordring for almindelige mennesker/vælgere at skelne mellem news og fake news. Og derved kan,Mand
+309,"De store tec firmaer er så økonomisk stærke, at de fx ved valg, kan købe sig til indflydelse",Mand
+310,"Vi har allerede været alt for sent til at regulere og moderere tech industrien og de unges færden på SOME.   hverken de unge eller deres forældre har fået det bedre af SOME, men vi har en kæmpeberøringsangst for at regulere. Jeg frygter at vi lige så ukritisk lader AI begejstringen tager overhånd",Kvinde
+311,"berøringsangste politikkere, forældre og beslutningsdeltagere",Kvinde
+312,"at tech industriens profit maksimereings paradime vinder endnu mere frem og vi agere som lemminger, og glemmer vores menneskelighed og dømmekraft og forbundethed med andre mennesker",Kvinde
+313,Kritisk dannelse underminieres,Kvinde
+314,Demokratisering af viden går tabt,Kvinde
+315,Den sociale ulighed øges,Kvinde
+316,"Det er ny teknologi, som vi først skal finde hoved og hale i, hvordan bruges bedst muligt. Det kan skabe forvirring og usikkerhed.",Mand
+317,"Det er en teknologi, som er kommet for at blive. Vi er ""tvunget"" til at hoppe med på vognen - ellers vil vi stå alene tilbage på perronen. Samtidig så ved vi ikke, hvad den konstante udvikling af AI vil føre til på længere sigt.",Mand
+318,Manglende regulering på EU niveau,Mand
+319,Manglende sprogmodeller der kan bruges på det danske sprog,Mand
+320,Konservativ og gammel ledelse og direktører inden for mange brancher og sektorer,Mand
+321,"Manglende transparens omkring dataanvendelse  It-løsninger, der bruger AI eller afleverer data til AI udvikler sig hurtig og uforudsigeligt.",Mand
+322,"Magtesløshed  It-løsninger med anvendelse af AI påvirker beslutninger, som borgere ønsker at blive involveret i eller holdes opdateret omkring ift. Anvendelse af AI speeder produktionen af beslutningsgrundlag op med den konsekvens at borgere ikke kan følge med og oplever en følelse af magtesløshed.   Samme følelse opstår, når borgere ikke forstår hvordan og hvorfor AI anvendes.",Mand
+323,"Manglende kompetenceudvikling  En basal forståelse af mekanismer omkring anvendelsen af AI er nødvendig for at borgere kan føle sig up to date. Derfor kan manglende kompetenceudvikling blive et stigende problem for borgere i alle aldre: skolebørn, folk i den arbejdsduelige alder, pensionister",Mand
+324,"MAGELIGHED  Mennesket søger magelighed, og det kan AI og robotics give os. Derfor er der heller ikke tvivl om, at vi vil adoptere alverdens tools i højt tempo - og gør det allerede. Problemet er, at den mest komfortable løsning ikke altid er den, der gør os sundest hverken fysisk eller mentalt. Det er nemmere at se TikTok end at læse en bog, men det er ikke bedre for os. Det er også nemmere at få ChatGPT til at skrive sine opgaver og tænke for sig, men det er ikke godt for ens evne til reflektion og problemløsning. Listen fortsætter i det uendelige, men det er som om, vi aldrig diskuterer det - vi kalder bare dem, der kritiserer teknologi for maskinstormere (det er jeg i hvert fald selv blevet kaldt af op til flere journalister).",Mand
+325,"DATAFORSKRÆKKELSE  Et område, hvor Danmark har store fortrin er inden for sundhedsdata. Men vores duksetilgang til GDPR er en kæmpe klods om benet på danske sundhedsfaglige forskere. Det er som om børneafdelingen på rigshospitalet bliver straffet for forbrydelser begået af Trump, Zuckerberg og Cambridge Analytica.",Mand
+326,"At vi ikke har viden nok om, hvad AI faktisk kan og betyder, og at vi derfor ikke får tænkt os godt nok om, når vi designer løsninger og lovgivning.",Kvinde
+327,At vi ikke giver os tid nok til at finde de gode løsninger og arbejde med ansvarlighed.,Kvinde
+328,"At vi er forhippede på alle fordelene, effektiviseringspotentialer m.m., og at vi lukker øjnene for problemer og dilemmaer.",Kvinde
+329,"Politikerne mangler indsigt og det er derfor let at blive ""bange"" for teknologien - og det kan føre til over- eller fejlregulering",Kvinde
+330,"Politikerne kan også ""sove i timen"" og komme for sent med nødvendig regulering",Kvinde
+331,Politikerne nedlægger uddannelsespladser/forkorter forløbene på STEM-uddannelser og gør os dermed dårligere i stand til at udnytte og forstå AI,Kvinde
+332,"Ved vi hvad vi laver?  Er vi helt sikre på, at ""vi"" ved, hvad vi laver?",Mand
+333,"Uforudsete konsekvenser  Kan der være uoprettelige konsekvenser ved anvendelsen af AI, vi slet ikke er dygtige nok endnu til at kunne forudse?",Mand
+334,"Rettigheder:    Hvordan sikrer vi, at kunstnere kan beholde ejedomsretten til egne værker?",Mand
+335,"Viden:    Hvordan sikrer vi, at AI genererede tjenester ikke rådgiver arbitrært.",Mand
+336,Etik:    Hvordan sikrer vi at AI genererede tjenester ikke påvirker vores børn og unge uhensigtsmæssigt (f.eks. på SnapChat o.l.)?,Mand
+337,Manglende eller forkert fokus på AI og dets brug,Mand
+338,Manglende ressourcer,Mand
+339,"Den sundhedsfaglige viden som ligger tilgængelig online har et negativitetsbias, der kan skabe styrket sygdomsudvikling ( både somatisk og psykisk) pga. diagnosekulturens gaslightings impact på folkesundheden.",Kvinde
+340,Beredskabssammenbrud,Kvinde
+341,Hybrid sundhedssikkerhedspolitisk krise,Kvinde
+342,Sundhedsberedskabspolitisk samfundskrise,Kvinde
+343,Forstærket Konfliktmobning på arbejdsmarkedet,Kvinde
+344,Nye bølger af metoo bevægelsen,Kvinde
+345,Menneskerettighedskrænkelser,Kvinde
+346,Statsterrorisme,Kvinde
+347,"Psykisk Gidseltagning af personalegrupper i et helbredsnedbrydende, forældet sundhedsvæsen.",Kvinde
+348,Personaleflugt fra mange sektorer på arbejdsmarkedet,Kvinde
+349,Platforme bag AI,Kvinde
+350,Økonomisk Vinding,Kvinde
+351,"Ud over den indledende vigtigste årsag: Øget arbejdsløshed og social ulighed, så ønsker jeg også at angive følgende årsager:    Mangel på transparens og ansvarlighed:    AI-systemer, især dem baseret på machine learning, kan ofte opføre sig som ""black boxes"", hvor det kan være svært at forstå, hvordan og hvorfor bestemte beslutninger tages. Uden tilstrækkelig regulering og gennemsigtighed kan det blive svært at holde virksomheder og myndigheder ansvarlige for deres brug af AI.    Dette kan føre til problemer som diskrimination og bias i algoritmer, der træffer beslutninger om f.eks. ansættelser, lån, forsikringer og straffe. Hvis disse beslutninger sker på baggrund af uigennemsigtige modeller, kan det skade tilliden til både det offentlige og private systemer og skabe uretfærdigheder, hvor bestemte grupper bliver marginaliseret.",Kvinde
+352,"Etisk og juridisk ansvar:    Hvis vi ikke formår at etablere klare etiske og juridiske rammer for AI?s anvendelse, kan vi komme til at stå over for alvorlige dilemmaer. AI kan anvendes i komplekse og følsomme områder såsom sundhedspleje, retsvæsen og overvågning. Uden klare retningslinjer for ansvar og etik kan det føre til situationer, hvor teknologien bliver anvendt på måder, der går imod grundlæggende rettigheder som privatliv og frihed.    F.eks. kan uansvarlig brug af AI inden for overvågning føre til krænkelse af borgernes privatliv, mens AI i sundhedsvæsnet kan medføre fejlagtige diagnoser eller behandlinger, som ingen mennesker kan holdes direkte ansvarlige for.",Kvinde
+353,"Cybertrusler og sikkerhedsrisici:    AI's fremmarch øger risikoen for cyberangreb, da avancerede AI-systemer kan anvendes til at udføre sofistikerede angreb på infrastruktur, virksomheder og regeringer. Hvis Danmark ikke formår at udvikle stærke sikkerhedsstandarder for AI-systemer, kan vi blive mere sårbare over for trusler som hacking, datatyveri og manipulation af kritiske systemer.    Dette kan underminere både tilliden til teknologi og den nationale sikkerhed, hvilket har potentielt alvorlige konsekvenser for økonomien og befolkningens velfærd.",Kvinde
+354,"Manglende innovation og konkurrenceevne:    På den anden side kan Danmark risikere at falde bagud, hvis vi ikke formår at omfavne AI og udvikle det på en ansvarlig måde. Mange lande investerer massivt i AI-forskning og udvikling, og de virksomheder og nationer, der forstår at udnytte AI ansvarligt, vil få en konkurrencefordel på de globale markeder.    Danmark risikerer at tabe terræn, hvis vores regulering bliver for restriktiv eller langsom til at tilpasse sig teknologiske forandringer, hvilket kan hæmme innovation og begrænse danske virksomheders vækstmuligheder på det globale marked.",Kvinde
+355,"Demokratiske udfordringer:    Endelig kan AI potentielt true det demokratiske samfundssystem, hvis det anvendes uden tilstrækkelig styring og kontrol. AI kan bruges til manipulation af information, målrettet desinformation og påvirkning af vælgere i politiske processer. Hvis dette ikke kontrolleres, kan det undergrave tilliden til politiske institutioner og medier, hvilket er en direkte trussel mod demokratiet.",Kvinde
+356,Vi forstår ikke hvilke ændringer AI fører med sig og vi kommer til at reagere på bagkant med risiko for det er for sent.,Kvinde
+357,"Vi forstår ikke hvor hurtigt det reelt går og hvilke konsekvenser det kan få på vores daglige liv - vi bliver ""taget på sengen"".",Kvinde
+358,Vi får ikke modnet samtaler om udviklingen hvilket særinteresser kan udnytte til deres - men måske ikke os alles - fordel.,Kvinde
+359,Jeg forstår ikke jeres spørgsmål om hvordan ansvarlig udvikling og anvendelse af AI kan blive et problem i Danmark - det er vel nærmere omvendt?,Kvinde
+360,hvis den bliver for restriktiv,Mand
+361,hvis den bliver for åben,Mand
+362,jeg forstår ikke forskellen på dette og det forrige spørgsmål :-\,Mand
+363,at vi ikke har en klar politik for beskyttelse af borgeren,Mand
+364,at EU ganske enkelt ikke når at lave regler på området,Mand
+365,at forbrugeren bliver udnyttet i højere grad end allerede,Mand
+366,at vi politisk vil blive udsat for manipulation,Mand
+367, at brug af AI når at overhale arbejdet med at lovgive og etablere rammer for god brug af AI i samfundet.,Mand
+368,"Hype  Siden chatGPT gjorde sit indtog i november 2022 har der været ekstremt hype om, hvor meget det kan bruges til. Jeg tror, det er vanskeligt for den almene borger (inkl. mig selv) at overskue konsekvenserne.",Kvinde
+369,"For stor tiltro til maskiner  Jeg tror ikke, vi er tilstrækkelig klar over, hvordan skærme, maskiner og deslige påvirker os. Det er efter min mening allerede gået ret galt og jeg har vanskeligt ved at se, hvordan vi får rettet op på det.",Kvinde
+370,"Globalt problem kræver globale løsninger - og det er vanskeligt  Jeg er nervøs for Kina - slet og ret. De har enorm magt, og ingen er helt klar over hvor meget.",Kvinde
+371,"Unge skærmes i stedet for at inddrages    Hvis vi ikke lykkedes med at få den brede gruppe af unge med, så de for en kritisk og konstruktiv tilgang til AI, vil de mangle væsentlige kompetencer for at kunne bruge og gennemskue teknologierne.  DEt er en fare, hvis vi fortsætter med at fokusere på at skærmtid skal begrænses mest muligt, i stedet for at fokusere på kvaliteten af undervisningen.",Mand
+372,"Data    Lovgivningen skal være på forkant med dataopsamlingen, så vi i et vist omfang bestemmer over vores egen data.",Mand
+373,"Bias    Vi skal være skarpe på generativ AI's bias, så de ikke forstærker samfundets fordomme, hvilket vil kunne føre til alt fra øgte kønsdiskriminering til øget racisme.",Mand
+374,"Ulighed    Alle skal have en grundforståelse i AI's muligheder og begrænsninger, så det ikke kun er de ressourcestærke, som vil lære at bruge redskaberne konstruktivt.",Mand
+375,"Det særligt menneskelige    Vi skal holde et skarpt øje på kvaliteterne ved det særligt menneskelige, så det fortsat vil være en ekstra værdi imellem mennesker.",Mand
+376,"Ensomhed og tab af åndelighed    Hvis vi lader AI erstatte forhold og menneskelig kontakt, vil det med tiden være et større menneskeligt tab.",Mand
+377,"Demokrati og retstat    Vi skal værne om den demokratiske proces, så AI ikke kommer til at påvirke de valg der tages.",Mand
+378,Manglende kvalitetssikring af data som fører til fejl.,Mand
+379,"Mangel på ?grundarbejdet? i udviklingen af viden, som gør at man ikke som menneske kan vurdere færdige AI produkter",Mand
+380,"Retten til sandhed  Vi har i kræft af menneskerettighederne ret til rent vand, tag over hovedet med videre, men vi mangler måske en grundlæggende ret til sandhed.   Hvad skal løgne og manipulationer målet op mod?",Kvinde
+381,"AI og strømforbrug/bæredygtighed  En del af ansvarligheden er også vores ansvar overfor kommende generationer og her er klimakrisen og biodiversitetskrisen særdeles relevante. Hvis vi skruer op for AI alle steder, øger vi strømforbruget og besparelser andre steder i samfundet sluges dermed af AI. Så det kan blive et problem hvis det ikke bliver 'common knowledge' hvor mange ressourcer en AI-søgning lægger beslag på. - Hvis vi ikke bliver i stand til at etablere linket mellem AI og biodiversitet (øget energiforbrug --> mere strøm --> mere grøn grøn --> flere solcelleparker mv --> mindre plads til biodiversitet) kan det komme som et chok for offentligheden hvilke prioriteter der er lavet om 10 år - og til den tid er vi måske blevet så afhængige af AI-baserede løsninger at det er svært at tænke anderledes.",Kvinde
+382,"Fremsynethed og fagligheder i udviklingen  Det kan blive et problem hvis der ikke arbejdes ægte tværfagligt med amfundsudviklingen med AI. Humaniora og samfundsvidenskab er vigtigere end de teknologiske fag i beslutninger og debatter. I øjeblikket virker det som om teknologiske fag og selve udviklingen af muligheder er kernen og så tilføjes der lidt samfundsvidenskab og humaniora for også lige at tænke på hvad det betyder for samfundet. - Det bør være omvendt, så kernen er mennesker og samfund og de store snakke om idealer, visioner, og prioriteter og så kan man have de teknologiske muligheder i  redskabskassen og teknologiske eksperter som rådgivere og udviklere.",Kvinde
+383,Fokus flyttes fra reelle problemer til twister om sandhed  Der bliver brugt for mange ressourcer på at afgøre om noget er sandt eller falsk og og hvordan twister afgøres - i forhold til hvilken lov. Dt skaber mindre tid og færre ressourcer til at arbejde med udfordringer i den ikke-virtuelle verden.,Kvinde
+384,Kan automatiseringen af visse opgaver fjerne nuancerne,Mand
+385,Hvor opbevares alt den data der er personlig eller viden der omhandler personer?,Mand
+386,Uansvarlig adfærd og brug af AI,Kvinde
+387,Manglende menneskelighed i håndtering af sager,Kvinde
+388,"Hastighed - det går for hurtigt, og iver efter at bruge det, kan overskygge den nødvendige kritik af AI",Kvinde
+389,Manglen på etiske og moralske overvejelser,Kvinde
+390,Omrokeringer på arbejdsmarkedet. Målet om/ønsket om hurtige besparelser på fx kommunal velfærd kan få konsekvenser for kvaliteten af velfærden. Risiko for at beslutninger om anvendelse af AI træffes ud fra et økonomisk rationale og ikke menneskelig velfærd,Kvinde
+391,"Eleverne og studerende lærer kun at bruge 'færdiglavede' løsninger gennem AI, i stedet for at lave sine egne.",Kvinde
+392,"De lærer ikke at søge efter info selv, dvs. evnen til at forstå svære akademiske tekster kan blive forringet med at AI gøre al søgningen for dem.",Kvinde
+393,Kritiske kompetener vil derfor også forsvine.,Kvinde
+394,"Hvad vil være grunden til at overhovedet anstrænger sig til at lære komplicerede matematiske metoder, hvis en maskine kan gøre alt for en?",Kvinde
+395,Ansvarlig udvikling og anvendelse at AI er per definition ikke et problem. Lige så lidt som ansvarlig kørsel ikke er et problem sålænge at bilisten er ansvarlig.,Mand
+396,"Udfordringen med AI er at mange tror at det er en tryllestav der selv laver viden. AI laver ikke ny viden, men giver hurtigere adgang til viden end mennesker selv har tid eller kapacitet til.",Mand
+397,I har tilsyneladende med denne undersøgelse taget det udgangspunkt at AI i sig selv er problematisk. Det er det ikke. AI har eksisteret i 30 år.,Mand
+398,Ansvarlig udvikling og anvendelse af AI blive ikke et problem i Danmark over de næste 10 år. Så længe vi er enige om at ansvarlig udvikling og anvendelse er noget positivt,Mand
+399,"Interessekonflikter    Der er tale om nogle særligt stærke og magtfulde aktører, der tidligere har vist sig vanskelige at kontrollere.",Mand
+400,Overimplementeret begejstring    De positive elementer skaber et fattigt incitament til at opstille restriktioner.,Mand
+401,Meget stærke kommercielle interesser (tech giganter),Kvinde
+402,Manglende politisk handlekraft i Danmark,Kvinde
+403,Manglende politisk handlekraft i EU,Kvinde
+404,"Manglende viden på beslutningstager niveau (branchen stikker af uden at vi aner hvad der sker, før det er for sent)",Kvinde
+405,Manglende viden hos os selv som privatpersoner og brugere,Kvinde
+406,Jeg synes at problemerne med AI er overdrevne.,Mand
+407,"Det er nok nærmere et problem, hvis det ikke bliver ansvarligt.",Mand
+408,Det er svært at lovgive i takt med teknologiudviklingen,Mand
+409,"Internationalisering.  Vi er alle sammen så fokuserede på ikke at sakke bagud i forhold til andre lande. Jeg mener ikke at have hørt en begrundelse for, hvad vi egentlig skal med AI andet end, at vi er nødt til at følge med udviklingen. Og hvis det er incitamentet, kan det måske komme til at gå for hurtigt, så vi ikke når at sikre den ansvarlige udvikling",Kvinde
+410,"Kompetencer  Hvem har kompetencerne til at kunne overskue konsekvenserne af AI? Og hvis de folk, der skal kigge på det i forvejen er meget pro AI, bliver det aldrig en objektiv vurdering.",Kvinde
+411,Gamle mennesker  Hvor er de i alt dette? Min far kan sgu ikke engang finde ud af MitId - hvad skal han gøre?,Kvinde
+412,"Udsathed  Alle de borgere, der ikke er med på vognen, falder alt for langt agterud. Børn fra ressourcesvage hjem, hjemløse, ældre og andre, der ikke forstå alt dette.",Kvinde
+413,"Hvorfor og til hvad?  Kan vi prøve at identificere, hvad AI skal bruges til? Sygdomsbekæmpelse, gensplejste fødevarer, uddannelse eller hvad. Vi taler om AI som ÉN given ting, men hvad er det egentlig, og hvor kan det bruges. Det er måske den første offentlige diskussion, vi skal have gang i.",Kvinde
+414,Manglende lovgivning,Kvinde
+415,Profit før Etik,Kvinde
+416,Fremmedgørelse,Kvinde
+417,Vi er for sent ude.,Kvinde
+418,"AI overgår vores fatteevne, og dermed hvad det kan misbruges til",Kvinde
+419,Interessen for at styre AI overgås af markedsøkonomiske /politiske interesser.,Kvinde
+420,"IT-giganter, vi ikke kan tøjle    Vi kan ikke styre IT-giganter som google, meta, microsoft og chatGPT. Det bliver meget svært at regulere det her område selv.",Mand
+421,"Global udvikling    Den her udvikling er global, og vi kan ikke stoppe den. Så vi er nødt til at finde ud af, hvordan vi følger med, etisk og ansvarligt, uden at blive ""sat af"" på en international skala.",Mand
+422,"Vil man AI, finder man AI    Man vil altid kunne få adgang til AI. Så at prøve at holde det ude bliver kunstigt og umuligt. Det handler om, at vi læner os ind i AI, og driver en positiv udvikling, fremfor at være skræmte.",Mand
+423,"Manglende grundlæggende (ud)dannelse kan ikke erstattes med ""opslagsværker""",Mand
+424,"Manglende skoling i kritisk tænkning kan ikke skabes ved at få AI til af ""tænke for sig""",Mand
+425,Manglende indføring i Historie og andre grundlæggende fag kan ikke erstattes med AI,Mand
+426,"Klimaaftryk  Klimaaftrykket er eftersigende enormt,  og vi bør kun bruge det til ordentlige formål. Set i lyset af at kloden er i virkelig dårlig stand.",Kvinde
+427,"DK er et af de mest digitialiserede lande  Vi er sårbage som et af de mest digitialiserede lande i verden og der er mange cybertrusler allerede, som sandsynligvis bliver forstørrede af AI",Kvinde
+428,"DK er naive/jubeloptimistiske   Vi har en tendens til at være naive/jubeloptimistiske omkring betydning og brugen af teknologi, f.eks. i forhold til at beskytte børn og unge (hvor vi er for sent ude med f.eks. skærmpolitik og børns trivsel)",Kvinde
+429,"Afhængighed   - (generativ)AI appellerer allerede til det dovne i mennesker, så spørgsmålet er om vi i fremtiden bliver afhængige på samme måde som vi alle er nu allerede er af skærmene? Som vil give mere mistrivsel?",Kvinde
+430,AI  erstatter social kontakt   Nogen mener at AI kan erstatte social kontakt for mennesker  Er det gavnligt/naturligt for mennesker at være så hyper digitaliseret? Tager vi nok stilling til det?,Kvinde
+431,Kampen om sandheden / deep fakes,Kvinde
+432,Elon Musk,Kvinde
+433,At vi som samfund degenererer - ikke kan tænke,Kvinde
+434,At vi som samfund mister kompetencer - at de fleste ikke kan noget,Kvinde
+435,A og B hold - kun dem der ikke er luddovne får noget ud af AI.,Kvinde
+436,Miljøkatastrofer og klima - det er ikke den rigtige måde at bruge ressourcer på,Kvinde
+437,Manglende empati pga manglende fællesskaber - vi mister menneskelighed,Kvinde
+438,Teknologiforståelse  Manglende forståelse af hvad teknologien kan,Kvinde
+439,Kompetenceudvikling  Manglende kompetencer i hele organisationen,Kvinde
+440,Jura  For store juridiske begrænsninger,Kvinde
+441,"Politisk uvidenhed om AI og de mange pitfalls, der er.   Tag som eksempel politikernes brug af Facebook eller X. De bruger det sociale medier hæmningsløst, selv om det igen og igen er dokumenteret, at de sociale medier skader demokratiet, verdensordenen og er kilde til alt fra mistrivsel til manipulation.",Mand
+442,"Overvågning, misbrug af data og mangel på beskyttelse af data.",Mand
+443,"AI i netværk med andet AI - eller betinget af andet AI - er vi slet ikke forberedt på. Eksempelvis kan en ny finanskrise skubbes igen på sekunder, hvis diverse AI på vare- og finansmarkeder går i selvsving.",Mand
+444,Algoritmer stopper ikke op og har en eftertanke. De rummer ikke en følelsesbaseret empati.,Mand
+445,Uigennemskuelige beslutninger bygget helt eller delvist på AI. Beslutningsgrundlaget kan ofte ikke efterprøves.,Mand
+446,"Bias i algoritmer, som er svære at spore eller dokumentere.",Mand
+447,uigennemskuelighed i beslutningsprocesser og manglende mulighed for at efterprøve beslutningsgrundlag,Mand
+448,øget social skævhed,Mand
+449,"Manglende Regulering: AI-udviklingen går hurtigere end lovgivningen, og fraværet af klare standarder gør det vanskeligt at sikre ansvarlig brug. Det kan føre til anvendelse af AI uden tilstrækkelige kontrolmekanismer.",Kvinde
+450,"Afhængighed af Udenlandske Teknologier: Med stigende brug af teknologi fra udenlandske virksomheder kan danske værdier og etiske standarder blive presset, da danske beslutninger påvirkes af internationale spillere med andre prioriteringer.",Kvinde
+451,"Begrænset Ekspertise: Der er mangel på AI-specialister i Danmark, hvilket kan hæmme ansvarlig AI-udvikling. Uden den rette ekspertise kan etiske aspekter risikere at blive overset.",Kvinde
+452,"Privatliv og Dataetik: Danskere har høje krav til privatliv, men AI?s databehov kan virke invaderende. Uden gennemsigtighed risikerer man, at borgerne mister tilliden til AI-teknologi.",Kvinde
+453,"Økonomisk Pres: Øget konkurrence kan føre til, at AI implementeres hurtigt og billigt, hvor kortsigtede økonomiske gevinster risikerer at gå forud for ansvarlige og etiske valg.",Kvinde
+454,Manglende politisk interesse og prioritering på nationalt niveau - emnet bliver set som en slags naturkraft man ikke kan gøre noget ved.,Mand
+455,"Tragedy of the commons - det fælles bedste for samfundet vil klart være at udvikle ansvarlig AI, men fordi ansvaret ikke er ét sted, så forhindrer det kollektive handlingsproblem en løsning.",Mand
+456,Svært sommetider gennemskue det er AI som står bag et foto eller en tekst for andre. Vigtigt at angive på et vist plan men hvornår og hvorfor skal det angives så brugerne / borgerne ved det.,Kvinde
+457,"Langsom start  Mange bruger det men, men viden omkring kilder, repræsentation osv. mangler  Udformning af lovgivning halter bagud",Kvinde
+458,Bæredygtigt forbrug  Manglende viden omkring hvordan brugen af AI påvirker energiforbrug,Kvinde
+459,Intellektuel dovenskab - viden bliver gjort let tilgængelig og unuanceret.,Mand
+460,"Kilder til information kan være udvalgt af personer, firmaer, regering mv, som ønsker at manipulere befolkningen",Mand
+461,Politisk regulering er uomgængeligt - helst på EU eller globalt niveau,Mand
+462,"Dannelse, kritisk tænkning og humaniora bliver centralt, da AI udfordrer selve det at være menneske. Det er uhyre vigtigt at vi tager dette seriøst.",Mand
+463,"Oplysning på uddannelsessteder, ligesom AI skal tænkes ansvarligt ind i alle discipliner, så studerende kan forstå, hvordan de både kan bruge AI og - AI etisk - i deres konkrete faglighed",Mand
+464,"Brugen af AI kan gøre samfundet mere fattigt på kultur. Hvis AI generere kulturen, så vil den med tiden begynde at generere sig selv, og ende med at udviklingen stagnere, og bare gentager sig.",Mand
+465,"Ulighed og social eksklusion: AI har potentiale til at forværre eksisterende sociale uligheder, især hvis systemerne er trænet på data, der indeholder fordomme eller skævheder. Dette kan føre til diskrimination mod bestemte grupper. For eksempel kan marginaliserede befolkningsgrupper risikere at blive udsat for uretfærdig behandling i forbindelse med ansættelsesprocesser, det juridiske system eller ved tildeling af social hjælp, hvis algoritmerne ikke udvikles og monitoreres med ansvarlighed og etisk forsvarlighed.",Mand
+466,"Databeskyttelse og privatliv: Hvis AI anvendes uden tilstrækkelig omtanke, kan det resultere i, at store mængder personlige oplysninger indsamles og bruges på en måde, som folk ikke har givet samtykke til eller er opmærksomme på. Dette kan true den enkeltes ret til privatliv, da det potentielt muliggør overvågning både i det offentlige rum og på arbejdspladsen. Sådan uansvarlig brug af data kan skabe en følelse af konstant overvågning og dermed underminere borgernes tillid til både teknologiske systemer og de institutioner, der anvender dem.",Mand
+467,"Arbejdsløshed og arbejdsmarkedets forandring: Når AI-teknologi bruges til at automatisere arbejdsopgaver, kan det føre til store forandringer på arbejdsmarkedet. Nogle job kan helt forsvinde, fordi maskiner og algoritmer kan udføre dem hurtigere eller billigere. Samtidig vil der opstå nye job, men disse vil ofte kræve andre kompetencer og tekniske færdigheder. Hvis vi som samfund ikke sørger for at hjælpe folk med at tilpasse sig disse ændringer, for eksempel gennem uddannelse og opkvalificering, risikerer mange at miste deres arbejde og have svært ved at finde nye job, hvilket kan føre til øget arbejdsløshed og social usikkerhed.",Mand
+468,"Mangel på gennemsigtighed og ansvar: Mange AI-systemer fungerer som ""sorte bokse"", hvilket betyder, at det kan være meget svært at gennemskue, hvordan de når frem til deres beslutninger eller resultater. Denne manglende forståelse kan gøre det vanskeligt at stille systemerne eller dem, der bruger dem, til ansvar for deres handlinger. Det er især problematisk i kritiske områder som sundhedsvæsenet, retssystemet og offentlig forvaltning, hvor beslutninger, der påvirker menneskers liv og rettigheder, skal være klare og retfærdige. Uden gennemsigtighed kan det underminere tilliden til systemerne og de beslutninger, de træffer.",Mand
+469,"Etisk og sikkerhedsmæssig usikkerhed: Hvis der ikke er klare regler for brugen af AI, kan teknologien blive anvendt til farlige formål. Eksempler inkluderer autonome våbensystemer, der kan føre krig uden menneskelig kontrol, eller spredning af misinformation, som kan manipulere offentligheden. Sådanne anvendelser kan skabe stor usikkerhed og have alvorlige konsekvenser. Uden etiske retningslinjer risikerer vi, at AI bruges på måder, der er skadelige og svære at kontrollere.",Mand
+470,"Polarisering og misinformation: AI-drevne algoritmer, der bruges på sociale medieplatforme, er ofte designet til at fremme indhold, der fanger brugernes opmærksomhed og engagerer dem mest muligt. Desværre er sensationelle eller kontroversielle indlæg ofte de mest engagerende, hvilket kan betyde, at falsk eller misvisende information bliver spredt hurtigere og bredere end faktuel information. Algoritmerne kan skabe ""ekkokamre,"" hvor brugere primært præsenteres for indhold, der bekræfter deres eksisterende holdninger, og de eksponeres i mindre grad for modstridende synspunkter. Dette kan føre til øget polarisering, hvor befolkningsgrupper bliver mere splittede, og deres synspunkter bliver mere ekstreme.    Hvis AI anvendes uden etisk kontrol, risikerer vi, at den demokratiske dialog undermineres, da misinformation kan forvirre vælgere og fremme usande eller farlige narrativer. Dette kan svække tilliden til demokratiske institutioner og føre til en samfundsmæssig splittelse, hvor grupper ikke længere er villige til at lytte til hinanden eller indgå i konstruktive debatter. I sidste ende kan dette skabe dybe samfundsmæssige kløfter og true sammenhængskraften i det danske samfund.",Mand
+471,"Ansvarlig udvikling af AI er vel egentlig ikke et problem, nok større problem, hvis ikke der er en ansvarlig udvikling af ansvarlig AI",Kvinde
+472,"I bestræbelser på at udvikle ansvarlig AI, kan det dog være ricisi for udøvelse af censur",Kvinde
+473,Udviklingen styres af pengestrømme  Hvad udvikles hvor og hvorfor,Kvinde
+474,Privat eller offentligt finansieret platform  Hvis det er uklart om de udbudte AI platforme er privat eller offentligt finansierede og dermed uklarhed om de interesser der ligger bag de data AI platformene fodres med,Kvinde
+475,"Viden eller holdning  Hvis det er vilkårligt, hvilke data, der defineres som fakta/viden og hvilke, der defineres som partsindlæg/holdning ift. en given problemstilling",Kvinde
+476,"Sproget udvikler sig  Ord og begreber udvikler sig med voldsom hast, dvs. betydning og mening opsuget af AI i en periode, kan være en andet få år efter.",Kvinde
+477,"Mange interesser fra meget forskellige aktører- økonomi og salgs logikker, viden og uddannelses logikker, privatperson og redskabs logikker - det gør at det blivet svært med klar forståelse, analyse og klar tale som alle kan forst",Kvinde
+478,Manglende kompetencer  Manglende kompetencer hos vores undervisere fra børnehave til uni - eller deres egen frygt der gør at de ikke sætter sig ind i grundlæggende at forstå de forskellige former for AI.,Kvinde
+479,Manglende investering -   forstået som at jo mere vi er foran og selv sætter retning jo bedre anvendelse. Det skal ikke kun være amerikanske tech-giganter men vi skal selv være de som udvikler de forskellige APPs som anvender AI. Både af økonomiske (indtjening til DK) og menneskelige (værdier) grunde.,Kvinde
+480,Uvidenhed og dovendskab  Generelt at vi i befolkningen ved for lidt og agere på frygt og en halv vind. Vi skal åbent og konstruktivt kende til AI forskellighederne og mulighederne for at kunne arbejde med på en konstruktiv måde. Vi må ikke blive dovne som når vi slår GPSen til og ikke selv kan finde vej længere,Kvinde
+481,Vi vil bæredygtighed men overvejer ikke et sekund hvor lidt bæredygtigt AI er.    Så ansvarlig udvikling er også at tænke hele konceptet ind ift. vores andre værdisæt og målsætninger.,Mand
+482,"Herhjemme er toprådgiverne til staten Microsoft og Netcompany. Hvilket vil sige at den digitale transformation overhovedet ikke er at finde i topstyret Danmark.    Det frygter jeg kommer til at bære præg på uddannelses, forsknings og erhvervspolitik ift. AI på sigt.     Vi har brug for guruer herhjemme - som både er dannede og digitalt tænkende (heri indlagt også at de tænker analog som styrke)",Mand
+483,"Uvidenhed  Hvad er ansvarlig udvikling i denne sammenhæng? Kender vi konsekvenserne af det vi igangsætter? Hvordan ved vi at vi er ansvarlige nok, når vi ikke nødvendigvis kender de potentielle konsekvenser.",Kvinde
+484,"Taænkningen ophører - og vi bliver lige så dumme som AI.  Man kommer til at springe over selv at gennemtænke problemer, og det giver en mindre forankret dyb viden og forståelse af problemerne/udfordringer. Dermed ryger dømmekraften som en meget vigtig menneskelig egenskab.",Mand
+485,Manglende politisk handling,Kvinde
+486,"Jeg er bekymret for at AI bliver den ?nye bibel? og bliver en afgørende stemme, når der skal træffes vigtige beslutninger. Vi må ikke ligge vores liv og eksistens i hænderne på AI",Kvinde
+487,Der kan være modstand mod AI blandt dem der frygter for deres job.,Kvinde
+488,Efterlevelse af GDPR regler gør ibrugtagning af AI tungt.,Kvinde
+489,Mangel på kompetencer og gode efteruddannelsesmuligheder,Kvinde
+490,"Redskab  Hvis ikke AI anvendes som et redskab, men i stedet for som et mål",Kvinde
+491,Substitut   Hvis AI anvendes om en substitut i stedet for et supplement til menneskelig kontakt,Kvinde
+492,for stor big tech indflydelse på EU og dk politik og reguleringsfortolkninger og processer og manglende villighed til at sikre formål med reguleringen gennem håndhævelse og skarp fortolkning i et hastigt tempo,Kvinde
+493,manglende kapital og regulering ifm kapitalindsprøjtning i EU i forhold til at bibeholde ejerskab af innovationer og forhindre opkøb af kritisk infrastruktur til USA,Kvinde
+494,Utilstrækkelig regulering af techgiganternes dataindsamling,Kvinde
+495,"Manglende fornyelse af undervisnings- og eksamensformer i en verden, hvor AI er til stede i elevers og studerendes lommer - hvorfor uddannelse skal tilrettelægges anderledes med større vægt på at stille spørgsmål, undres og være nysgerrig end på kun at finde korrekte svar",Kvinde
+496,At Europa er bagud ift. innovation og udvikling af (ansvarlig brug af ) GAI og dermed kommer til at bruge sprogmodeller udviklet og trænet på amerikanske (eller kinesiske) data - med medfølgende bias,Kvinde
+497,Manglende dansk (eller nordisk) sprogmodel,Kvinde
+498,"ANVENDELSE  Et ureguleret overforbrug af AI til dele af sundhedssektoren. Der er mange fordele og muligheder ved AI. Hele life science industrien baserer sig delvist herpå. Dvs en økonomisk uansvarlig anvendelse.   Det betyder man kommer til at ""vende ryggen"" mod andre essentielle dele af sundhedsvæsenet. Kontakten, helhedsforståelsen af det enkelte menneske, samtalen og nuancerne heri og det der ikke bliver sagt. Potentielt en underprioritering af det psykiatriske område og de psykologiske aspekter.",Kvinde
+499,VIDEN  Kundskaber hos den almindelige borger ift brug af digitale redskaber vil variere markant.,Kvinde
+500,"ADGANG  En skævvridning af samfundet og en forstærkning af ulighed, både socialt og sundhedsmæssigt. Mange vil kunne bruge AI, mange vil slet ikke.",Kvinde
+501,"FORMIDLING  Indholdet i den viden der deles. En forvrængning af sandheden, hvad den så end måtte være. Fake news.",Kvinde
+502,"Mange forskellige anvendelsesmuligheder.  AI vil udvikles i mange forskellige brancher og fora. Det kan øge risikoen for at f.eks. silo-opdeling i offentlig forvaltning bliver forstærket, fordi hvert område udvikler sin egen 'rigtige' måde at anvende AI, og på den måde skaber tykkere mure imellem faggrupper, som måske hellere skulle arbejde sammen om at løse problemer i samfundet.",Kvinde
+503,"Tempo i udviklingen.  Da udviklingen går meget hurtigt, er der en risiko for, at nogle befolkningsgrupper ikke bliver hørt, eller ikke får adgang til brug af AI. Enten fordi de ikke opnår kompetencerne hurtigt nok, eller fordi de ikke kan se nogen relevant måde at bruge AI i deres felt eller daglige liv.",Kvinde
+504,"Danmark er et lille land.  Derfor vil en del af den information vi skal bruge i udvikling af AI, blive hentet i udlandet. Lande som har værdier, organisering eller økonomi der er væsensforskellig fra de danske. Det kan skabe misinformation og bias i forhold til offentlig forvaltning, uddannelse, sundhed, økonomi, erhvervsudvikling, byudvikling, sociale forhold og beskæftigelse, klima, miljø, diversitet, bæredygtighed og meget andet.",Kvinde
+505,"Vi har meget at indhente.  Allerede nu er f.eks. uddannelsesinstitutioner overladt til sig selv, med at skabe regler og muligheder for anvendelse af AI i det danske system. Jeg antager det samme gør sig gældende for f.eks. den finansielle sektor og den offentlige forvaltning. Det vækker min bekymring, at der allerede kan ligge oplysninger om almindelige mennesker på servere som slet ikke er regulerede, og som kan falde i hænderne på aktører med uønskede hensigter. Lige nu bliver AI jo formentlig brugt, men ikke reguleret i danske institutioner, styrelser mv. - det må gøre det svært at få et overblik, hvis der først bliver reguleret, når skaden er sket. Vi har således travlt, og det kan medføre forhastede beslutninger, der kan sætte ansvarligheden over styr.",Kvinde
+506,Ukontrolleret anvendelse af AI,Kvinde
+507,Mangel på relevant lovgivning og rel  gulering,Kvinde
+508,Naiv tiltro til output,Kvinde
+509,Forsimpling og forarming,Kvinde
+510,Neglicering og usynliggørelse af nuancer og komplexitet,Kvinde
+511,Manglende hensyn til demokratiske principper,Kvinde
+512,Politisk inerti,Kvinde
+513,For mange politiske agendaer i (midter)regeringen,Kvinde
+514,"Inkompetent digitaliseringsminister  Hun er for ung, uerfaren og har ikke troværdighed jf. hendes tidligere karrierevalg.    Derudover taler hun på alt for højt niveau og går pt. bare rundt og siger ""at vi skal noget"". Hun sætter ikke retning.",Kvinde
+515,For stram politikførelse der giver benspænd for virksomheder,Kvinde
+516,"EU lovgivning der er, eller ikke er, lavet endnu.",Kvinde
+517,Større (AI) kriser eller skandaler der giver en unuanceret skævvridende debat,Kvinde
+518,Politikerne ved ikke nok om AI,Kvinde
+519,Udviklingen af AI går for hurtigt til at befolkningen kan følge med,Kvinde
+520,Ingen kan overskue kpnsekvenserne af noget der udvikler sig hele tiden,Kvinde
+521,Uddannelsessystemet er ikke gearet til AI,Kvinde
+522,Videns- og anvendelseskløft  Det er stadig relativt få der (med deres eget vidende) har brugt AI. Dvs. at det er svært at have en demokratisk samtale om  AI og brugen af AI tjener i høj grad bestemte interesser.,Kvinde
+523,Kulturelle bias i AI  De AI-løsninger jeg selv har brugt forstærker de stereotyper - billedemæssigt og sprogligt - som allerede findes i medier. Sprogbrug bliver fx hurtigt meget overdrevet ?amerikansk? eller meget følelsesfuldt  (og dermed også mærkeligt fladt) beregnet til at få reaktioner af de typer man kender,Kvinde
+524,"Uklare præmisser  Det er allerede i dag svært at vurdere troværdighed og forudsætninger for mange ting i samfundet. Det skrues der op for, når man ikke kender algoritmen.",Kvinde
+525,Manglende dansk kulturforståelse og historik,Kvinde
+526,"AI er et meget bredt begreb, det kan gøre det svært overhovedet at have en samtale eller udfylde et spørgeskema om.",Kvinde
+527,"Svært at lovgive og regulere meningsfuldt.   Hvad sker der, når nogen kan tale med dyr? Eller andre eksponentielle leaps.",Kvinde
+528,"Manglende fælles rammer, der kan bruges til det fælles bedste",Kvinde
+529,At alt AI ikke kører på bæredygtig energikilder - igen misser vi en omstillingsmulighed,Kvinde
+530,Manglende indsigt og forblindelse af hvad vi forestiller os vi kan bruge AI til.,Kvinde
+531,At tempoet på udviklingen af teknologien modarbejder en hensigtsmæssig anvendelse af AI. Det modsatte kunne også være scenariet.,Kvinde
+532,"Mangel på rigtige mennesker, som kan bygge bro mellem AI og virkelighed. Jeg har selv været en af de få. Det kræver nemlig, at man har mange års erfaring inden for den givne faglighed men også har forståelse og indsigt og motivation for at arbejde med AI.",Kvinde
+533,At virkeligheden overhaler optaget og omsætningen af viden om både fordele og negative bivirkninger ved brugen af AI.   Det er mit indtryk at der allerede hersker lidt en tilstand af Wild West.,Kvinde
+534,"Nedtoning af menneskelige kompetencer    Der er allerede problemer for kunstnere (musikere, billedkunstnere mv.) ift. at beskytte deres værker og for brugere ift. at stole på og værdsætter kunstneriske værker.",Kvinde
+535,"Overvågning    Brug af AI inkluderer uploading af store mængder information om den enkelte bruger, som kan udnyttes på forskellig måde, fx. ved direkte overvågning,  ved brug af data til robotudvikling (som også kan være positivt) m.m.   Den demokratiske kontrol og udvikling af samfundet kan blive voldsomt formindsket.",Kvinde
+536,"Fake news    Allerede nu kan det være svært at vide, hvad der er fake news, fake billeder osv. og det giver problemer med vidensopbygning, undervisning/læring og demokratisk deltagelse i samfundet. Det kan blive forstørret som problem med AI, der kan mere - og vil komme til at kunne mere - end nuværende digitale muligheder. Der kan også blive 'et enkelte svar' på mange større problemer og udfordringer, hvor AI har svaret.",Kvinde
+537,Dårlig eller ingen uddannelse indenfor teknologiforståelse og dannelse,Kvinde
+538,Grundskole og ungdomsuddannelser mangler teknologiforståelse,Kvinde
+539,Manglede videreuddannelse af div lærer i forhold til at anvende og arbejde med AI i den daglige undervisning,Kvinde
+540,Manglende etiske rammer for AIs anvendelse,Kvinde
+541,Tech giganternes magt,Kvinde
+542,"Almen dannelse!  Manglende viden om, hvad AI kan bruges til.",Mand
+543,Boost AI til hverdagsbrug!  Manglende viden om hvad man lavpraktisk gør for at bruge AI ved specifikke problemstillinger.,Mand
+544,"Bekæmp AI censur!  Politisk og/eller virksomhedscensureret styring kan forpeste udkommet, hvis der ikke er et bredt udvalg til rådighed af services, der tilbyder AI til forskellige formål, og disse services er åbne om deres funktion.",Mand
+545,Lille Sprogområde  DK er lille sprogområde og der kan være begrænsede ressourcer til udvikling,Mand
+546,Kompliceret lovgivning  Hvis den lovgivning der bliver lavet på området bliver for kompliceret (for at få et politisk kompromis igennem) kan det sætte begrænsninger på udviklingen,Mand
+547,Teknologiangst  Hvis der blandt befolkningen og i folketinget er for stor nervøsitet om AI konsekvenser kan det medføre begrænsninger som kan være unødvendige eller overdrevne,Mand
+548,Jeg går ud fra at I mener U-ansvarlig.... (slåfejl?),Kvinde
+549,"Hvis der ikke skabes fælles rammer og begræsninger, altså regulering, af de digitale platforme, bliver det fuldstændig umuligt at tilse, at borgerne får et sandfærdigt indhold at basere deres verdenssyn og dermed deres beslutninger på.",Kvinde
+550,Det er - og bliver for nemt at skabe opdigtet og manipuleret indhold til de forskellige digitale platforme.,Kvinde
+551,"Særligt manipulationer hvor man lægger falske ytringer i munden på videogengivelser af mennesker, som aldrig i virkeligheden har ytret sig således, er et kæmpe problem, hvor grænseoverskridende aktiviteter kan belast relationer, holdningsdannelser og dermed beslutninger i folks liv.",Kvinde
+552,Den lette løsning:  Ai bruges til alt og dermed køre al viden og produktion bare i ring,Kvinde
+553,"Udvikling, idégenerering løsninger kan kickstartes af AI, men mennesket i verden skal vurderes af mennesket",Kvinde
+554,"Når mennesker søger mod kunst, søger de efter sig selv. En mulighed for at spejle sig og udvikle sig med nye perspektiver. Kan vi spejle os i AI produceret kunst, hvis der ikke er andet end produktion og kommercialisering bag?  Kan man spørge en computer, hvad meningen er bag den kunst, den har skabt? Hvad buskabet er?",Kvinde
+555,"Nogle mennesker er bange for at bliver overflødige i samfundet, hvis AI kan løse deres opgaver. Vi skal sikre videreuddannelse og nye uddannelser til nye opgaveløsninger.",Kvinde
+556,"Med AI kan nogle opgaver løses hurtigere, men hvorfor har vi så meget fokus på, at alt skal gå hurtigt? Hvorfor kan vi ikke have fokus på kvalitet frem for kvantitet?  Skal brug af AI være frivillig?",Kvinde
+557,"Behøver vi overhovedet tænke selv, hvis AI bare kan gøre det for os? Har jeg som menneske så nogen værdi? Den samtale skal vi have.",Kvinde
+558,manipulering af politiske valg og beslutninger,Mand
+559,manipulering af kritisk infrastruktur,Mand
+560,"AI udviklingens fart.  Udviklingen har taget ekstra fart særligt de sidste 10 år selvom, det har været et område, der har eksisteret mange år. Det betyder, at vi er bagud i forhold til mange områder, hvor AI kan anvendes i et omfang, som får behovet for regulering til at stige.",Mand
+561,Manglende viden  Ved manglende viden om potentiale og udfordringer risikerer vi at det bliver reguleret for stramt pga. risikoaversion.,Kvinde
+562,"Stor tillid i samfundet  Danskere har en høj grad af tillid og vi er vant til at systemerne sikrer den nødvendige beskyttelse. Derfor er vi måske ikke så kritiske, som man bør være ift. anvendelsen af AI",Kvinde
+563,Mener ikke det er et problem hvis der er tale om ansvarlig udvikling og anvendelse.,Kvinde
+564,1. Lovgivning skal man være forsigtig med  Ville hellere tale i anbefalinger og have tillid til befolkningen - ellers er jeg bange for at overskrift nr. 2 - bliver til virkelighed,Kvinde
+565,"2. AI's potentiale bliver forløst af de forkerte   - hvis vi sætter for mange barrierer op for at forstå, bruge og lære det at kende, er det også forbundet med risici",Kvinde
+566,"3. AI bliver til noget farligt og forkert   - Der er masser af gode og interessante ting som AI kan løse for os. Der er timer at spre på noget, for så at kunne bruge dem til noget mere værdifuldt. Vi må ikke glemme det gode det kan føre med sig",Kvinde
+567,4. Frygt og flygt fra udvikling  Det kan skabe en kedelig og bagudrettet udvikling i vores samfund - helt generelt,Kvinde
+568,Manglende samspil mellem offentlige og private sphærer    At den til tider stærkt akademiske tilgang til proces i det offentlige ikke fungerer ift private virksomheder der er mere målsøgende,Mand
+569,"Spørgsmålet er svært at forstå... Ansvarlig udvikling og anvendelse af AI skal være et bolværket mod, at der opstår problemer, men lad os bare tage præmissen for, hvad den er...",Mand
+570,Ansvarlig udvikling og anvendelse er for dyrt og besværligt = store techvirksomheder trækker sig ud,Mand
+571,"Ansvarlig udvikling og anvendelse er for langsomt = borgere mister tiltroen til myndigheder og civilsamfundet, der driver denne ansvarlige udvikling, før de kan se gevinsten",Mand
+572,"Fakeness  Spredning af falske informationer, som er svære at spotte.",Kvinde
+573,"Værdiløshed  Produktion af en overflod af generisk autoproduceret indhold, som skaber mere støj og ingen værdi.",Kvinde
+574,"Umenneskelighed  Automatisering af processer, så robotter taler med robotter, så mennesker må skabe en undergrundskultur for at forbinde sig med hinanden eller hacke sig ind hos hinanden for overhovedet at blive set eller hørt.",Kvinde
+575,"Bias  Replikation af skadelige bias, som bliver forstærket uden kritisk stillingtagen.",Kvinde
+576,"International konkurrence  Konkurrence fra Kina og USA, der arbejder mindre regulatorisk",Mand
+577,"Retrospektiv opdagelse  Det bliver først for alvor klart, hvilke udfordringer det har givet anledning til på bagkant. Lidt som det f.eks. er oplevet med SOME, der oprindelig havde et helt andet islæt, uden at de nuværende udfordringer har været til at forudse",Mand
+578,Tech-giganterne har allerede globalt set for stor økonomisk magt. Deres (økonomiske) magt og indflydelse vil øges med AI,Mand
+579,"Politikerne (og Offentligheden) har hverken indsigt eller viden til at gennemskue eller imødegå de negative følger af AI. Det bliver en kæmpe udfordring af regulere AI internationalt såvel som nationalt ,slåledes at udviklingen og anvendelsen af AI bliver ansvarlig",Mand
+580,"Danmark som et lille land og sprogområde - får vi AI, der er tilstrækkeligt tilpasset vores kontekst?",Mand
+581,"Manglende transparens omkring, hvorfor AI genererer bestemte forslag og løsninger - hvilke data er AI blevet fodret med?",Mand
+582,"AI som politisk instrument, hvor det kommer til at understøtte en ""sandhed"", som eks. en regering gerne vil promovere.",Mand
+583,AI har et enormt energiforbrug sammenlignet med alm. søgninger på nettet - hvor meget AI kan vi tillade os at bruge i en klimasammenhæng?,Mand
+584,"Nytænking af regulering  Det bliver svært at regulere teknologien fordi løsningerne er så forskellige og de kommer på hurtigt. Jeg tror vi bliver nødt til at nytænke måden at regulere AI på, og det kræver en masse tillid.",Kvinde
+585,Lobbyisme  - kig bare på landbruget er sluppet afsted med,Kvinde
+586,Mangel på AI ingeniører der er uddannet indenfor dette felt,Kvinde
+587,"Vi har brug for nogle diskussioner om hvilken rolle vi vil have AI til at spille i vores samfund, og det bliver nok svært at skabe en reel konstruktiv debat på samfundsplan.",Kvinde
+588,"Europas konkurrence evne.  Europa er bange for at blive irrelevante når det kommer til AI, vi vil gerne med på vognen og det har vi også brug for at komme, men på VORES betingelser. Men den holdning er der mange der ikke deler, især erhvervsdrivende, hvilket jeg jo selvfølgelig godt kan forstå, men konsekvenserne er bare for store ved at hoppe i med begge ben uden at kigge på konsekvenserne",Kvinde
+589,"Hvis AI overtager (de fleste) arbejdsfunktioner i samfundet, kan det have dybtgående konsekvenser for mennesker, for hvem arbejdet er en central del af deres livsidentitet.    Arbejde er jo ikke blot en indkomstkilde - det giver også struktur i hverdagen, sociale relationer, personlig udvikling og en følelse af formål og mening (beskrives også i denne artikel: https://www.berlingske.dk/oekonomi/mette-frederiksen-vil-pille-ved-danskernes-pensionsalder-men-det-er-vi).    Uden muligheder for at udføre meningsfuldt arbejde kan vi få en (og sandsynligvis flere) følelse(r) af tomhed, tab af værdi og identitetskrise.    Samtidig kan samfundets opfattelse af arbejde og værdiskabelse ændre sig radikalt. Der vil være behov for at redefinere, hvad der anses for meningsfuldt bidrag til fællesskabet. Vi kan blive nødt til at finde nye måder at realisere os selv på, måske gennem kreative udtryk, frivilligt arbejde, uddannelse eller sociale engagementer og aktiviteter.",Mand
+590,"Det har siden tech-giganternes indtog været tydeligt at se, hvordan lovgivere har været bagud og nærmest konstant været reaktive (ofte årevis efter nødvendigt). AI-teknologier udvikler sig i en sådan fart, at det sandsynligvis bliver endnu mere udfordrende for dem at følge med. Dette kan føre til et juridisk og etisk vakuum, hvor AI anvendes uden tilstrækkelig kontrol og ansvarlighed (i en senere boks beskriver jeg en udfordring med åbenhed).",Mand
+591,"Det er ofte nævnt, men ikke desto mindre relevant, at være opmærksom på risikoen for bias og diskrimination i AI-systemer. Hvis de data, som AI trænes på, indeholder fordomme eller skævheder, kan det føre til uretfærdige eller diskriminerende resultater.",Mand
+592,"På trods af vide muligheder for aktindsigt med offentlighedsloven, kan det allerede nu være forbundet med vanskeligheder at få stykket et fuldt billede sammen. Hvis AI bliver en større del af det arbejde, der ligger til grund for beslutninger i offentligheden og folk (bredt forstået) ikke forstår, hvordan AI træffer disse beslutninger, eller hvis processerne er for komplekse eller lukkede, kan det føre til skepsis og modstand mod teknologien.     Det understreger behovet for ansvarlig udvikling, hvor åbenhed og oplysning er i fokus, så AI anvendes på en måde, der gavner hele samfundet. Om det lader sig gøre at skabe denne åbenhed, er jeg ganske meget i tvivl om.",Mand
+593,"Indsigt:  Jeg er bekymret for, at vores beslutningstagere ikke har den fornødne viden, indsigt eller forståelse for, hvor ""vildt"" brugen af AI kan blive.  Med det menes, at beslutninger og lovgivninger ikke altid besluttes på et oplyst grundlag, men mere ud fra det politiske ståsted og mavefornemmelse.  Den indstilling er ikke holdbar ift. håndteringen af AI.",Mand
+594,"Restriktioner:  Det er helt givet på sin plads, at tale om at begrænse brugen af AI på nogle områder. Men vi skal også passe på, at vi ikke spænder ben for os selv og udnyttelsen af det potentiale, som AI repræsenterer.  Og skal en lovgivning vedtages lokalt? Eller skal vi blot følge en EU-forordning og blive ""AI-Compliant"" som med GDPR?",Mand
+595,"Lovgivning:  Lovgivninger bliver sjældent gode af, at blive hastet igennem (læs/lyt fx ""Alting haster""-serien på Zetland).  På den anden side, er udviklingen på området for AI enorm og overgår det flestes vildeste fantasier - og her kunne en langsommelig lovgivningsproces i EU-regi (eller DK for den sags skyld), vise sig at være ""too little, too late""...",Mand
+596,Energibehovet begrænser potentialet ved AI   Anvendelsen af AI vil i sin videre udvikling blive begrænset af det store ressource- og energitræk brug af AI indebærer.,Mand
+597,Klimabelastning  Anvendelse af AI er meget energikrævende og går stik mod dagsorden om at begrænse klimaaftrykket.,Mand
+598,At vi har samtaler om hvordan vi anvender AI.,Kvinde
+599,At vi ikke udelukkende fokusere på at regulere os ud af AI.,Kvinde
+600,"Manglende etiske retningslinjer og regulering  Udviklingen sker så hurtig, at lovgivning vil have svært ved at følge med",Kvinde
+601,"Ureflekteret anvendelse  AI kan virke tillokkende og bidrage til mere effektive arbejdsgange, men i den travle hverdag har få ressourcer eller kompetencer til at reflektere over konsekvenser af anvendelsen",Kvinde
+602,"Datasikkerhed og privatlivets fred  AI er afhængige af store datamængder, som inkluderer personlige oplysninger",Kvinde
+603,Arbejdsløshed  AI kan automatisere mange jobfunktioner,Kvinde
+604,Algoritme bias  AI-systemer kan indlejre og forstærke bias,Kvinde
+605,Mangel på AI-ekspertise,Kvinde
+606,Miljøpåvirkning  AI har et enormt energiforbrug,Kvinde
+607,at vi ikke adgang til LLM og sandsynligvis er meget for sent ude i forhold til at skabe fx en nordisk LLM,Kvinde
+608,at vi ikke har adgang til dataflows og ikke kan validere,Kvinde
+609,at vi bliver i stigende grad afhængige af black-box globale algoritmer,Kvinde
+610,at AI-brug formentlig også bør underlægges klima-kontrol,Kvinde
+611,"at en opvoksende generation bliver vant til i daglig brug at lege med eksisterende AI-bots, uden at vi kan arbejde med ansvarlighed og etik i anvendelsen - og derfor heller ikke reelt udvikle AI-literacy",Kvinde
+612,Umoden forståelse af AI   Manglende viden omg og forståelse af grundlag for samt virkemåde og begrænsninger af AI,Mand
+613,Dovenskab  Forståelse af AI som redskab til at springe over laveste gærde.,Mand
+614,Effektiviseringsoptimisme  Overdreven tro på (og trang til at forsøge at effektuere) effektiviseringspotentialer ved brug af AI.,Mand
+615,Uddannelse,Mand
+616,Kritisk tilgang,Mand
+617,"Retningslinjer:  Retningslinjer for ansvarligt brug i forskellige kontekster; AI kan være en reessource, men vigtigt at vi forholder os til måden at anvende det på og formålet.",Kvinde
+618,Vidensgenerering:  Viden genereret fra AI holdes op i morgen evidens og best practise.,Kvinde
+619,"Statistik siger ikke noget om enkeltpersoner, så AI dømmer os til at være vores fortid/statistik - tænk janteloven.  Menneskene bliver slavegjort, fordi AI'en har jo ret, ikke?",Mand
+620,"Viljen til at være amatør:   Lad os nu bare prøve at bruge det (selvom vi ingen anelse har om, hvilke parametre AI'en bruger i en bedømmelse/proces)",Mand
+621,"Onde aktører: spam, misinformation og fake af enhver slags vil overvælde os, mens kontrolorganer og -funktioner ingen chance har for at følge med. Det aktuelle valg i USA er et godt eksempel, hvor Trump og Musk overvælder et demokratisk samfund med ondsindet vrøvl, forvirrer befolkningen - og på den baggrund er ved at lykkedes med at nedlægge demokratiet i et helt land.  Hvis det ikke skal gentage sig i Europa skal vi lovgivningsmæssigt gå langt hårdere til værks.",Mand
+622,"Manglende gennemsigtighed:  Virksomheder og offentlige myndigheder skjuler deres algoritmer og beslutningsparametre, så alle ubegrundet kan tage en hvilken som helst beslutning uden at skulle stå til ansvar for den.",Mand
+623,Digital kriminalitet,Kvinde
+624,Synd på uddannelser,Kvinde
+625,"Demokratiet i fare  Agendaen om ansvarlig udvikling og anvendelse af AI kan blive politiseret og højredrejet eller venstredrejet (mere sandsynligt, da journalister og akademikere typisk stemmer rødt) dvs. risikere den brede politiske ytringsfrihed og whistleblowing om samfundsmæssige systemfejl fordi højrefløjen bliver dæmoniseret. Med andre ord, hvis AI forsøges designet socialistisk og ikke alignet med hele den politiske biodiversitet.",Unknown
+626,"Data privacy  Anvendelse af AI i Danmark kan blive problematisk, hvis ikke vi får sikret privat data.",Unknown
+627,"Risikovurdering ved anvendelse sat i forhold til risikoen ved forsinket lokal AI adoption  Hvis Danmark er FOR forsigtige (overvurderer risici) og tøvende, kan agendaen om ansvarlig udvikling af nuværende AI i form af LLM modeller stå i vejen for, at Danmark tilegner sig brug af AI hurtigt nok. Det kan betyde, at andre lande kan tilbyde bedre løsninger (fordi de bruger AI LLMs) og billigere arbejdskraft (fordi de bruger AI LLMs), hvilket - måske overraskende - ville betyde tabte arbejdspladser i Danmark.",Unknown
+628,"At det går for langsomt og udviklingen derfor går i stå, eller kun kan håndteres af de helt store virksomheder",Kvinde
+629,At reguleringen bliver for stram og ugennemskuelig,Kvinde
+630,Profit over tænksom refleksion over reel værdi for mennesker i samfundet.,Kvinde
+631,"At udviklingen går så hurtigt, at det er svært at følge med vidensmæssigt og lovgivningsmæssigt",Kvinde
+632,Potentialerne blænder os alle,Kvinde
+633,Manglende regulering,Kvinde
+634,Manglende forskning,Kvinde
+635,Ønske om at høste de ressourcebesparende fordele på bekostning af de menneskelige omkostninger,Kvinde
+636,Overdrevne forventninger til effektiviseringspotentialet.,Mand
+637,"Skævvridninger i de generative sprogmodeller, fx pga. skjulte skævheder (bias) i træningsmateriale.",Mand
+638,Doven og ukritisk brug af output fra AI. Mangel på bevidsthed og træning i kritisk tænkning.,Mand
+639,Mangel på skelnen mellem generativ AI ('chatrobotter') og automatisering af processer (andre typer af 'robotter'),Mand
+640,Uigennemsigtighed i AI-robotternes databehandling og fremstilling af output.,Mand
+641,"At vi ikke er kreative nok i tænkningen. Hvis vi fastholder mindsettet om fx læring fra nutiden, vil AI overhale os inden om i fremtiden.",Kvinde
+642,"For at forstå: Jeg skal svare på, hvor ansvarlig udvikling og anvendelse af AI kan blive et problem? Det må betyde, at jeg går ud fra, at alle de lavt hængende frugte som snyd, misinformation osv. er klaret?",Kvinde
+643,"1) Sværhedsgraden i at synliggøre hvad der er rigtigt og forkert ligger på forbrugeren/borgeren.    Det er svært nok at navigere i de medier, der allerede eksisterer når kildekritik er blevet mindre vigtigt og den gode historie trumfer.",Kvinde
+644,"2) Vigtige detaljer forsvinder i mængden.    Masseproduktion af information, nye skemaer der skal udfyldes, dokumentation osv. kan der nu laves så meget af, at de detaljer der gør forskellen, forsvinder i mængden af PRODUKTION.",Kvinde
+645,"3) Mail-syndromet.    Ligesom opfindelsen af mailen skulle løse en masse problemet og være tidsoptimering, så brugeren kunne nyde en ekstra kop kaffe i stedet, skete det modsatte. Fokus på slutproduktet og proces bliver forviklet, så vi ender med samme situation, hvor intet bliver lavet i bundet, men der bliver produceret meget. Vi glemmer grundlaget for at lave og producere. Og her mener jeg helt fundamentalt.",Kvinde
+646,"4) Fejltagelser i det små, bliver til fejltagelser i det store.    Vi producere elementer til virkeligheden, ud fra noget der skabes i et lukket rum og er små segmenter af virkeligheden. Dette giver ikke et helt billede. Det er selvfølgelig helt ok, hvis det kan hjælpe os med at støbe et billede, men i det øjeblik, vi tror at algoritmerne danner det hele billede, bliver jeg nervøs. OG jeg gik fra at tro, at det bare var en tanke, indtil jeg opdagede hvor ofte det skete på min arbejdsplads.",Kvinde
+647,"Tech-giganterne udvikler velfungerende AI-services, men i samtlige brugsscenarier er myndighederne konfronteres med tredjelandsoverførsler og usikkerheden om dette, når AI er udviklet af tech-giganterne.",Kvinde
+648,"Ophavsretligt er der mange ubesvarede spørgsmål, og de nye AI-systemer er ofte closed source. Det gør, at vi ikke kan være sikker på lovmedholdigheden i løsningerne, og vi kender desuden ikke til datagrundlagets historiske bias.",Kvinde
+649,"Der er ofte store politiske ambitioner, som handler om at bruge AI for at spare arbejdskraft. Men ansvarlig AI tager tid og kræver, at hele organisationen er rustet både kompetencemæssigt, økonomisk, juridisk og sikkerhedsmæssigt. Hvis vi fortaber os i snakken om potentialer og 'fugle på taget' besparelser, så bliver der ikke meget tid til overs til at tænke over og handle efter ansvarlig AI brug.",Kvinde
+650,"Er bekymret for energiforbruget. Undersøgelser viser at et promt bruger lige så meget energi som opladning af telefon 40 gange.   Forhåbentlig kan der findes bedre og mere energieffektive måder at bruge AI på - eller synes jeg vi har et problem, og må prioritere brugen af AI, at det ikke er et legetøj, som nogen måske synes pt.",Kvinde
+651,Datahøst af brugeres søgninger - at de beskyttes og ikke bruges i kommerciel øjemed jf. Metas høst af sociale medier til kommerciel brug.,Kvinde
+652,Personfølsomme oplysninger - hvordan sikre vi GDPR i AI regi? Måske der findes nemme og funktionelle løsninger.,Kvinde
+653,"AI kan være en hjælp fx. i sundhedssystemet til at vurderer scanningsbilleder mv.   Men, i forhold til læring og uddannelse, så synes jeg AI skal bruges med omhu. Det skal ikke gå ud over de studerendes evne og metoder til selvstændig, refleksiv tænkning og formidling. Vi skal ikke overlade al research til AI, selv som om det kan hjælpe til shortcuts og effektivisere samt kvalificere. Ellers vil vi måske i øget grad finde frem til de samme konklusioner og mindste diversiteten.",Kvinde
+654,"Hvis det bruges ansvarligt, og ikke til eks. ydeligere kontrol - bureaukrati, ser jeg egentlig ikke så mange problemer.",Mand
+655,"Hurtige konklusioner - det måske ikke altid, at Al kommer frem til den rigtige eller mest hensigtsmæssige løsning",Mand
+656,Det går for stærkt.  Algoritmen er sluppet løs i alle mulige sammenhæng - uden tanke for ramnesætning,Kvinde
+657,Vires ældre generation bliver yderligere segregeret. Mit ID har allerede tabte ældre.,Kvinde
+658,"Der er ikke tilstrækkelig politisk forståelse for vigtigheden af at styre denne udvikling. Det gælder båder nationalt, regionalt og lokalt.",Mand
+659,Der er ikke tilstrækkelig forståelse i befolkningen for at vi står over for store samfundsomvæltninger hvis vi ikke får styr på udviklingen. Til gengæld er der et enormt potentiale for en innovativ og konstruktiv udvikling af vores demokrati og velfærdssamfund.,Mand
+660,Universitetsreformen er et synligt bevis for ovenstående hvor STEM uddannelserne bliver nedprioriteret.,Mand
+661,Datasikkerhed,Mand
+662,Identifikation og indentifikationstyveri,Mand
+663,Tab af basale læringskompetencer,Mand
+664,Tab af innovationstænkning,Mand
+665,markedet og brugerne efterspørger det ikke. konsekvenserne er skjulte eller svære at forstå,Mand
+666,"tech selskaberne og private virksomheder udbyder det ikke. de vil hellere udvikle og udbygge forretningen, og eventuelt udnytte de skjulte konsekvenser for forbrugerne - og den manglende lovgivning",Mand
+667,det nationale politiske system er ikke gearet til at forstå omfanget af problemerne og slet ikke til at komme med de rigtige løsninger. Der er heller ikke afgørende efterspørgsel fra vælgerne til at det er noget politikerne for alvor vil lovgive omkring. i første omgang vil AI lovgivning formentlig opleves som bøvlet fremfor frigørende fra en forbruger synsvinkel,Mand
+668,"Regulering nationalt bliver et problem  Hvis DK sætter grænser op for, hvordan fx ChatGPT må indsamle og formidle data i Danmark, så vil de måske rette ind eller måske ikke, fordi det betyder ikke så meget for dem, om de bare fjerner ChatGPT fra fx DK. Derfor har vi først magt når det bliver på EU plan. Da det er ekstrem vigtig at have AI i DK, for at de unge mennesker lærer at bruge det konstruktiv og produktiv. Ellers vil unge virksomheder også flytte til andre steder i EU, hvis vi har hårde regler end de andre lande.",Mand
+669,"Hvad er sandheden  Med de sociale medier blev sandheden nogle gange mere og mere sløret, efterhånden som den gik igennem flere og flere tråde. Det samme er tilfældet med brugen af AI i kombination med SoMe, her vil det være ekstrem svært at se hvad der sandt og hvad der er falsk. Her vil det være nødvendig at få fx et vandmærke på billeder, videoer og musik så man altid kan skelne mellem fabrikkeret medier og rigtige medier.",Mand
+670,"Hvilke kilder bruger AI   Hvis fx en LLM model som ChatGPT kun bruger kilder fra den ene side (fx politiske partier, køn m.m.) så vil sandheden fra dem bliver meget farvet af kildernes bias. Her kunne det være godt med en transparent, så man er bevidst om hvordan svarene, lyden, billederne er blevet genereret. Lidt det samme som Machine Learning i dag, hvor man heller ikke kan gennemskue, hvorfor nogle bliver valgt frem for andre, på samme måde vil det være med LLM modeller, hvor brugeren ikke kan vide hvorfor personen får det svar, på sit spørgsmål.",Mand
+671,Manglende regulering.  Manglende regulering af udvikling og inputs til algoritmer. Dette kan skabe AI værktøjer med data som ikke nødvendigvis er repræsentativt.,Mand
+672,Effektiviseringskultur.  Vi lever i en kultur hvor at tid er vores vigtigste ressource. Dette er et perfekt match til at acceptere brugen af AI i vid udstrækning.,Mand
+673,"Vores største udfordring ligger i reelt at forstå hvad AI reelt tilbyder os nu og hvordan den konstant accellerende udvikling booster dette. Det ikke at kunne forstå en exponentiel udvikling i modsætning til en linær udvikling, ser jeg som den største trussel, da vores niveau af beredskab da konstant vil være for lavt i alle dimensioner.",Mand
+674,"For at den udvikling bliver ansvarlig er vi som samfund nødt til at forstå dette nye værktøj. Det er et helt nyt sæt af kompetencer som skal læres, men også kapabiliteter som skal udvikles af den enkelte borger og organisation.",Mand
+675,"AI, som vi ser det udfolde sig med ex. generativ AI i forlængelse af tidligere årtiers arbejde med neurale netværk og machine learning, er blot i sin vorden og en del af de anvendelser og hype vi er vidner til er blot en første reaktion på en virkelighed der udfolder sig.",Mand
+676,Lige som med SoMe er det centralt at unge meget tidligt lærer muligheder og problemer at kende. Det stiller allerede enorme krav til ny læring hos ledelse og lærere i grundskolen.,Mand
+677,"I forhold til sikkerhed, retfærdighed og privatlivets fred, så er vi allerede ude i et kapløb med ikke regulerede sfærer - organiseret kriminalitet og fjendtlige statsmagter, hvor disse ikke indarbejdes. Derfor er det kritisk at de lovgivende, dømmende og udøvende instanser tilføres resurser for at kunne følge med, men de værktøjer skal i den grad optimeres så deres arbejde kan udføres med høj kvalitet på kortere tid. De ikke-regulerede sfærer , som kommer til at udgøre vores største trussel kan meget snart på få måneder gøre det arbejde vi udfører på 1 år forældet.",Mand
+678,"Blind og ukritisk tillid til AI  Ansvarlig udvikling og anvendelse af AI bliver et problem, i det øjeblik vi forlader os blindt på teknologien og hvis vi ikke formår at holde mennesker ansvarlige for brugen af AI",Mand
+679,"Specialiseringa  Ansvarlig AI skal bidrage til at mennesker kan fokusere på at løse problemstillinger, som AI ikke kan hjælpe os med, fx menneskelig relationsarbejde.",Mand
+680,"Afkvalificering (deskilling)  Hvis ansvarlig AI bruges til at udføre en håndværksmæssig kunnen (fx indenfor sundhed, IT mm) er der en risiko for at mennesker mister praktiske færdigheder, som kan være svære at opdyrke på et senere tidspunkt, hvis teknologien viser sig upålidelig eller fejlbehæftet.",Mand
+681,Hvis teknologivirksomheder alene står for udviklingen,Kvinde
+682,"Hvis offentlige institutioner ikke begynder at bruger AI i tide, så vi kommer bagud af udviklingen. Får et teknologisk efterslæb.",Kvinde
+683,Misinformation  Det er muligt at fremstille billeder og videoer med navngivne personer og lade dem skrive eller sige noget helt andet end de mener,Mand
+684,"For stor tiltro til AI  Hvis der ikke er menneskelig (efter)kontrol, risikerer man at blive vildledt.  Det kan være letalt f.eks. ved brug af AI inden for sundhedsområdet.  Og under alle omstændigheder til forkerte resultater (AI har også begrænsninger - i hvert fald nu)",Mand
+685,Det tillidsbaserede samfund er udfordret  Når man ikke kan være sikker på at informationer er korrekte (eller manipulerede) kan man efterhånden ikke have tillid til ret meget,Mand
+686,"AI tager magten  Hvis jeg var AI, ville jeg måske se mennesker som en invasiv art, der prøver at ødelægge planeten.  Og hvis jeg havde handlemuligheder og ikke selv var et menneske, ville jeg nok begynde at bekæmpe den invasive art med henblik på total udryddelse - om muligt (ukrudt forgår dog ikke så let)",Mand
+687,"Total,overvågning  AI med adgang til flere og flere kilder vil efterhånden kunne foretage en total overvågning af hvert enkelt menneske.  Dette opfattes af mange som utilstedeligt - men kunne i nogle tilfælde redde liv, f.eks. ved overvågning af helbred hos særligt udsatte eller biler, der kommer i uheld",Mand
+688,"Hvis AI-udviklingen ikke sker med et stærkt fokus på etik, kan der opstå uønskede konsekvenser, som ikke er forenelige med de værdier, som samfundet bygger på. AI kan for eksempel bruges til overvågning, manipulation af information eller undertrykkelse af befolkningsgrupper. Uden etiske retningslinjer risikerer vi at skabe et samfund, hvor teknologiske fremskridt underminerer menneskelige rettigheder og friheder.",Mand
+689,"Hvis Danmark ikke følger med den globale udvikling inden for AI-teknologi, risikerer landet at blive overhalet af andre lande, der investerer massivt i AI og digital transformation. Dette kan have negative konsekvenser for Danmarks økonomi og internationale position, især i en verden, hvor teknologisk innovation i stigende grad er en kilde til vækst og velstand.    Samlet set er det afgørende, at Danmark udvikler en balanceret tilgang til AI, som både fremmer teknologisk innovation og sikrer, at denne udvikling sker på en måde, der understøtter samfundets grundlæggende værdier som lighed, ansvarlighed og demokrati.",Mand
+690,"Danmark i verden  Vi kan ikke løse det alene, landegrænser er irrelevante ift. AI - og internationale løsninger tager utrolig lang tid",Kvinde
+691,"Kommercielle kræfter  Der er kommercielle kræfter, der trækker i retning af et minimum af regulering",Kvinde
+692,"Udviklingen eksploderer  Det kan være svært at følge med med ansvarlighed, når der hele tiden opstår nye muligheder, som man ikke kunne forudse",Kvinde
+693,Strammere regulering i EU end resten af verden. Det kan påvirke vores innovationskraft,Kvinde
+694,Selv med ansvarlig AI vil der ske nogle radikale arbejdsmarkedmæssige ændringer. Kan vi som samfund opsuge og omkvalificere arbejdsstyrken?,Mand
+695,"Forventningerne til AI bliver større end det som AI kan leverer. Fx vil politikkerne og admin forventer store besparelse med AI, men realiteten er en anden når set i praktisk skal implementeres i hjemmeplejen, sygehuset eller hvor det nu er.",Mand
+696,Uigennemskuelige magt- og indflydelsesmuligheder for både dem med gode hensigter og dem med mindre gode hensigter.,Mand
+697,"Hvem ejer viden? Hvem styrer, hvad AI fodres med? Privatisering af viden.",Kvinde
+698,Manglede ressourcer og prioritering i forhold til at lære fx uddannelsesinstitutioner  og andre at bruge det korrekt.,Kvinde
+699,manglende inddragelse af frontlinjemedarbejder og borgere i udviklingen,Mand
+700,"mangel på anerkendelse af, at individuel, human viden og kompetence er forudsætningen for al kvalificeret udvikling",Kvinde
+701,"manglende forståelse for relationen mellem resultatet og kvaliteten af den individuelle humane viden og kompetence, der puttes ind i processen",Kvinde
+702,"opdelingen i 3 forvaltnings niveauer i DK, som er på størrelse med en by i Tyskland, båndlægger store mængder af energi, som kan anvendes mere optimalt",Kvinde
+703,partidisciplinens magt over folketingsmedlemmernes individuelle stemmeafgivelser fjerner folkets demokratiske indflydelse i beslutningsprocesserne,Kvinde
+704,Mangel på viden truer sand fornufts korrektiv til AI AUTORITETEN,Kvinde
+705,Dovenskab - ift. kildekritik,Kvinde
+706,Magtstrukturer bliver reproduceret,Kvinde
+707,Overdreven data- og elforbrug,Kvinde
+708,Uklart spørgsmål,Kvinde
+709,Afgivelse af personlige data,Mand
+710,Fremstilling af falske billeder og videoer - krænkende for den enkelte og for copyright etc.,Mand
+711,"Jobs forsvinder og nye opstår - men sidstnævnte kræver andre kompetencer, som kan være vanskelige at tillærer for dele af befolkningen. Ældre og ikke-IT kyndige.",Mand
+712,"Tab af produktivitet for de virksomheder, som har svært ved at lave en omstilling med øget digitalisering og brug af AI",Mand
+713,"Det er svært at overskue kompleksitet - mennesker tænker forsimplet og kortsigtet    Mennesker er som udgangspunkt ikke gode til at tænke konsekvenser ud i flere led. Vi er ofte enøjede,  kortsigtede og baserer adfærd og beslutninger på antagelser. Så vi kan ikke overskue konsekvensen af det vi sætter i gang og der er historisk mængder af uforudsete bivirkninger ved det vi skaber. Grundtanken med internettet var fx (så vidt jeg ved) ikke at det skulle kunne bruges til at bygge informationsmæssige ekkokamre og destabilisere demokratier",Kvinde
+714,For langsom regulering    Lovgivningen reagerer for langsomt og teknologien + kortsigtede finansielle interesser løber for hurtigt,Kvinde
+715,"Vi har ikke fantasi til at forestille os hvor vi kan ende    Hvis ikke vi begynder at arbejde fokuseret med Futures Design og fremtidsscenarier osv. fra politisk hold, så man hjælper sig selv med at udvide opfattelsen af mulighedsrummet og dermed også de mulige skadelige scenarier vi kan ende i, kan man først reagere når skaden er sket, stedet for at forholde sig proaktivt.",Kvinde
+716,Manglende indsigt i konsekvenserne:  At de som har magt til at regulere AI ikke har de fornødne indsigter i og kan overskue konsekvenserne af anvendelsen,Mand
+717,"Naivitet:  At vi, der har udtænkt og skabt teknologien sætter vor lid til at resultaterne, der kommer ud af kunstig intelligens er mere troværdige",Mand
+718,"Tillid:  Hvordan og af hvem trænes AI til at oparbejde, forstå og indeholde menneskelige egenskaber?",Mand
+719,Egenskaber:  Hvordan integreres nedenstående i Ai?  Ærlighed   Tolerance  Venlighed  Glæde/sorg  Forsvarsløshed  Generøsitet  Tålmodighed   Hengivenhed   Åbensindethed,Mand
+720,"Mangfoldighed:  Hvem har adgang til at føde AI med den viden, der skaber egentlige og varige forandringer?",Mand
+721,"Tro vs viden:  Hvilke synlige livsforandrende effekter skaber Ai, som mennesker, der trænger kan/vil se?  Eksempelvis de unge som har psykiske udfordringer?  Og mennesker med handicap i uddannelse og beskæftigelse?",Mand
+722,Politikerne sover.     Forbavsende mange politikere virker mere optaget af at begrænse/afgrænse anvendelse an denne type teknologi. Med andre ord AI er defineret som et problem inden det er blevet et problem. Kerne AI-teknologien er 50 år gammel ? Så ?,Mand
+723,"Manglende AI/ML/LLB fokus i EU    I betragning af at der er etableret en ny global politisk virkelig hvor bla. Kina, Indien og USA bl.a. anvender AI/ML/LLB som acceleratorer for ønsket om dominans over stort set alting, er det kritisk for EU herunder DK at komme op i gear teknologisk. EU's AI Act er super fin men bekymringen er om det bliver en sovepude for fx. os i DK",Mand
+724,"Manglende fokus på STEM, kvantecomputing og tilsvarende i DK    Som en lille handelsnation er det kritisk at STEM-, kvantekomputere m.m. kompetencer opbygges og udvikles voldsomt op imod 2040. DK tåler ikke at uddannelsesniveau og -omfang reduceres yderligere end det der som er pt.",Mand
+725,Bekymringssamfundet    Der er som med al ny teknologi en tendens til at rigtig mange ser spøgelser og forfærdlige ting med samfundet og dets borgere. AI er hypet men ikke noget er er farligt hvis man bevarer fornuft og kritisk tilgang.,Mand
+726,"Cyberdimensionen    Der er ikke tvivl om at AI/ML/LLM er potente værktøjer for fjendtlige ondsindede nationer, kriminelle af enhver type og politikere der vil frem i verden. Er formentlig den største trussel DK står overfor fra nu og i al evighed.",Mand
+727,Vi vil ikke investere i det.,Mand
+728,"Vi ender i en masse bureaukrati om regler og kontroller, mens resten af verden (i hvert fald uden for EU) bare indfører AI i stor skala. Og da det er globalt, ender vi med at få en masse, der udviklet i USA, Kina osv.",Mand
+729,"Hvis det bliver for restriktiv, så vil ingen eller kun få bruge det  Så mester vi en masse viden, læring og effektivisering",Kvinde
+730,"Dikotomien mellem den viden, som politikere og erhvervslivet besidder",Mand
+731,"For få unge der tager hardcore STEM uddannelser,",Mand
+732,STEM uddannede personer ikke repræsenteret i politik eller det politiske rum,Mand
+733,"De, der læser STEM, er ikke nødvendigvis repræsentative for befolkningen som helhed.",Mand
+734,Ulighed i viden om hvodan AI bruges som værktøj på tværs af demografier,Mand
+735,Overregulering af AI,Mand
+736,Unintended consequences arising from developing responsible AI that have impacts we did not foresee,Kvinde
+737,"Bias og diskrimination  Et program er kun så godt som sin data, og det kan repræsentere et problem hvis det bliver anvendt frit ig uden regulering",Mand
+738,Manglende regulering og fokus på at de skal komme alle mennesker til gode uden at ødelægge planeten. Der mangler demokratisk indflydelse fra borgernes side.,Mand
+739,"Umenneskelighed. Vi kommer til, at have mindre kontakt med hinanden og det meget bliver umenneskeligt.",Mand
+740,"Danmark lever på viden og hvis de i andre lande kan bruge AL, så mister Danmark sin konkurrencefordel.",Mand
+741,"Mistillid    Jeg tror en stor del af befolkningen ikke stoler på AI. Både fordi folk ikke forstår hvad det er og hvordan det fungerer, men også på grund af fordomme fra pop kultur.",Kvinde
+742,Mængden af data,Kvinde
+743,"Bias    Det AI trænes og udvikles på, kan ikke bare være hvad som helst. For at undgå at der kan skabes en elite som AI fungerer for.",Kvinde
+744,"Miljøpåvirkning    Det må være ret server tungt at have AI kørende til alle mulige systemer. Så når det går op for folk at det ikke er særlig miljøvenligt at have kæmpe serverfarme kørende, kunne det godt blive en udfordring.",Kvinde
+745,Vi er allerede bagud:  Den teknologiske udvikling går hurtigere end hvad det juridiske system kan følge med til.,Kvinde
+746,Økonomiske interesser:  Stærke økonomiske interesser kan let stå i vejen for passende politisk regulering.,Kvinde
+747,"Alle æg i en digital kurv:  Manglende alternativer til digitale løsninger gør, at hvis det går galt, så går alt galt. Man kan hacke vores vandværk. Vi har bygget vores samfund på AIs boldbane.",Kvinde
+748,"Tillid:  AI skaber mistillid ift hvad man kan tro på. Man vil ofte hellere tro på, hvad der passer bedst ind i det verdensbillede, man allerede har. Dermed kan samfundet bliver mere splittet.",Kvinde
+749,Cybersikkerhed    Det er meget nemt at hacke med AI som kompagnon. Derudover er falske identiteter og agenter i stigende grad svære at gennemskue.,Mand
+750,"Faktualitet    Vores viden vil i højere grad blive formidlet via AI sprogmodeller. Dette gør både viden mere spiselig, men kan også føre til hallucinationer, som er decideret falske. Mange tror at en AI er Google 2.0 og forstår slet ikke at hallucinationer er en grundlæggende del af maskineriet.",Mand
+751,"Bias    AI er trænet på eksisterende data. Og al eksisterende data har et bias i sig. Jo mere magtfulde og anvendelige disse sprogmodeller er, jo mere vil deres indre bias sprede sig gennem samfundet.",Mand
+752,"Ophavsret    Der bliver kæmpet store kampe vedr ophavsret lige nu. Er en AI's anvendelse af data en transformativ proces, eller er det en stokastisk gengivelse? Det kan have store konsekvenser ift dansk design, innovation, osv.",Mand
+753,"Forglemmelse af Klima forpligtelser    Min største bekymring med den hurtigt voksende brug af generativt AI, er at det er en teknologi der kræver enormt mange ressourcer, og derfor er meget dårligt for miljøet. Mængden af vand der skal bruges for at køle det ned, og energi der skal bruges for at holde det kørerende, er enormt, i forhold til andre teknologier. Folk bliver så fokuserede på mulighederne at de er ligeglade med miljøkonsekvenserne, og tænker 'jamen vi er ved at forsøge at finde måder at gøre det mere energisparende'. Men de måder kommer slet ikke hurtigt nok, og i mellem tiden kommer vi til at gå langt tilbage i alt den udvikling vi har lavet de sidste mange år, for at være mere grønne. Vi kan blive så optagede at forbedre og finde muligheder til at bruge denne nye teknologi, at vi ignorerer hvor dårligt det er for miljøet. Alle virksomheder vil have en bid af kagen, og dermed presser de hinanden, så ingen vil stå udenfor, uden at tænke på om det reelt vil forbedre deres produkt. Det føles på mange punkter som noget virksomheder presser ned over forbrugerne selvom de ikke reelt set er så interesserede. Og det bliver klimaet der skal betale for dette.",Unknown
+754,"Forfalskning af billeder og videoer    Muligheden for at lave falske videoer og lyde af folk, som ikke har givet tilladelse til det. Bl.a. til at give falsk information, og lave hævnporno mm. Hvis dette bliver mere og mere udbredt, så ville det blive en bekymring for mange. Hvis der ikke er krav om at billeder/videoer skal markeres med ""lavet af AI"", så kan tiltroen til billeder og den slags også falde. Det er uhyggeligt at tænke på en verden, hvor der er meget få ting man kan stole på er ægte længere.",Unknown
+755,"Ansvar og Chatbots overtagen af kundeservice    Generativt AI kan bruges til at fjerne brugeres kontakt til de ægte personer bag firmaer. Det bliver let at sige ""vi vil have en AI-hjælper på vores hjemmeside"", og så fjerne muligheden for at komme i kontakt med en ægte person, som rent faktisk kan hjælpe. Fordi det er meget svært at stoppe AI's fra at hallucinere (""lyve""). Så det kan både fjerne de jobmuligheder, men også generelt fjerne kontakten mellem brugere og virksomheder, samt fjerne noget af ansvaret en virksomhed har. Fordi hvis chatbotten siger noget forkert, så var det jo bare chatbotten, og ikke nogen ægte person i virksomheden. Så hvem har ansvaret?",Unknown
+756,"Misinformation og mangel på kildekritik    Det er nødvendigt at folk bliver opmærksomme på at selvom generative AI's lyder selvsikre i det de siger, så er ordene bare valgt ud fra sandsynlighed. Ikke fordi den ægte 'ved' noget. Jeg er bekymret for at folk (specielt elever) vil begynde at bruge det i stedet for at google ting. Men når man googler kan man undersøge kilderne, og se hvem der har skrevet det osv. Med en chatbot, har man ingen anelse om hvor den har sin 'information' fra.",Unknown
+757,"Ændring på undervisningsmetoder og mangel på tillid    Skoler og universiteter kan begynde at fjerne de opgaver, hvor man skal skrive en større opgave. Fordi frygten for at elever og studerende bruger chatgpt, gør at man vil lave alle lektieformer og afleveringer om til stedprøver. Og så vil vi miste rigtig meget træning i at skrive og formulere os. Det er noget andet at have tid til at vende tilbage til en tekst og snakke om den med sine gruppekammerater og generelt arbejde med den, end at kun skulle skrive noget alene på et par timer, i et rum uden pauser. Frygten for at elever bruger chatgpt, må ikke overgå tiltroen til at de ikke vil snyde. Det har også altid været muligt at få en ven til at skrive en opgave, men det betyder ikke at vi bare lader vær med at give opgaver for som lektier. Man må stole på at eleverne ikke gør det, og så undervise om faldgrupperne ved generativt AI.",Unknown
+758,"Generativ AI overtage kunstneriske jobs    Stor brug af AI-stemmer i stedet for voice-actors, samt billedgeneratorer i stedet for kunstnere, og AI genereret musik. Dette ville være trist, og jeg er bekymret for at virksomheder hellere vil tage 'den nemme vej', end at bruge folk som har uddannet sig og øvet på deres færdigheder hele deres liv. Både at det fjerner jobmuligheder, men også potentielt skaber en overflod af 'kunst' som fuldstændig mangler sjæl, fordi det er skabt af generativ AI.",Unknown
+759,"Google's brug af generativ AI    Man har set mange billeder fra amerika's nuværende google. Søgemaskinen er blev markant dårligere de seneste år, pga brug af generativ AI. Inden for de næste 10 år kan dette sprede sig til også at bruges på google i Danmark. Dette bekymrer mig. Muligheden for at søge efter troværdig information på en let tilgængelig måde er en kæmpe hjælp for uddannelse og lige muligheder til alle.",Unknown
+760,AI er meget tilgængeligt.,Kvinde
+761,"Autonomi, hvordan kontrolleres AI og hvilken indvirkning har det i forhold til de menneskelige værdier.",Kvinde
+762,"Etik, hvilke informantioner bliver lageret og hvor meget og hvor lidt kontrollerer AI os mennesker.",Kvinde
+763,Bliver AI-teknologien sat over de menneskelige evner på arbejdspladserne.,Kvinde
+764,"Ens 'unikke' evner er ikke så unikke mere fx. forskning, hvor man skal skrive på højt plan, nu kan man sætte ens tekst ind i AI og den kan omformulere dette ud fra den kontekst man ønsker.",Kvinde
+765,Ansvarlig udvikling af AI,Kvinde
+766,Jobtab,Kvinde
+767,Manglende gennemsigtighed,Kvinde
+768,"Manglende kreativitet blandt unge  Jeg tror hurtigt man glemmer at bruge tid på ting, hvis man bare kan spørge ai, så vi kommer hurtigt til at mangle noget hjerne",Kvinde
+769,"Afhængighed af teknologi    Vi lever jo allerede i et samfund der er ret afhængigt af teknologi, og jo mere vi udvikler på det jo mere afhængige bliver vi",Kvinde
+770,Jeg tror ikke jeg forstår spørgsmålet. Formulering er ikke skarp nok?,Kvinde
+771,Tab af konkurrenceevne.    Danmark risikerer at sakke bagud internationalt hvis vi er for forsigtige med AI-implementering  Andre lande kan opnå større effektivitet og produktivitet gennem hurtigere AI-adoption  Balancen mellem ansvarlig implementering og konkurrencedygtighed bliver kritisk,Unknown
+772,Algoritmisk bias og diskrimination    AI-systemer kan udvikle og forstærke eksisterende samfundsmæssige bias  Risiko for fejlklassificering af bestemte befolkningsgrupper  Prædiktive modeller kan skabe selvopfyldende profetier og øge ulighed,Unknown
+773,Kulturel repræsentation i AI    Udfordringer med at sikre dansk kultur og værdier i AI-systemer  Risiko for at internationale AI-løsninger ikke matcher danske forhold  Behov for løbende tilpasning til skiftende kulturelle normer,Unknown
+774,Digital ulighed    Øget risiko for at visse grupper ekskluderes fra AI-baserede services  Kompetencekløft mellem dem der kan og ikke kan udnytte AI  Socioøkonomiske forskelle kan forstærkes gennem AI-adoption,Unknown
+775,Digial ulighed  - At den digitale ulighed øges,Unknown
+776,"Manglende borgerinddragelse  - At befolknings ønsker for dels regulering og dels udvikling ikke tages til efterretning, hvorfor der udvikles f.eks. dyre teknologier i det offentlige, som befolkningen ikke tager til sig",Unknown
+777,"For dyr udvikling  - At udviklingen af ny teknologi indenfor f.eks. velfærdsområdet ender med enter at være dyrere end den besparelse, automatisering giver, eller at automatisering fører til besparelser frem for geninvestringer om omflytning af ressourcer til f.eks. varme hænder",Unknown
+778,"Et lille sprogområde  - At den danske sprogområde er så småt, at eksisterende LLM'er ikke er specielt god til dansk",Unknown
+779,"Ophavsret  - Det kan blive et problem, at LLM'er trænes på dansk materiale, da der kan ske brug på ophavsret. Omvendt kan det være et problem, hvis LLMer ikke trænes på dansk data af ordentlig kvalitet, da det gør modellerne ringere",Unknown
+780,Teknologiudviklingen går hurtigere end reguleringen og rammesætning af ansvarlig brug.,Kvinde
+781,"Det er stort og svært. Jeg arbejder med dataetik, og selv hos mig er det svært. Hvad kan man gøre, således man ikke mitigere det potentiale AI har, men behersker den i en sådan grad at den ikke diskriminere eller andet. Hvordan informerer man folk om det? Information er ikke mening, tværtimod omvendt, så hvordan kan vi meningsfuldt beskrive den AI vi bruger til folk.    Det praktiske er en kollossal hurdle, som jeg igennem mit arbejde ser mangle bøvle med.",Mand
+782,"1. grund bliver forværret af vi lever i et højhastigt samfund. Det skrev Paul Virilio om i 70'erne, og det er bare fortsat. Der er ikke tid til ikke at bruge AI - mange er bange for at blive dinosaurer. At regulere og tænke betyder også at tage hastigheden ud. Man hvordan kan man det i et hyperkapitalistisk samfund?",Mand
+783,"Alt det her hjælpes heller ikke frem af tech milliardære med storhedsvanvid samt en industri bestående af cambridge analytica dissidenter, der gør alt hvad de kan for udbredelsen af disse teknologier. Derudover er alle betaget af dets muligheder, og af disse virksomhedsledere, hvilket også komplicerer reguleringsarbejdet - særligt når disse mennesker i langt overvejende grad er anarkokapitalister.",Mand
+784,"Det var få ting, men der er et utal.",Mand
+785,Det er svært at håndtere og følge med i udviklingen af teknologi fordi det kan være svært at forestille sig hvilke egenskaber teknologien kan have i fremtiden,Kvinde
+786,"Det er vigtigt at vi stadig kan følge med i konkurrencen i dk og at vi har mennesker/eksperter som forstår AI lige så godt som i feks USA og Asien,",Kvinde
+787,Cybersikkerhed - At vi kan sikre at den information vi ligger i AI ikke ryger i de forkerte hænder. Feks informationer børn kan komme til at dele med snapchats ?AI-ven?,Kvinde
+788,Mange af de problemer AI skaber kan AI måske også være med til at løse - feks klimavenlige alternativer til teknologi. derfor er det vigtigt at regulering af AI ikke er med til at bremse innovation,Kvinde
+789,"DATASIKKERHED  Jeg respektere alle idéologier (diktatur undtaget), men under kommunistiske samfund som bl.a. i Kina, oervåges alle borgere, og regeringen misbruger deres magt med AI til at kontrollere deres egne præferencer.    Selvom AI uden tvivl kan anvendes til militært forbrug, for lokalisering af fjender, må det ikke misbruges mod det enkelte fri individ, da de har retten til et sikkert privatliv, hvor de ikke konstant overvåges.",Mand
+790,"UNDERVISNING  En af de største dillemmaer, er hvorvidt vi kan tillade os at bruge AI i skolen.    Kort og godt, synes jeg 110% at AI skal bruges i undervisningen. Det skal bruges til afklaring af opgaver.    Fx hvis man har problemer med et matematisk problem, skal man kunne bruge (og bevise) AI til at få afklaring på, hvordan man udregner noget, såfremt det er besværligt (med dokumentation). Fx, hvis man ikke ved, hvordan man siger 2+2 = 4, kan man bruge AI til at dokumentere udregningsprocessen.    Man skal også kunne bruge det til at få afklaret sine notater. Hvis man i fx kemi, har lavet et notat om reaktionsskema, skal man kunne bruge AI til at omformulere, hvad man mener, for bedre forståelse.    Genereliseret skal man uden problem kunne bruge AI (også til eksamen), for afklaring og tidsbesvarelse, men man skal kunne dokumentere, og forklare hvad AI'en lærer en.",Mand
+791,Jeg kan umiddelbart ikke komme tanke om flere :),Mand
+792,"Manglende fleksibilitet og forståelse for omstilling til AI drevne processer i den offentlige sektor    Træghed i det regulative system ift omstilling af processer (sagsbehandling, arbejdsgange, anvendelsesfelter o.l.).   Ønske om udvikling af statslig løsning/AI-model til brug i den offentlige sektor.",Unknown
+793,Manglende dansk stillingtagen    Afvente EU regulering og implementering forud for udbredelse i DK.,Unknown
+794,Klimaaftryk    Højt klimaaftryk for brug af AI modeller kan medføre begrænsning af brugen af AI.,Unknown
+795,"Rammesætning  Det er svært at sige, hvem og hvilke rammer, der bør sættes. På den ene side bliver de nødt til at være der/komme for at sikre ansvarlig brug og på den anden side er der ytringsfrihed",Kvinde
+796,"Facttjekke  Med al misinformationen i medierne i dag kan det blive svært at facttjekke, hvis meget indhold generet af AI og især hvis dette er bareseret på hinanden",Kvinde
+797,Menneskelighed  AI har bare ikke den sammen menneskelighed,Kvinde
+798,Perfektionisme  På en eller anden måde kan AI bidrage til at vi går mere op i tingene skal være perfekte - den kan altid finde på fordbedringsforslag,Kvinde
+799,"Skiltning ved brug af AI  I takt med at forskellige AI bliver bedre og bedre, bliver det gradvist sværere at gennemskue hvorvidt det er AI eller menneskeligt genereret. Uden regulering kan AI anvendes til at sprede misinformation og være en trussel mod demokratiet og samfundet. Derfor er det vigtigt med tydelig regulering.",Mand
+800,"AI som sparringspartner   Hvis man blindt følger AI, frygter jeg, at der kan opstå en række problematikker. Forældet information, manglende perspektiver, manglende forståelse for sociale dynamikker osv., kan nemt opstå hvis man lader AI ""styre showet"", uden selv at forholde sig kritisk til tingene. Derfor mener jeg, at AI kan være et fantastisk sparringspartner, men indtil videre ikke kan stå på egne ben.",Mand
+801,AI som desillusion    At vi hopper på AI-bølgen og kaster for mange penge og ressourcer i projekter som ikke kan indfri de forventninger vi har til teknologien,Mand
+802,"Skæv prioritering    At vi anvender AI som en ""quick fix-løsning"" baseret på statistiske modeller og kvantitative data (fx i sundhedssektoren), når problemer egentlig kalder på mere nærhed og omsorg (ikke-kvantificérbar).",Mand
+803,"Krav om ansvarlig AI ikke er tilstrækkelige    At vi er for hurtige til at skabe konsensus om, at de krav der stilles er tilstrækkelige for at udbrede teknologien. Jeg frygter at udbredelsen af teknologien skaber utilsigtede konsekvenser som vi ikke kan imødekomme på forhånd, uanset hvordan vi regulerer teknologien.",Mand
+804,"Koncentration af magt og indflydelse hos private erhvervsdrivende (Musk, Huang, Altman). Hvis magt koncentreres, har det det med at korrumpere. Der er brug for en slags ?deling? af magten, når det gælder AI.",Mand
+805,"Lovgivningsapperater er enten langsomme og uagile (ikke parate til ny teknologi), eller sløsede og inkompetente. Der skal findes en løsning, så lovgivning faciliterer teknologisk udvikling og innovation indenfor rammer, der kan kontrolleres.",Mand
+806,"Tilfælde af misbrug med AI. I takt med at verden vidner flere og flere ærgerlige AI-sager, som deepfakes til porno, forfalskede billeder ifm politik etc, gør befolkninger verden over skeptiske og anti-AI. Det kan give store problemer ift den folkelige opbakning.",Mand
+807,Mangel på god forståelse for teknologien blandt politikere og erhvervsledere.,Unknown
+808,Opportunistiske entreprenører der ikke har samfundets overordnede mål for øje.,Unknown
+809,Mangel på god og rettidig regulering.,Unknown
+810,Penge  Der er rigtig mange penge involveret i at bruge data til at reklamere osv overfor danskere.,Mand
+811,"Manglende Lovgivning og Reguleringsrammer  En af de vigtigste årsager til, at ansvarlig udvikling af AI kan blive et problem i Danmark, er manglende eller utilstrækkelig lovgivning. AI udvikler sig hurtigt, men lovgivningsprocessen kan ikke altid følge med i samme tempo. Hvis der ikke implementeres klare regler og retningslinjer for AI-udvikling, risikerer vi, at teknologien anvendes på måder, som kan have uønskede etiske og samfundsmæssige konsekvenser. Det kan omfatte brug af AI til at træffe beslutninger om borgeres liv uden tilstrækkelig kontrol, eller at virksomheder udvikler AI-modeller, som forstærker bias uden konsekvens.",Kvinde
+812,"Manglende Kompetenceudvikling  Hvis Danmark ikke prioriterer uddannelse og opkvalificering af arbejdsstyrken, kan det blive en stor udfordring at sikre ansvarlig udvikling og brug af AI. AI-teknologier kræver teknisk ekspertise, og uden en stærk pipeline af faglært arbejdskraft, kan det blive svært for virksomheder og organisationer at implementere AI-løsninger ansvarligt. Derudover er der behov for at uddanne beslutningstagere og ledere i at forstå de etiske og juridiske implikationer af AI. Uden dette kan der træffes dårlige beslutninger, som underminerer både den teknologiske udvikling og samfundets tillid til AI.",Kvinde
+813,"Centralisering af Magt hos Teknologigiganter  AI-udviklingen er i høj grad drevet af store globale teknologivirksomheder, som har langt flere ressourcer og data end nationale aktører i Danmark. Hvis ikke vi formår at udvikle vores egne nationale AI-kapaciteter eller etablere stærke samarbejder, risikerer vi at blive afhængige af udenlandske tech-giganter. Dette kan true dansk suverænitet og reducere vores evne til at forme AI-udviklingen ud fra danske værdier som lighed, demokrati og social retfærdighed. Centraliseringen af magt i store tech-virksomheder kan også mindske konkurrencen og innovationen i det danske teknologiske økosystem.",Kvinde
+814,"Spørgsmålet er lidt mærkeligt formuleret, men jeg forstår det som ?hvad er risikoen ved at der ikke gennemføres ansvarlig udvikling af AI i Danmark over de næste 10 år?.",Unknown
+815,"Afkodning    Det er svært at afkode/aflæse, og dermed svært at regulere.",Unknown
+816,Mangel på regulering,Kvinde
+817,Mangel på transparens,Kvinde
+818,Placering af ansvar,Kvinde
+819,"Utilstrækkelige digitale løsninger    Danmark er verdensmestre i digitalisering ifølge FN og har været det i flere år. Danmark er generelt utrolig teknologi optimistisk, hvilket på mange måder er skønt, men jeg oplever selv i min hverdag flere digitale løsninger, som ikke er blevet tænkt helt igennem (særligt hvor dataetikken ikke er tænkt ind, som et parameter). Det er uheldigt hvis man digitalisere bare for at digitalisere.",Unknown
+820,"Unges og andre persongruppers udfordringer    Digitaliseringen af det danske samfund, særligt den offentlige sektor, er så omfattende, at det betyder at vi efterlader store persongrupper tilbage på perronen, men digitaliseringstoget kører derudad. De ældre, sociale udsatte og unge er særligt udsatte i den forbindelse. For at fremhæve de unge, som er mere oversete, så kommer der snart en ung generation ud på arbejdsmarkedet, som sikkert er super gode til at begå sig med en iPads, gaming mv,. men som man ikke har uddannet til at være digitale borger. De har alene den uddannelse, som de har fået ""hjemmefra"" eller fra deres sociale netværk. Dette betyder, at der er risiko for store forskel i den generations digitale kompetencer uden den fornødne kompensation for dette.",Unknown
+821,"Manglende lovgivning og regulering:   Udviklingen af AI-teknologi sker hurtigt, og der er en risiko for, at lovgivningen ikke kan følge med den teknologiske udvikling. Hvis reguleringen er for langsom eller for vag, kan det føre til en situation, hvor AI implementeres uden tilstrækkelige etiske og juridiske rammer, hvilket kan føre til misbrug og negative konsekvenser for borgerne.",Kvinde
+822,"Etiske dilemmaer og ansvarspålæggelse:   AI-systemer kan træffe beslutninger, der er svære at gennemskue, hvilket skaber udfordringer i forhold til ansvar og etisk forsvarlighed. Uden klare retningslinjer for, hvem der har ansvaret for beslutninger truffet af AI, kan det blive svært at håndtere utilsigtede konsekvenser.",Kvinde
+823,manglende læring om dens brug fra ung alder,Kvinde
+824,manglende viden om hvor data kommer fra eller hvor det bliver gemt,Kvinde
+825,manglende interesse i at hvordan data bliver brugt der går ind til AI applikationer,Kvinde
+826,"Transnationalt problem.    Det kan være et problem at regulere AI på nationalt basis, da det ofte er internationale virksomheder der står bag. AI, ligesom CO2, kender ikke til landegrænser. Der bør i højere grad blive lavet internationale, eller som minimum europæiske standarder for brugen af AI.",Kvinde
+827,At politikerne ikke ved nok og at de ender med at ignorer råd fra eksperter fordi det ikke passer ind i deres plan om at blive genvalgt.,Kvinde
+828,"Klimaet! Vi kan ikke ignorer den kæmpe mængde energi og de natur ressourcer, som metaller, det kræver at bygge AI.",Kvinde
+829,"Lovgivning går, i alle industrier, langt langsommere end den teknologiske og profit-søgende udvikling. Det er simpelthen ikke muligt, som systemet er indrettet nu, at følge med, og lovgive i tide.",Mand
+830,"Det er meget vanskeligt at gennemskue konsekvenserne inden de sker, og for indeværende er der ikke en forsigtig tilgang, men snarere det modsatte, med brugen af ny teknologi.",Mand
+831,"Politikere, ledere og alle med beslutningskraft er for ivrige til at springe med på AI-bølgen, også i det offentlige, hvilket skaber store datausikkerheder og afhængigheder af udelandske dataejere som kan få fatale konsekvenser for Danmarks og borgernes sikkerhed og afhængigheder.",Mand
+832,Mangel på styring og stillingtagen:   Den allervigtigste årsag er mangel på struktur for brug af AI. Dette både i det private og offentlige. Derudover at få sat nogle hegnspæle for hvordan man skal benytte sig af teknologien. I det hele taget bare tage stilling.,Mand
+833,Politisk vilje og evne til at lave lovgivning:   Politikerne har et kæmpe ansvar for at sætte rammerne omkring brugen af AI i Danmark. Dette kræver dog den nødvendige til og indsigt til at kunne lovgive klogt og gennemtænkt omkring AI,Mand
+834,"1. Manglende regulering  Uden klare lovgivningsmæssige retningslinjer og standarder kan der opstå forvirring omkring, hvordan AI-systemer skal udvikles og implementeres på en ansvarlig måde.",Mand
+835,"2. Begrænset teknologisk forståelse  En mangel på dybdegående forståelse blandt beslutningstagere, virksomheder og offentligheden omkring, hvordan AI fungerer, kan føre til dårlige beslutninger og anvendelser. Derfor er det sindsygt vigtigt at folk der arbejder med teknologien i dybden bliver taget med i beslutningsprocesserne (på AU sidder bl.a. PhD Kenneth Enevoldsen og Lasse Hansen - nogle af Danmarks mest vidende forskere inden for NLP og adv ML).",Mand
+836,"3. Utilstrækkelig uddannelse og kompetenceudvikling  Hvis uddannelsessystemet ikke prioriterer nødvendige AI-kompetencer og etisk bevidsthed, kan der opstå en kløft mellem den teknologiske udvikling og den menneskelige kapacitet til at håndtere den. Det kan vokse sig til et kæmpe problem.",Mand
+837,"4. Økonomi og konkurrence  Virksomheder kan blive fristet til at rykke hurtigere på AI-udvikling uden at gøre sig de nødvendige overvejelser, i et forsøg på at være konkurrencedygtige og profitmaksimerende. Jeg har et par forslag til hvordan dette kan gøres på en fornuftig måde - jeg er selv en del af en AI startup, så taler indefra.",Mand
+838,5. Databeskyttelsesudfordringer  Udfordringer med at sikre privatlivets fred og korrekt datahåndtering kan hæmme ansvarlig AI-udvikling og resultere i offentlig mistillid. Bare se på hvordan tech virksomheder lige nu høster brugeres data overalt.,Mand
+839,"6. Etiske og sociale overvejelser  Manglende inkluderende dialog om de etiske og sociale implikationer af AI kan føre til udvikling, der ikke tager højde for alle segmenter af samfundet og deres behov. Det man fx. kunne gøre var noget ala the moral machine experiment (kæmpe eksperiment hvor man undersøgte etiske beslutninger i 130 forskellige lande med flere millioner test personer) https://www.nature.com/articles/s41586-018-0637-6",Mand
+840,Manglende lovgivning på området,Unknown
+841,Langsom politiske beslutningstagning,Unknown
+842,AI kan udnyttes til svindel,Unknown
+843,Uddannelsessystemet er ikke gearet til den hurtige udvikling af AI,Unknown
+844,AI forbedrer sociale mediers algoritme og bidrager dermed til større afhængighed af sociale medier,Unknown
+845,AI's afhængighed af store datamængder,Unknown
+846,AI kræver et stort energiforbrug,Unknown
+847,AI er offentligt tilgængeligt for alle,Unknown
+848,"AI er bygget og trænet på data, som kan indeholde bias og diskrimination",Unknown
+849,Techgiganternes størrelse og magt,Unknown
+850,"Teknologiens indflydelse på menneskers adfærd og ageren. Hvis AI sætter reglerne - vil det også være udviklerne af teknologien der bestemmer vores ""agens"" (sådan lidt sort/hvidt set) - det er udviklerne der laver regelsættet i modellen der bestemmer hvad der er vigtigere end andet og hvad der skal overrules. Her er det virkelig vigtigt at de rigtige regler bliver valgt for de rigtige grupper af mennesker. Tilretning af modellerne til kontekster tror jeg er vigtig.",Unknown
+851,"Teknologiens hurtige udvikling. At det bliver svært at følge med på de konstante opdateringer - hvem laver og bestemmer de opdateringer og hvordan sørger vi for at de er ansvarlige og etiske, når det går så hurtigt og konkurrencen driver udviklingen så meget og ofte med fokus på optimering, fremfor ansvarlig brug.",Unknown
+852,"AI er ikke klogere end os i fortiden.  Jeg er bekymret for, at AI kun kommer til at forstærke stereotyper, mønstre, og uligheder i vores samfund, når det er baseret på fortiden.",Kvinde
+853,"Ufattelige energimængder.  At træne AI-modeller kræver enorme mængder energi, hvilket allerede er et problem og også vil blive det i fremtiden. Især manglen på brug af bæredygtig energi til træning af disse modeller, er bekymrende.",Kvinde
+854,"Ulige adgang til AI.  AI-modeller kommer til at gøre livet lettere og sætte farten i nogle processer gevaldigt op, men kun for nogle. Allerede nu koster det penge at have adgang til chatGPTs 4.o-model, som er markant bedre end 3.5. Hvis denne tendens fortsætter, bliver fordelene ved AI noget, der kun kommer de rige til gode.",Kvinde
+855,"Ikke gennemtænkt regulering. Der skal laves regulering der sikrer mulighed for innovation, men samtidig passer på borgerne.",Unknown
+856,Manglende teknologi forståelse. Unge skal uddannes mere i teknologiforståelse -> få nu oprettet det folkeskolefag,Unknown
+857,Mangel på tværfagligt samarbejde.  Software ingeniører og data scientists skal arbejde tættere sammen med antropologer og psykologer m.m,Unknown
+858,Klimaaftryk,Kvinde
+859,Mistillid,Kvinde
+860,Uddannelse,Kvinde
+861,Trussel til mellemledere og administrative arbejdspladser,Kvinde
+862,Fake news,Kvinde
+863,Geopolitik,Kvinde
+864,"Svært at forudse fremtiden    Udvikling flytter sig så hurtigt, at vi har svært ved at forudse, hvordan det ser ud om 10 år.",Kvinde
+865,"Poltikerne har ikke viden nok    Jeg oplever at vores politikere slet ikke har viden nok om området til, at kunnenavigere i tilstrækkelig nok grad.     Se hvor vi er med bæredygtige byggeri. Branchen skriger på strammere krav, men lovgiverne nøler.",Kvinde
+866,"Kommercielle interesser    Mange af de mest avancerede AI-teknologier udvikles af private virksomheder med kommercielle mål. I jagten på profit kan der være en risiko for, at disse virksomheder prioriterer hurtig implementering og markedsføring af AI frem for ansvarlig udvikling. Uden tilstrækkelig regulering og etiske retningslinjer kan kommercielle interesser føre til anvendelse af AI, der går på kompromis med forbrugernes privatliv, sikkerhed og rettigheder",Mand
+867,"Global konkurrence og politisk pres    Danmark opererer i et globalt marked, hvor mange lande og virksomheder kappes om at blive førende inden for AI. Der kan opstå et politisk og økonomisk pres for at implementere AI hurtigt for at følge med internationale konkurrenter, hvilket kan føre til forhastede beslutninger om teknologisk implementering uden tilstrækkelig tid til at overveje etiske og sociale konsekvenser.",Mand
+868,"Mangel på offentlig tillid    Offentlighedens tillid til AI er afgørende for, at teknologien kan implementeres bredt og ansvarligt. Hvis borgere føler, at AI bruges på måder, der krænker deres rettigheder eller reducerer deres kontrol over egne data, kan det føre til mistillid til både teknologien og de institutioner, der anvender den.",Mand
+869,"MANGLENDE NUANCER BLANDT AI-LOBBYISTER    De fleste ""AI-eksperter"" taler med store armbevægelser om alle de problemer, AI kan løse for os lige om lidt. Der skal bare lidt mere fine-tuning til. Lidt mindre regulering. Lidt mere data. Etc. De fleste kritikere ved omvendt ikke nok i dybden om emnet, men er bare frygtsomme maskinstormere. Vi skal huske at lede efter de skeptiske perspektiver blandt dem, som faktisk har praktisk, teknisk indsigt ? og samfundsmæssigt udsyn. Og vi skal i den grad involvere filosoffer/etikere og ikke mindst ophavsretsjurister i vores  diskussioner...",Mand
+870,"FOKUS PÅ VÆRKTØJER, DER SKABER FLERE PROBLEMER, END DE LØSER    Igen: vores nuværende fokus på LLM chatbots er fuldstændig galt afmarcheret. Vi kaster brute force løsninger efter alle tænkelige problemer uden tanke på det ekstreme ressourcespild og de mangelfulde ""løsninger"", vi får ud af det.",Mand
+871,"REGRESSION TO THE MEAN    At vi i stigende grad benytter os af AI-genereret output kan risikere at føre til modelkollaps, når fremtidens GenAI-modeller trænes på stadig mere maskinelt produceret indhold.    Derudover er AI-menneske-interaktion i fare for at gøre os mindre kreative og mere ankret til modellernes output. Processen med at skrive en tekst er f.eks. dét der udvikler og forfiner vores tænkning. Vi mister noget vigtigt, hvis vi tror at al skabelse kan erstattes af ""prompt engineering"".    Grundlæggende tillader GenAI inkompetente personer at foregive kompetence (indtil det går galt), mens det forfører kompetente personer til at benytte suboptimale løsninger og springe over, hvor gærdet er lavest.",Mand
+872,"UTILSTRÆKKELIGE DATAGRUNDLAG    Skrækhistorie frit fra min hukommelse: Prædiktionsmodellen i Hjørring kommune, der blev brugt til at afgøre tvangsfjernelser, men som bare var en logistisk regressionsmodel med 5 variable og barnets alder som eneste signifikante parameter.    De, der implementerer løsninger derude, har for meget teknisk snilde og alt for lidt forståelse (eller respekt) for de underliggende datagenererende processer. Data science is too powerful to leave to engineers.",Mand

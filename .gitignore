@@ -1,5 +1,5 @@
 # Data and local
-data/
+hidden_data/
 .*/
 
 # Byte-compiled / optimized / DLL files
